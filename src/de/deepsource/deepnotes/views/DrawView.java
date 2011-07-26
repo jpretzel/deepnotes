@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 
 import de.deepsource.deepnotes.util.models.CoordinatePair;
