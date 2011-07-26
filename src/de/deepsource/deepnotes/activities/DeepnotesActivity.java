@@ -7,6 +7,7 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.util.models.Note;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -61,6 +62,10 @@ public class DeepnotesActivity extends FragmentActivity {
 		switch (item.getItemId()) {
 		case (R.id.add_note):
 
+			return true;
+		case (R.id.draw):
+			Intent intent = new Intent(this, DrawActivity.class);
+			startActivity(intent);
 			return true;
 		}
 		

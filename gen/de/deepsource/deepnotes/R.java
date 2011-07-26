@@ -18,6 +18,7 @@ public final class R {
         public static final int CoreFuncionality=0x7f060003;
         public static final int UtilityFuncionality=0x7f06000b;
         public static final int add_note=0x7f060010;
+        public static final int draw=0x7f060011;
         public static final int fileName=0x7f060002;
         public static final int handle_notes=0x7f06000f;
         public static final int menubutton_backtomainmenu=0x7f060005;
