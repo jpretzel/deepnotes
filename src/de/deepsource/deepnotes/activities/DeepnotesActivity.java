@@ -24,6 +24,7 @@ import android.widget.TextView;
 public class DeepnotesActivity extends FragmentActivity {
 
 	private ArrayList<Note> notes;
+	private NotesAdapter na;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -32,14 +33,15 @@ public class DeepnotesActivity extends FragmentActivity {
         setContentView(R.layout.main);
         
         notes = new ArrayList<Note>();
+        //na  = new NotesAdapter(this, R.layout.note_item, notes);
+        na = new NotesAdapter(this, R.layout.note_item, R.id.fileName, notes);
         
         GridView notesView = (GridView) findViewById(R.id.notesView);
-        NotesAdapter na  = new NotesAdapter(this, R.layout.note_item, notes);
         notesView.setAdapter(na);
         
-        /*Note testNote = new Note("/deepnotes/test1.png");
-        notes.add(testNote);
-        na.notifyDataSetChanged();*/
+        Note testNote = new Note("/deepnotes/test1.png");
+        notes.add(0, testNote);
+        //na.notifyDataSetChanged();
 	}    
 	
 	@Override
@@ -66,11 +68,17 @@ public class DeepnotesActivity extends FragmentActivity {
 	}
 	
 	public class NotesAdapter extends ArrayAdapter<Note> {
-		
+
 		private int resource;
 
-		public NotesAdapter(Context context, int resource, List<Note> notes) {
+		/*public NotesAdapter(Context context, int resource, List<Note> notes) {
 			super(context, resource, notes);
+			this.resource = resource;
+		}*/
+		
+		public NotesAdapter(Context context, int resource,
+				int textViewResourceId, List<Note> objects) {
+			super(context, resource, textViewResourceId, objects);
 			this.resource = resource;
 		}
 		
@@ -91,10 +99,10 @@ public class DeepnotesActivity extends FragmentActivity {
 			}
 			
 			TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
-			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
+			//ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 			
 			fileName.setText(note.getFileName());
-			noteImage.setImageBitmap(note.getImage());
+			//noteImage.setImageBitmap(note.getImage());
 			
 			return noteView;
 		}
