@@ -4,9 +4,12 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 	
-	<android.support.v4.view.ViewPager
-		android:layout_width="match_parent" 
-		android:layout_height="match_parent"
-		android:id="@+id/notesPager" />
+    <GridView  
+    	android:id="@+id/notesView"
+    	android:layout_height="fill_parent"
+    	android:layout_width="fill_parent"
+    	android:gravity="center" 
+    	android:numColumns="auto_fit" android:verticalSpacing="10dp" android:horizontalSpacing="10dp">
+   	</GridView>
 		
 </LinearLayout>

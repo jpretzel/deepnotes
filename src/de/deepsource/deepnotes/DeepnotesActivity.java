@@ -1,21 +1,26 @@
 package de.deepsource.deepnotes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class DeepnotesActivity extends FragmentActivity {
 
-	private ViewPager notesPager;
-	private NotesPagerAdapter notesPagerAdapter;
-	private static Context cxt;
+	private ArrayList<Note> notes;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -23,66 +28,74 @@ public class DeepnotesActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        notesPager = (ViewPager) findViewById(R.id.notesPager);
-        cxt = this;
-        notesPagerAdapter = new NotesPagerAdapter();
-		notesPager.setAdapter(notesPagerAdapter);
-    }
+        notes = new ArrayList<Note>();
+        
+        GridView notesView = (GridView) findViewById(R.id.notesView);
+        NotesAdapter na  = new NotesAdapter(this, R.layout.note_item, notes);
+        notesView.setAdapter(na);
+        
+        /*Note testNote = new Note("/deepnotes/test1.png");
+        notes.add(testNote);
+        na.notifyDataSetChanged();*/
+	}    
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
-		MenuInflater inflater = new MenuInflater(cxt);
+		MenuInflater inflater = new MenuInflater(this);
 		inflater.inflate(R.menu.main_menu, menu);
 		
 		return true;
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		super.onOptionsItemSelected(item);
+		
+		switch (item.getItemId()) {
+		case (R.id.add_note):
 
-	private static class NotesPagerAdapter extends PagerAdapter {
-
-		@Override
-		public void startUpdate(View arg0) {
-
+			return true;
 		}
+		
+		return false;
+	}
+	
+	public class NotesAdapter extends ArrayAdapter<Note> {
+		
+		private int resource;
 
-		@Override
-		public Parcelable saveState() {
-			return null;
+		public NotesAdapter(Context context, int resource, List<Note> notes) {
+			super(context, resource, notes);
+			this.resource = resource;
 		}
-
+		
 		@Override
-		public void restoreState(Parcelable arg0, ClassLoader arg1) {
-
+		public View getView(int position, View convertView, ViewGroup parent) {
+			super.getView(position, convertView, parent);
+			
+			LinearLayout noteView;
+			Note note = getItem(position);
+			
+			if (convertView == null) {
+				noteView = new LinearLayout(getContext());
+				String inflater = Context.LAYOUT_INFLATER_SERVICE;
+				LayoutInflater li = (LayoutInflater) getContext().getSystemService(inflater);
+				li.inflate(resource, noteView, true);
+			} else {
+				noteView = (LinearLayout) convertView;
+			}
+			
+			TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
+			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
+			
+			fileName.setText(note.getFileName());
+			noteImage.setImageBitmap(note.getImage());
+			
+			return noteView;
 		}
-
-		@Override
-		public boolean isViewFromObject(View arg0, Object arg1) {
-			return arg0 == ((TextView) arg1);
-		}
-
-		@Override
-		public Object instantiateItem(View arg0, int arg1) {
-			TextView tv = new TextView(cxt);
-			tv.setText("Slide " + arg1);
-			((ViewPager) arg0).addView(tv, 0);
-			return tv;
-		}
-
-		@Override
-		public int getCount() {
-			return 4;
-		}
-
-		@Override
-		public void finishUpdate(View arg0) {
-
-		}
-
-		@Override
-		public void destroyItem(View arg0, int arg1, Object arg2) {
-			((ViewPager) arg0).removeView((TextView) arg2);
-		}
+		
 	}
 	
 }
