@@ -34,15 +34,14 @@ public class DeepnotesActivity extends FragmentActivity {
         setContentView(R.layout.main);
         
         notes = new ArrayList<Note>();
-        //na  = new NotesAdapter(this, R.layout.note_item, notes);
         na = new NotesAdapter(this, R.layout.note_item, R.id.fileName, notes);
         
         GridView notesView = (GridView) findViewById(R.id.notesView);
         notesView.setAdapter(na);
         
-        Note testNote = new Note("/deepnotes/test1.png");
+        Note testNote = new Note("/sdcard/deepnotes/test2.png");
         notes.add(0, testNote);
-        //na.notifyDataSetChanged();
+        na.notifyDataSetChanged();
 	}    
 	
 	@Override
@@ -60,13 +59,17 @@ public class DeepnotesActivity extends FragmentActivity {
 		super.onOptionsItemSelected(item);
 		
 		switch (item.getItemId()) {
-		case (R.id.add_note):
-
+		case (R.id.add_note):{
+			notes.add(new Note("/sdcard/deepnotes/test3.png"));
+			na.notifyDataSetChanged();
 			return true;
-		case (R.id.draw):
+		}
+		
+		case (R.id.draw): {
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivity(intent);
 			return true;
+		}
 		}
 		
 		return false;
@@ -104,10 +107,10 @@ public class DeepnotesActivity extends FragmentActivity {
 			}
 			
 			TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
-			//ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
+			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 			
 			fileName.setText(note.getFileName());
-			//noteImage.setImageBitmap(note.getImage());
+			noteImage.setImageDrawable(note.getImage());
 			
 			return noteView;
 		}
