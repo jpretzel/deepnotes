@@ -6,7 +6,7 @@
     <uses-sdk android:minSdkVersion="10" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".DeepnotesActivity"
+        <activity android:name=".activities.DeepnotesActivity"
                   android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

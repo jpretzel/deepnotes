@@ -1,7 +1,10 @@
-package de.deepsource.deepnotes;
+package de.deepsource.deepnotes.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.util.models.Note;
 
 import android.content.Context;
 import android.os.Bundle;
