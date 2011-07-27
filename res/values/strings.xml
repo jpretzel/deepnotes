@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Deepnotes</string>
-    <string name="add_note">Add Note</string>
+    <string name="app_name">deepnotes</string>
+    <string name="new_note">Add Note</string>
     <string name="remove_note">Remove Note</string>
+    <string name="send_note">Mail note</string>
 </resources>

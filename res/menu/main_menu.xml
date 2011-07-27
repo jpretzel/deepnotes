@@ -2,8 +2,8 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/handle_notes">
-        <item android:id="@+id/add_note" android:title="@string/add_note" android:icon="@android:drawable/ic_menu_add"></item>
+        <item android:icon="@android:drawable/ic_menu_add" android:title="@string/new_note" android:id="@+id/main_menu_addnote"></item>
     </group>
-    <item android:id="@+id/draw" android:title="draw"></item>
+    <item android:title="draw" android:id="@+id/main_menu_draw"></item>
     
 </menu>

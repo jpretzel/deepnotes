@@ -9,4 +9,6 @@
     <string name="import_background">Hintergrund importieren</string>
     <string name="import_from_camera">von Kamera importieren</string>
     <string name="import_from_gallery">aus Gallerie importieren</string>
+    <string name="remove_note">Notiz entfernen</string>
+    <string name="send_note">Notiz versenden</string>
 </resources>

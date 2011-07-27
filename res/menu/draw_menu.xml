@@ -2,11 +2,11 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/CoreFuncionality">
-        <item android:id="@+id/menubutton_newnote" android:title="@string/new_note"></item>
-        <item android:id="@+id/menubutton_backtomainmenu" android:title="@string/back_to_mainmenu"></item>
+        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote"></item>
+        <item android:title="@string/back_to_mainmenu" android:id="@+id/draw_menu_backtomainmenu"></item>
     </group>
     <group android:id="@+id/ColorFuncionality">
-        <item android:id="@+id/menubutton_changecolor" android:title="@string/change_color">
+        <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor">
             <menu>
                 <item android:id="@+id/menubutton_colorblack" android:title="@string/color_black"></item>
                 <item android:id="@+id/menubutton_colorred" android:title="@string/color_red"></item>
@@ -14,7 +14,7 @@
             </menu>
         </item>
     </group><group android:id="@+id/UtilityFuncionality">
-        <item android:id="@+id/menubutton_importbackground" android:title="@string/import_background">
+        <item android:title="@string/import_background" android:id="@+id/draw_menu_importbackground">
             <menu>
                 <item android:id="@+id/menubutton_importfromcamera" android:title="@string/import_from_camera"></item>
                 <item android:id="@+id/menubutton_importfromgallery" android:title="@string/import_from_gallery"></item>

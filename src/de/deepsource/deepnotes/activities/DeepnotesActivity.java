@@ -10,12 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -37,6 +39,7 @@ public class DeepnotesActivity extends FragmentActivity {
         na = new NotesAdapter(this, R.layout.note_item, R.id.fileName, notes);
         
         GridView notesView = (GridView) findViewById(R.id.notesView);
+        registerForContextMenu(notesView);
         notesView.setAdapter(na);
         
         Note testNote = new Note("/sdcard/deepnotes/test2.png");
@@ -59,13 +62,13 @@ public class DeepnotesActivity extends FragmentActivity {
 		super.onOptionsItemSelected(item);
 		
 		switch (item.getItemId()) {
-		case (R.id.add_note):{
-			notes.add(new Note("/sdcard/deepnotes/test3.png"));
+		case (R.id.main_menu_addnote):{
+			notes.add(0, new Note("/sdcard/deepnotes/test3.png"));
 			na.notifyDataSetChanged();
 			return true;
 		}
 		
-		case (R.id.draw): {
+		case (R.id.main_menu_draw): {
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivity(intent);
 			return true;
@@ -73,6 +76,16 @@ public class DeepnotesActivity extends FragmentActivity {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		
+		MenuInflater inflater = new MenuInflater(this);
+		inflater.inflate(R.menu.main_contextmenu, menu);
+		menu.setHeaderTitle("WAS WEI§ ICH");
 	}
 	
 	public class NotesAdapter extends ArrayAdapter<Note> {

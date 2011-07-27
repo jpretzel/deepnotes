@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/remove_note" android:id="@+id/main_contextmenu_removenote"></item>
+    <item android:id="@+id/main_contextmenu_sendnote" android:title="@string/send_note"></item>
+    
+</menu>
