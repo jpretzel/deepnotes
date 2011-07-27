@@ -55,7 +55,10 @@ public final class R {
         public static final int import_from_camera=0x7f04000a;
         public static final int import_from_gallery=0x7f04000b;
         public static final int new_note=0x7f040001;
+        public static final int no=0x7f04000e;
         public static final int remove_note=0x7f040002;
+        public static final int save_dialog=0x7f04000c;
         public static final int send_note=0x7f040003;
+        public static final int yes=0x7f04000d;
     }
 }
