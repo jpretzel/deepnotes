@@ -11,7 +11,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 
-import de.deepsource.deepnotes.util.models.CoordinatePair;
+import de.deepsource.deepnotes.models.CoordinatePair;
 
 public class DrawView extends View {
 
