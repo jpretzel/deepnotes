@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,7 +19,7 @@ import de.deepsource.deepnotes.views.DrawView;
 
 public class DrawActivity extends Activity {
 
-	DrawView drawView;
+	private DrawView drawView;
 	
 	private OnTouchListener drawView_otl = new View.OnTouchListener() {
 		public boolean onTouch(View v, MotionEvent event) {
@@ -67,5 +68,29 @@ public class DrawActivity extends Activity {
 		}
 		}
 		return false;
+	}
+	
+	/**
+	 * customizing the key listener
+	 */
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if(keyCode == KeyEvent.KEYCODE_BACK){
+	    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    	builder.setMessage(R.string.save_dialog)
+	    	       .setCancelable(false)
+	    	       .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+	    	           public void onClick(DialogInterface dialog, int id) {
+	    	                finish();
+	    	           }
+	    	       })
+	    	       .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+	    	           public void onClick(DialogInterface dialog, int id) {
+	    	                dialog.cancel();
+	    	           }
+	    	       });
+	    	builder.create().show();
+	        return true;
+	    }
+	    return super.onKeyDown(keyCode, event);
 	}
 }

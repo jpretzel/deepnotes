@@ -11,4 +11,7 @@
     <string name="import_from_gallery">aus Gallerie importieren</string>
     <string name="remove_note">Notiz entfernen</string>
     <string name="send_note">Notiz versenden</string>
+    <string name="save_dialog">Die Note wurde geändert. Möchtest Du sie speichern?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
 </resources>
