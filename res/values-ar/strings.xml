@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_note">مذكرة جديدة</string>
+    <string name="back_to_mainmenu">Zurück zum Hauptmenü</string>
+    <string name="change_color">حور دهان</string>
+    <string name="color_black">أسود</string>
+    <string name="color_red">أحمر</string>
+    <string name="color_yellow">أصفر</string>
+    <string name="import_image">استورد رسما</string>
+    <string name="import_from_camera">من كاميرا</string>
+    <string name="import_from_gallery">من دار العرض</string>
+    <string name="remove_note">أبعد مذكرة</string>
+    <string name="send_note">زهق مذكرة</string>
+    <string name="save_dialog">حور المذكرة. هل تحفطها؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+    <string name="save">حفظ</string>
+    <string name="exit">أتم</string>
+</resources>

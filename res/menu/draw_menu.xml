@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/CoreFuncionality">
         <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote"></item>
-        <item android:title="@string/back_to_mainmenu" android:id="@+id/draw_menu_backtomainmenu"></item>
+        <item android:id="@+id/draw_menu_save" android:title="@string/save"></item>
     </group>
     <group android:id="@+id/ColorFuncionality">
         <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor">
@@ -14,7 +14,7 @@
             </menu>
         </item>
     </group><group android:id="@+id/UtilityFuncionality">
-        <item android:title="@string/import_background" android:id="@+id/draw_menu_importbackground">
+        <item android:title="@string/import_image" android:id="@+id/draw_menu_importimage">
             <menu>
                 <item android:id="@+id/menubutton_importfromcamera" android:title="@string/import_from_camera"></item>
                 <item android:id="@+id/menubutton_importfromgallery" android:title="@string/import_from_gallery"></item>

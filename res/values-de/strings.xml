@@ -6,12 +6,17 @@
     <string name="color_black">Schwarz</string>
     <string name="color_red">Rot</string>
     <string name="color_yellow">Gelb</string>
-    <string name="import_background">Hintergrund importieren</string>
-    <string name="import_from_camera">von Kamera importieren</string>
-    <string name="import_from_gallery">aus Gallerie importieren</string>
+    <string name="import_image">Bild importieren</string>
+    <string name="import_from_camera">von Kamera</string>
+    <string name="import_from_gallery">aus Gallerie</string>
     <string name="remove_note">Notiz entfernen</string>
     <string name="send_note">Notiz versenden</string>
     <string name="save_dialog">Die Note wurde geändert. Möchtest Du sie speichern?</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="save">Speichern</string>
+    <string name="exit">Beenden</string>
 </resources>
+
+
+
