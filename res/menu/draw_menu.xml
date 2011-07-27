@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/CoreFuncionality">
         <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote"></item>
-        <item android:id="@+id/draw_menu_save" android:title="@string/save"></item>
+        <item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
     </group>
     <group android:id="@+id/ColorFuncionality">
         <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor">

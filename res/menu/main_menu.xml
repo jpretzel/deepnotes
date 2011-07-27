@@ -5,6 +5,5 @@
         <item android:title="@string/new_note" android:id="@+id/main_menu_addnote" android:icon="@drawable/ic_menu_add"></item>
     </group>
     <item android:title="draw" android:id="@+id/main_menu_draw"></item>
-    <item android:title="@string/exit" android:id="@+id/main_menu_exit"></item>
     
 </menu>
