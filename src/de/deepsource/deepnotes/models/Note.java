@@ -1,4 +1,4 @@
-package de.deepsource.deepnotes.util.models;
+package de.deepsource.deepnotes.models;
 
 import java.io.File;
 

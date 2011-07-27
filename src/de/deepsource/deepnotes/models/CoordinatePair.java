@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.deepsource.deepnotes.util.models;
+package de.deepsource.deepnotes.models;
 
 /**
  * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)

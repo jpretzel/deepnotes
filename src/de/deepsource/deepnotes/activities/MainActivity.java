@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.deepsource.deepnotes.R;
-import de.deepsource.deepnotes.util.models.Note;
+import de.deepsource.deepnotes.models.Note;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class DeepnotesActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity {
 
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
