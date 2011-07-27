@@ -1,11 +1,20 @@
 package de.deepsource.deepnotes.activities;
 
+import java.io.OutputStream;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -63,7 +72,7 @@ public class DrawActivity extends Activity {
 		}
 
 		case (R.id.draw_menu_save): {
-			finish();
+			saveNote(drawView.getBitmap());
 			return true;
 		}
 		}
@@ -96,5 +105,28 @@ public class DrawActivity extends Activity {
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	public boolean saveNote(Bitmap bitmap) {
+		ContentValues values = new ContentValues(4);
+		values.put(Images.ImageColumns.TITLE, "test");
+		values.put(Images.ImageColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+		values.put(Images.Media.MIME_TYPE, "image/png");
+		values.put(MediaStore.Images.Media.DATA, "/sdcard/deepnotes/test.png");
+		
+		ContentResolver resolver = getContentResolver();
+		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+		
+		try {
+			OutputStream outStream = resolver.openOutputStream(uri);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+			outStream.close();
+		} catch (Exception e) {
+			return false;
+		}
+		
+		sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+		
+		return true;
 	}
 }

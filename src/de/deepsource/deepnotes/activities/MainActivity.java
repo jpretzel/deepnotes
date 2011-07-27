@@ -73,11 +73,6 @@ public class MainActivity extends FragmentActivity {
 			startActivity(intent);
 			return true;
 		}
-		
-		case (R.id.main_menu_exit): {
-			finish();
-			return true;
-		}
 		}
 		
 		return false;

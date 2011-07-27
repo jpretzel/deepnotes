@@ -87,4 +87,8 @@ public class DrawView extends View {
 		postInvalidate();
 	}
 
+	public Bitmap getBitmap() {
+		return bitmap;
+	}
+
 }
