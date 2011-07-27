@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 
 import de.deepsource.deepnotes.models.CoordinatePair;
@@ -55,6 +54,8 @@ public class DrawView extends View {
 		paint.setColor(Color.RED);
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		canvas = new Canvas(bitmap);
+		paint.setStrokeWidth(3f);
+		paint.setStrokeCap(Paint.Cap.ROUND);
 	}
 
 	/**
@@ -71,7 +72,6 @@ public class DrawView extends View {
 	 */
 	public void addPoint(float x, float y) {
 		pointList.add(new CoordinatePair(x, y));
-		Log.d("THREAD", "thread started");
 		if (pointBuffer++ >= pointBufferSize) {
 			pointBuffer = 0;
 			new backgroundPainter().execute();
