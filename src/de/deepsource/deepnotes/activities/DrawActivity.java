@@ -1,5 +1,7 @@
 package de.deepsource.deepnotes.activities;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import android.app.Activity;
@@ -15,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +30,9 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.views.DrawView;
 
 public class DrawActivity extends Activity {
+
+	private static int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
+	private static int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
 
 	private DrawView drawView;
 
@@ -66,17 +72,56 @@ public class DrawActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
+
+		// New Note triggered
 		case (R.id.draw_menu_newnote): {
 			drawView.clearNote();
 			return true;
 		}
 
+			// Save triggered
 		case (R.id.draw_menu_save): {
 			saveNote(drawView.getBitmap());
 			return true;
 		}
+
+			// Gallery import triggered
+		case (R.id.draw_menu_importfromgallery): {
+			Intent intent = new Intent();
+			intent.setType("image/*");
+			intent.setAction(Intent.ACTION_GET_CONTENT);
+			startActivityForResult(
+					Intent.createChooser(intent, "Bild auswählen"),
+					REQUEST_IMAGE_FROM_GALLERY);
+			return true;
+		}
+
 		}
 		return false;
+	}
+
+	// To handle when an image is selected from the browser, add the following
+	// to your Activity
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
+				+ resultCode);
+		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
+			if (resultCode == RESULT_OK) {
+				Uri imageUri = data.getData();
+				try {
+					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+							this.getContentResolver(), imageUri));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
+			if (resultCode == RESULT_OK) {
+				// magic...
+			}
 	}
 
 	/**
@@ -106,17 +151,19 @@ public class DrawActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	public boolean saveNote(Bitmap bitmap) {
 		ContentValues values = new ContentValues(4);
 		values.put(Images.ImageColumns.TITLE, "test");
-		values.put(Images.ImageColumns.DATE_ADDED, System.currentTimeMillis() / 1000);
+		values.put(Images.ImageColumns.DATE_ADDED,
+				System.currentTimeMillis() / 1000);
 		values.put(Images.Media.MIME_TYPE, "image/png");
 		values.put(MediaStore.Images.Media.DATA, "/sdcard/deepnotes/test.png");
-		
+
 		ContentResolver resolver = getContentResolver();
-		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-		
+		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+				values);
+
 		try {
 			OutputStream outStream = resolver.openOutputStream(uri);
 			bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
@@ -124,9 +171,9 @@ public class DrawActivity extends Activity {
 		} catch (Exception e) {
 			return false;
 		}
-		
+
 		sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-		
+
 		return true;
 	}
 }

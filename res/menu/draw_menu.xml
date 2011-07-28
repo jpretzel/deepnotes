@@ -2,11 +2,11 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/CoreFuncionality">
-        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote"></item>
+        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item>
         <item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
     </group>
     <group android:id="@+id/ColorFuncionality">
-        <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor">
+        <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor" android:icon="@android:drawable/ic_menu_edit">
             <menu>
                 <item android:id="@+id/menubutton_colorblack" android:title="@string/color_black"></item>
                 <item android:id="@+id/menubutton_colorred" android:title="@string/color_red"></item>
@@ -14,12 +14,14 @@
             </menu>
         </item>
     </group><group android:id="@+id/UtilityFuncionality">
-        <item android:title="@string/import_image" android:id="@+id/draw_menu_importimage">
+        <item android:title="@string/import_image" android:id="@+id/draw_menu_importimage" android:icon="@android:drawable/ic_menu_gallery">
             <menu>
-                <item android:id="@+id/menubutton_importfromcamera" android:title="@string/import_from_camera"></item>
-                <item android:id="@+id/menubutton_importfromgallery" android:title="@string/import_from_gallery"></item>
+                <item android:title="@string/import_from_camera" android:id="@+id/draw_menu_importfromcamera"></item>
+                <item android:title="@string/import_from_gallery" android:id="@+id/draw_menu_importfromgallery"></item>
             </menu>
         </item>
+        <item android:id="@+id/draw_menu_share" android:title="@string/share" android:icon="@android:drawable/ic_menu_share"></item>
+        <item android:id="@+id/draw_menu_delete" android:title="@string/delete" android:icon="@android:drawable/ic_menu_delete"></item>
     </group>
     
     
