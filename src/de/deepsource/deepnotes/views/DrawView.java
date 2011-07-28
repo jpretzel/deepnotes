@@ -8,16 +8,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 
 import de.deepsource.deepnotes.models.CoordinatePair;
 
 public class DrawView extends View {
 
-	private int pointBufferSize = 3;
+	private int pointBufferSize = 1;
 	private int pointBuffer = 0;
 
 	private Bitmap bitmap;
+	private Bitmap background;
+	
 	private Canvas canvas;
 	
 	private CoordinatePair pair, lastPair = null;
@@ -33,18 +36,19 @@ public class DrawView extends View {
 				pair = pointList.get(i);
 				if(lastPair != null){
 					canvas.drawLine(lastPair.getX(), lastPair.getY(), pair.getX(), pair.getY(), paint);
+				}else{
+					canvas.drawCircle(pair.getX(), pair.getY(), 1f, paint);
 				}
-				canvas.drawCircle(pair.getX(), pair.getY(), 1f, paint);
-				
 				lastPair = pair;
 				canvas.save();
 			}
 			pointList.clear();
+				
 			postInvalidate();
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Constructor.
 	 * @param context Context.
@@ -53,15 +57,26 @@ public class DrawView extends View {
 		super(context);
 		paint.setColor(Color.RED);
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		
 		canvas = new Canvas(bitmap);
 		paint.setStrokeWidth(3f);
 		paint.setStrokeCap(Paint.Cap.ROUND);
+	}
+	
+	/**
+	 * To set the imported image as background;
+	 * @param bmp
+	 */
+	public void setBackground(Bitmap bmp){
+		background = bmp;
 	}
 
 	/**
 	 * Draws the bitmap on background.
 	 */
 	public void onDraw(Canvas canvas) {
+		canvas.drawBitmap(background, 0f, 0f, paint);
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
 	}
 

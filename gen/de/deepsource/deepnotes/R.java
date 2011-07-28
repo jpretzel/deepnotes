@@ -20,20 +20,22 @@ public final class R {
         public static final int CoreFuncionality=0x7f060003;
         public static final int UtilityFuncionality=0x7f06000b;
         public static final int draw_menu_changecolor=0x7f060007;
+        public static final int draw_menu_delete=0x7f060010;
+        public static final int draw_menu_importfromcamera=0x7f06000d;
+        public static final int draw_menu_importfromgallery=0x7f06000e;
         public static final int draw_menu_importimage=0x7f06000c;
         public static final int draw_menu_newnote=0x7f060004;
         public static final int draw_menu_save=0x7f060005;
+        public static final int draw_menu_share=0x7f06000f;
         public static final int fileName=0x7f060002;
-        public static final int handle_notes=0x7f060011;
-        public static final int main_contextmenu_removenote=0x7f06000f;
-        public static final int main_contextmenu_sendnote=0x7f060010;
-        public static final int main_menu_addnote=0x7f060012;
-        public static final int main_menu_draw=0x7f060013;
+        public static final int handle_notes=0x7f060013;
+        public static final int main_contextmenu_removenote=0x7f060011;
+        public static final int main_contextmenu_sendnote=0x7f060012;
+        public static final int main_menu_addnote=0x7f060014;
+        public static final int main_menu_draw=0x7f060015;
         public static final int menubutton_colorblack=0x7f060008;
         public static final int menubutton_colorred=0x7f060009;
         public static final int menubutton_coloryellow=0x7f06000a;
-        public static final int menubutton_importfromcamera=0x7f06000d;
-        public static final int menubutton_importfromgallery=0x7f06000e;
         public static final int noteImage=0x7f060001;
         public static final int notesView=0x7f060000;
     }
@@ -53,6 +55,7 @@ public final class R {
         public static final int color_black=0x7f040006;
         public static final int color_red=0x7f040007;
         public static final int color_yellow=0x7f040008;
+        public static final int delete=0x7f040012;
         public static final int exit=0x7f040010;
         public static final int import_from_camera=0x7f04000a;
         public static final int import_from_gallery=0x7f04000b;
@@ -63,6 +66,7 @@ public final class R {
         public static final int save=0x7f04000f;
         public static final int save_dialog=0x7f04000c;
         public static final int send_note=0x7f040003;
+        public static final int share=0x7f040011;
         public static final int yes=0x7f04000d;
     }
 }
