@@ -15,8 +15,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -154,12 +156,11 @@ public class DrawActivity extends Activity {
 
 	public boolean saveNote(Bitmap bitmap) {
 		ContentValues values = new ContentValues(4);
-		values.put(Images.ImageColumns.TITLE, "test");
-		values.put(Images.ImageColumns.DATE_ADDED,
-				System.currentTimeMillis() / 1000);
+		values.put(Images.Media.TITLE, "test");
+		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
 		values.put(Images.Media.MIME_TYPE, "image/png");
-		values.put(MediaStore.Images.Media.DATA, "/sdcard/deepnotes/test.png");
-
+		values.put(Images.Media.DATA, Environment.getExternalStorageDirectory() + "/deepnotes/test.png");
+		
 		ContentResolver resolver = getContentResolver();
 		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
 				values);
