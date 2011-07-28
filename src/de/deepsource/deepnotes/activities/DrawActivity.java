@@ -153,6 +153,11 @@ public class DrawActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 
+	/**
+	 *TODO comment
+	 * @param bitmap
+	 * @return
+	 */
 	public boolean saveNote(Bitmap bitmap) {
 		ContentValues values = new ContentValues(4);
 		values.put(Images.Media.TITLE, "test");
