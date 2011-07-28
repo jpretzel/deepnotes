@@ -8,7 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 
 import de.deepsource.deepnotes.models.CoordinatePair;

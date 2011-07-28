@@ -17,6 +17,8 @@
     <string name="save">Speichern</string>
     <string name="share">Teilen</string>
     <string name="delete">Löschen</string>
+    <string name="page_back">Seite zurück</string>
+    <string name="page_forward">Seite vor</string>
 </resources>
 
 
