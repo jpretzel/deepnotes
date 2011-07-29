@@ -1,3 +1,5 @@
 /bin/
 /gen/
 gen/de/deepsource/deepnotes/R.java
+/.gitignore
+/.classpath

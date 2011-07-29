@@ -91,11 +91,6 @@ public class MainActivity extends FragmentActivity {
 	public class NotesAdapter extends ArrayAdapter<Note> {
 
 		private int resource;
-
-		/*public NotesAdapter(Context context, int resource, List<Note> notes) {
-			super(context, resource, notes);
-			this.resource = resource;
-		}*/
 		
 		public NotesAdapter(Context context, int resource,
 				int textViewResourceId, List<Note> objects) {
