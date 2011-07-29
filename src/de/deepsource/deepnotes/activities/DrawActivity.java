@@ -42,7 +42,8 @@ public class DrawActivity extends Activity {
 	 */
 	private static int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
 	private static int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	//private static int REQUEST_IMAGE_SEND_VIA_MAIL = 0x00000011;
+	// private static int REQUEST_IMAGE_SEND_VIA_MAIL = 0x00000011;
+	private static int REQUEST_IMAGE_CROP = 0x00000100;
 
 	private Uri pictureUri;
 
@@ -99,12 +100,14 @@ public class DrawActivity extends Activity {
 
 			// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
+
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);
 			startActivityForResult(
 					Intent.createChooser(intent, "Bild auswählen"),
 					REQUEST_IMAGE_FROM_GALLERY);
+
 			return true;
 		}
 			// Camera import triggered
@@ -124,24 +127,47 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
+	 * This method intents image cropping. 
+	 * @param data Uri of imageresource
+	 */
+	private void cropImage(Uri data){
+		Intent intent = new Intent("com.android.camera.action.CROP");
+		
+        intent.setData(data);
+        intent.putExtra("outputX", 240);
+        intent.putExtra("outputY", 100);
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        intent.putExtra("scale", true);
+        intent.putExtra("noFaceDetection", true);
+		
+		startActivityForResult(intent, REQUEST_IMAGE_CROP);
+	}
+	
+	/**
 	 * Called whenever an Intent from this activity is finished.
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
 				+ resultCode);
+		
+		// Import from gallery result
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
-				try {
+				/*try {
 					drawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}			
+				}*/
+				cropImage(imageUri);
 			}
+		
+		// Import from camera result
 		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
 			if (resultCode == RESULT_OK) {
 				Bitmap bitmap = null;
@@ -157,6 +183,12 @@ public class DrawActivity extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}
+		
+		// crop result
+		if (requestCode == REQUEST_IMAGE_CROP)
+			if (resultCode == RESULT_OK) {
+				
 			}
 	}
 
