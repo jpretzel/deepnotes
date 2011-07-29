@@ -33,8 +33,12 @@ import de.deepsource.deepnotes.views.DrawView;
 
 public class DrawActivity extends Activity {
 
+	/**
+	 * Custom request codes to identify the assign result data to its origin.
+	 */
 	private static int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
 	private static int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
+	private static int REQUEST_IMAGE_SEND_VIA_MAIL = 0x00000011;
 
 	private DrawView drawView;
 
@@ -97,17 +101,20 @@ public class DrawActivity extends Activity {
 					REQUEST_IMAGE_FROM_GALLERY);
 			return true;
 		}
+		
+			// Gallery import triggered
+		case (R.id.draw_menu_share): {
+
+		}
 
 		}
 		return false;
 	}
 
-	// To handle when an image is selected from the browser, add the following
-	// to your Activity
-	@Override
+	/**
+	 * Called whenever an Intent from this activity is finished. 
+	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
-				+ resultCode);
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
