@@ -113,8 +113,8 @@ public class DrawActivity extends Activity {
 			// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			File file = new File(getFullyQualifiedFileString(
-					"/deepnotes/photos", ".jpg"));
+			String fileName = getFullyQualifiedFileString("/deepnotes/photos/", ".jpg");
+			File file = new File(fileName);
 			pictureUri = Uri.fromFile(file);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
 			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
@@ -132,7 +132,7 @@ public class DrawActivity extends Activity {
 	 */
 	private void cropImage(Uri data){
 		Intent intent = new Intent("com.android.camera.action.CROP");
-		
+
         intent.setData(data);
         intent.putExtra("outputX", 240);
         intent.putExtra("outputY", 100);
@@ -140,7 +140,9 @@ public class DrawActivity extends Activity {
         intent.putExtra("aspectY", 1);
         intent.putExtra("scale", true);
         intent.putExtra("noFaceDetection", true);
-		
+        intent.putExtra( "return-data", true );
+        intent.putExtra("output", data);
+        
 		startActivityForResult(intent, REQUEST_IMAGE_CROP);
 	}
 	
@@ -156,15 +158,15 @@ public class DrawActivity extends Activity {
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
-				/*try {
+				try {
 					drawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}*/
-				cropImage(imageUri);
+				}
+				//cropImage(data.getData());
 			}
 		
 		// Import from camera result
@@ -188,7 +190,15 @@ public class DrawActivity extends Activity {
 		// crop result
 		if (requestCode == REQUEST_IMAGE_CROP)
 			if (resultCode == RESULT_OK) {
-				
+				Uri imageUri = data.getData();
+				try {
+					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+							this.getContentResolver(), imageUri));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 	}
 
@@ -232,7 +242,7 @@ public class DrawActivity extends Activity {
 		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
 		values.put(Images.Media.MIME_TYPE, "image/png");
 		values.put(Images.Media.DATA,
-				getFullyQualifiedFileString("/deepnotes", ".png"));
+				getFullyQualifiedFileString("/deepnotes/", ".png"));
 
 		ContentResolver resolver = getContentResolver();
 		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -255,10 +265,7 @@ public class DrawActivity extends Activity {
 		final File path = new File(Environment.getExternalStorageDirectory()
 				+ subPath);
 
-		// FIXME
 		path.mkdirs();
-
-		Log.e("TESING PATH", path.toString());
 
 		return path.toString() + "/"
 				+ String.valueOf(System.currentTimeMillis()) + suffix;
