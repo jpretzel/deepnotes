@@ -9,15 +9,20 @@ import android.graphics.drawable.BitmapDrawable;
 
 public class Note {
 	
-	private String fileName;
+	private String path;
 	private BitmapDrawable image;
+	private String fileName;
 	
-	public Note(String fileName) {
-		this.fileName = fileName;
+	public Note(String path) {
+		this.path = path;
 		
-		File imageFile = new File(fileName);
+		// get filename from path
+//		fileName = new File(path).getName();
+		fileName = path.substring(path.lastIndexOf('/') + 1);
+		
+		File imageFile = new File(path);
 		if (imageFile.exists()) {
-			Bitmap bitmap = BitmapFactory.decodeFile(fileName);
+			Bitmap bitmap = BitmapFactory.decodeFile(path);
 			
 			int width = bitmap.getWidth();
 			int height = bitmap.getHeight();
@@ -36,21 +41,16 @@ public class Note {
 		}
 	}
 	
-	public String getFileName() {
-		return fileName;
-	}
-	
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public String getPath() {
+		return path;
 	}
 	
 	public BitmapDrawable getImage() {
 		return image;
 	}
 	
-	public void setImage(BitmapDrawable image) {
-		this.image = image;
+	public String getFileName() {
+		return fileName;
 	}
-	
 	
 }

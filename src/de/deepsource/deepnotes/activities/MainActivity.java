@@ -1,28 +1,30 @@
 package de.deepsource.deepnotes.activities;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
-
-import de.deepsource.deepnotes.R;
-import de.deepsource.deepnotes.models.Note;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.models.Note;
 
 public class MainActivity extends FragmentActivity {
 
@@ -42,10 +44,34 @@ public class MainActivity extends FragmentActivity {
         registerForContextMenu(notesView);
         notesView.setAdapter(na);
         
-        Note testNote = new Note("/sdcard/deepnotes/test2.png");
-        notes.add(0, testNote);
-        na.notifyDataSetChanged();
+        loadNotes();
 	}    
+	
+	/**
+	 * Loads all saved notes.
+	 */
+	public void loadNotes() {
+		File notePath = new File(Environment.getExternalStorageDirectory() + "/deepnotes/");
+		
+		if (notePath.exists()) {
+			File[] notePages = notePath.listFiles(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String filename) {
+					if (!filename.equals("photos")) {
+						return true;
+					}
+					
+					return false;
+				}
+			});
+			
+			for (int i = 0; i < notePages.length; i++) {
+				notes.add(new Note(notePages[i].toString()));
+				na.notifyDataSetChanged();
+			}
+		}
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
