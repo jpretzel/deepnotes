@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.util.AttributeSet;
 import android.view.View;
 
 import de.deepsource.deepnotes.models.CoordinatePair;
@@ -47,6 +48,16 @@ public class DrawView extends View {
 			return null;
 		}
 	}
+	
+	public DrawView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init();
+	}
+	
+	public DrawView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init();
+	}
 
 	/**
 	 * Constructor.
@@ -54,6 +65,10 @@ public class DrawView extends View {
 	 */
 	public DrawView(Context context) {
 		super(context);
+		init();
+	}
+	
+	public void init() {
 		paint.setColor(Color.RED);
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);

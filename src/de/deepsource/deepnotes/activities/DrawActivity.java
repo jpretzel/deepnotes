@@ -63,9 +63,11 @@ public class DrawActivity extends Activity {
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		drawView = new DrawView(this);
+		setContentView(R.layout.draw);
+		
+		drawView = (DrawView) findViewById(R.id.drawView);
 		drawView.setBackgroundColor(Color.WHITE);
-		drawView.setOnTouchListener(drawView_otl);
+		
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
 			String fileName = bundle.getString("draw");
@@ -75,7 +77,7 @@ public class DrawActivity extends Activity {
 				drawView.setBitmap(bitmap);
 			}
 		}
-		setContentView(drawView);
+		drawView.setOnTouchListener(drawView_otl);
 	}
 
 	/**
