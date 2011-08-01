@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -30,6 +33,7 @@ public class MainActivity extends FragmentActivity {
 
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
+	private Context context = this;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -43,6 +47,23 @@ public class MainActivity extends FragmentActivity {
         GridView notesView = (GridView) findViewById(R.id.notesView);
         registerForContextMenu(notesView);
         notesView.setAdapter(na);
+        
+        notesView.setOnItemClickListener(
+        		new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						
+						Intent intent = new Intent(context, DrawActivity.class);
+						intent.putExtra("draw", notes.get(position).getFileName());
+						
+						startActivity(intent);
+						
+						Log.e("CLICK", notes.get(position).getFileName());
+						
+					}
+				});
         
         loadNotes();
 	}    
@@ -89,12 +110,6 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote):{
-			notes.add(0, new Note("/sdcard/deepnotes/test3.png"));
-			na.notifyDataSetChanged();
-			return true;
-		}
-		
-		case (R.id.main_menu_draw): {
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivity(intent);
 			return true;

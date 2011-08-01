@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="new_note">Neue Notiz</string>
-    <string name="back_to_mainmenu">Zurück zum Hauptmenü</string>
     <string name="change_color">Farbe ändern</string>
     <string name="color_black">Schwarz</string>
     <string name="color_red">Rot</string>

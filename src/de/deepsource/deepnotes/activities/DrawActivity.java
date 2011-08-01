@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -42,7 +44,7 @@ public class DrawActivity extends Activity {
 	 */
 	private static int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
 	private static int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	// private static int REQUEST_IMAGE_SEND_VIA_MAIL = 0x00000011;
+	//private static int REQUEST_IMAGE_SHARE = 0x00000011;
 	private static int REQUEST_IMAGE_CROP = 0x00000100;
 
 	private Uri pictureUri;
@@ -64,6 +66,15 @@ public class DrawActivity extends Activity {
 		drawView = new DrawView(this);
 		drawView.setBackgroundColor(Color.WHITE);
 		drawView.setOnTouchListener(drawView_otl);
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null) {
+			String fileName = bundle.getString("draw");
+			Bitmap bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + Deepnotes.saveFolder + fileName);
+			
+			if (bitmap != null) {
+				drawView.setBitmap(bitmap);
+			}
+		}
 		setContentView(drawView);
 	}
 
@@ -92,13 +103,13 @@ public class DrawActivity extends Activity {
 			return true;
 		}
 
-			// Save triggered
+		// Save triggered
 		case (R.id.draw_menu_save): {
 			saveNote(drawView.getBitmap());
 			return true;
 		}
 
-			// Gallery import triggered
+		// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
 
 			Intent intent = new Intent();
@@ -110,10 +121,11 @@ public class DrawActivity extends Activity {
 
 			return true;
 		}
-			// Camera import triggered
+		
+		// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			String fileName = getFullyQualifiedFileString("/deepnotes/photos/", ".jpg");
+			String fileName = getFullyQualifiedFileString(Deepnotes.saveFolder + Deepnotes.savePhotos, ".jpg");
 			File file = new File(fileName);
 			pictureUri = Uri.fromFile(file);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
@@ -121,7 +133,19 @@ public class DrawActivity extends Activity {
 
 			return true;
 		}
-
+		
+		// share triggered
+		case (R.id.draw_menu_share): {
+			Intent intent = new Intent(Intent.ACTION_SEND);
+			intent.setType("image/*");
+			// TODO: Attach images! Example: http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
+			startActivity(intent);
+		}
+		
+		case (R.id.draw_menu_changecolor): {
+			// TODO: add ColorPicker
+		}
+		
 		}
 		return false;
 	}
@@ -130,7 +154,7 @@ public class DrawActivity extends Activity {
 	 * This method intents image cropping. 
 	 * @param data Uri of imageresource
 	 */
-	private void cropImage(Uri data){
+	private void cropImage(Uri data) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 
         intent.setData(data);
@@ -242,7 +266,7 @@ public class DrawActivity extends Activity {
 		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
 		values.put(Images.Media.MIME_TYPE, "image/png");
 		values.put(Images.Media.DATA,
-				getFullyQualifiedFileString("/deepnotes/", ".png"));
+				getFullyQualifiedFileString(Deepnotes.saveFolder, ".png"));
 
 		ContentResolver resolver = getContentResolver();
 		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,

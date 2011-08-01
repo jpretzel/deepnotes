@@ -104,5 +104,13 @@ public class DrawView extends View {
 	public Bitmap getBitmap() {
 		return bitmap;
 	}
+	
+	public void setBitmap(Bitmap bitmap) {
+		this.bitmap = bitmap;
+	}
+	
+	public void setPaintColor(int color) {
+		paint.setColor(color);
+	}
 
 }
