@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--  
+		de.deepsource.deepnotes Translation file
+		
+		Language:			(de) german
+		Translated by:		Sebastian Ullrich
+							Jan Pretzel
+
+-->
 <resources>
     <string name="new_note">Neue Notiz</string>
     <string name="change_color">Farbe ändern</string>

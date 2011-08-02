@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--  
+		de.deepsource.deepnotes Translation file
+		
+		Language:			(ar) arabic
+		Translated by:		Moritz Gießmann
+
+-->
 <resources>
     <string name="new_note">مذكرة جديدة</string>
     <string name="change_color">حور دهان</string>
