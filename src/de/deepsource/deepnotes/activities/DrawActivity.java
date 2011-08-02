@@ -42,10 +42,10 @@ public class DrawActivity extends Activity {
 	/**
 	 * Custom request codes to identify the assign result data to its origin.
 	 */
-	private static int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
-	private static int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	//private static int REQUEST_IMAGE_SHARE = 0x00000011;
-	private static int REQUEST_IMAGE_CROP = 0x00000100;
+	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
+	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
+	//private static final int REQUEST_IMAGE_SHARE = 0x00000011;
+	private static final int REQUEST_IMAGE_CROP = 0x00000100;
 
 	private Uri pictureUri;
 
