@@ -51,4 +51,11 @@ public class CoordinatePair {
 	}
 	
 	
+	public boolean isValid(){
+		if (x >= 0f)
+			return true;
+		else
+			return false;
+	}
+	
 }

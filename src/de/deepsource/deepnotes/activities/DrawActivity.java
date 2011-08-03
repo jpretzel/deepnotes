@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,10 +23,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
+import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.views.DrawView;
 
@@ -44,19 +42,11 @@ public class DrawActivity extends Activity {
 	 */
 	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
 	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	//private static final int REQUEST_IMAGE_SHARE = 0x00000011;
+	// private static final int REQUEST_IMAGE_SHARE = 0x00000011;
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
-
 	private Uri pictureUri;
-
-	private DrawView drawView;
-
-	private OnTouchListener drawView_otl = new View.OnTouchListener() {
-		public boolean onTouch(View v, MotionEvent event) {
-			drawView.addPoint(event.getX(), event.getY());
-			return true;
-		}
-	};
+	private DrawView currentDrawView;
+	private ViewFlipper viewFlipper;
 
 	/**
 	 * Called when the activity is first created.
@@ -65,19 +55,32 @@ public class DrawActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.draw);
 		
-		drawView = (DrawView) findViewById(R.id.drawView);
-		drawView.setBackgroundColor(Color.WHITE);
+		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+		viewFlipper.setBackgroundColor(Color.WHITE);
 		
-		Bundle bundle = getIntent().getExtras();
+		currentDrawView = initNewDrawView();
+
+		/*Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
 			String fileName = bundle.getString("draw");
-			Bitmap bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + Deepnotes.saveFolder + fileName);
-			
+			Bitmap bitmap = BitmapFactory.decodeFile(Environment
+					.getExternalStorageDirectory()
+					+ Deepnotes.saveFolder
+					+ fileName);
+
 			if (bitmap != null) {
 				drawView.setBitmap(bitmap);
 			}
-		}
-		drawView.setOnTouchListener(drawView_otl);
+		}*/
+
+		
+		
+		/*/ testy
+		ViewFlipper vf = (ViewFlipper) findViewById(R.id.viewFlipper);
+		vf.setBackgroundColor(Color.WHITE);
+		vf.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
+		vf.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
+		*/
 	}
 
 	/**
@@ -101,17 +104,17 @@ public class DrawActivity extends Activity {
 
 		// New Note triggered
 		case (R.id.draw_menu_newnote): {
-			drawView.clearNote();
+			currentDrawView.clearNote();
 			return true;
 		}
 
-		// Save triggered
+			// Save triggered
 		case (R.id.draw_menu_save): {
-			saveNote(drawView.getBitmap());
+			saveNote(currentDrawView.getBitmap());
 			return true;
 		}
 
-		// Gallery import triggered
+			// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
 
 			Intent intent = new Intent();
@@ -123,11 +126,12 @@ public class DrawActivity extends Activity {
 
 			return true;
 		}
-		
-		// Camera import triggered
+
+			// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			String fileName = getFullyQualifiedFileString(Deepnotes.saveFolder + Deepnotes.savePhotos, ".jpg");
+			String fileName = getFullyQualifiedFileString(Deepnotes.saveFolder
+					+ Deepnotes.savePhotos, ".jpg");
 			File file = new File(fileName);
 			pictureUri = Uri.fromFile(file);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
@@ -135,43 +139,57 @@ public class DrawActivity extends Activity {
 
 			return true;
 		}
-		
-		// share triggered
+
+			// share triggered
 		case (R.id.draw_menu_share): {
 			Intent intent = new Intent(Intent.ACTION_SEND);
 			intent.setType("image/*");
-			// TODO: Attach images! Example: http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
+			// TODO: Attach images! Example:
+			// http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
 			startActivity(intent);
 		}
-		
+
+		// Color Picked
 		case (R.id.draw_menu_changecolor): {
-			// TODO: add ColorPicker
+			
 		}
-		
+
 		}
 		return false;
 	}
+	
+	/**
+	 * initiates a new draw view
+	 * @return new draw view
+	 */
+	private DrawView initNewDrawView(){
+		DrawView drawView = new DrawView(this);
+		drawView.setOnTouchListener(new DrawTouchListener(drawView));
+		return drawView;
+	}
 
 	/**
-	 * This method intents image cropping. 
-	 * @param data Uri of imageresource
+	 * This method intents image cropping.
+	 * 
+	 * @param data
+	 *            Uri of imageresource
 	 */
 	private void cropImage(Uri data) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 
-        intent.setData(data);
-        intent.putExtra("outputX", 240);
-        intent.putExtra("outputY", 100);
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        intent.putExtra("scale", true);
-        intent.putExtra("noFaceDetection", true);
-        intent.putExtra( "return-data", true );
-        intent.putExtra("output", data);
-        
+		intent.setData(data);
+		intent.putExtra("outputX", 240);
+		intent.putExtra("outputY", 100);
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("scale", true);
+		intent.putExtra("noFaceDetection", true);
+		intent.putExtra("return-data", true);
+		intent.putExtra("output", data);
+
 		startActivityForResult(intent, REQUEST_IMAGE_CROP);
 	}
-	
+
 	/**
 	 * Called whenever an Intent from this activity is finished.
 	 */
@@ -179,22 +197,22 @@ public class DrawActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
 				+ resultCode);
-		
+
 		// Import from gallery result
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
 				try {
-					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+					currentDrawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				//cropImage(data.getData());
+				// cropImage(data.getData());
 			}
-		
+
 		// Import from camera result
 		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
 			if (resultCode == RESULT_OK) {
@@ -205,20 +223,20 @@ public class DrawActivity extends Activity {
 							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, pictureUri));
 					bitmap = MediaStore.Images.Media.getBitmap(
 							getContentResolver(), pictureUri);
-					drawView.setBackground(bitmap);
+					currentDrawView.setBackground(bitmap);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-		
+
 		// crop result
 		if (requestCode == REQUEST_IMAGE_CROP)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
 				try {
-					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+					currentDrawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -253,6 +271,9 @@ public class DrawActivity extends Activity {
 			builder.create().show();
 			return true;
 		}
+		
+		
+		
 		return super.onKeyDown(keyCode, event);
 	}
 

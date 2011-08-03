@@ -2,17 +2,16 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/CoreFuncionality">
-        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item>
-        <item android:id="@+id/draw_menu_page_back" android:titleCondensed="@string/page_back"></item><item android:title="@string/page_forward" android:id="@+id/draw_menu_page_forward"></item><item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
+        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item><item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
         
         
     </group>
     <group android:id="@+id/ColorFuncionality">
         <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor" android:icon="@android:drawable/ic_menu_edit">
             <menu>
-                <item android:id="@+id/menubutton_colorblack" android:title="@string/color_black"></item>
-                <item android:id="@+id/menubutton_colorred" android:title="@string/color_red"></item>
-                <item android:id="@+id/menubutton_coloryellow" android:title="@string/color_yellow"></item>
+                <item android:title="@string/color_black" android:id="@+id/draw_menu_colorblack"></item>
+                <item android:title="@string/color_red" android:id="@+id/draw_menu_colorred"></item>
+                <item android:title="@string/color_yellow" android:id="@+id/draw_menu_coloryellow"></item>
             </menu>
         </item>
     </group><group android:id="@+id/UtilityFuncionality">
