@@ -96,8 +96,13 @@ public class DrawView extends View{
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 
 		canvas = new Canvas(bitmap);
-		paint.setStrokeWidth(3f);
+		
+		paint.setStrokeWidth(10f);
 		paint.setStrokeCap(Paint.Cap.ROUND);
+		
+		paint.setAntiAlias(true);
+		paint.setDither(true);
+
 	}
 
 	/**
@@ -140,13 +145,6 @@ public class DrawView extends View{
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		canvas = new Canvas(bitmap);
 		postInvalidate();
-	}
-
-	/**
-	 * fliping the page
-	 */
-	public void flipPage(){
-		Log.e("Flippage","#############");
 	}
 	
 	public Bitmap getBitmap() {

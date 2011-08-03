@@ -9,11 +9,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,14 +23,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AnalogClock;
 import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.views.DrawView;
 
@@ -52,40 +46,8 @@ public class DrawActivity extends Activity {
 	// private static final int REQUEST_IMAGE_SHARE = 0x00000011;
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
 	private Uri pictureUri;
-	private DrawView drawView;
+	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
-	
-	
-	private OnTouchListener onTouchListener = new View.OnTouchListener() {
-		
-		private boolean multiTouch = false; 
-		
-		public boolean onTouch(View v, MotionEvent event) {
-			
-			if(event.getPointerCount() > 1 ){
-				multiTouch = true;
-			}else{
-				multiTouch = false;
-			}
-			
-			switch(event.getAction()){
-				case (MotionEvent.ACTION_UP):
-					drawView.addPoint(-1f, -1f);
-					break;
-					
-					
-				case (MotionEvent.ACTION_DOWN):
-				case (MotionEvent.ACTION_MOVE):
-					if(multiTouch){
-						drawView.flipPage();
-					}else{
-						drawView.addPoint(event.getX(), event.getY());
-					break;
-					}
-			}	
-			return true;
-		}
-	};
 
 	/**
 	 * Called when the activity is first created.
@@ -93,14 +55,23 @@ public class DrawActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.draw);
-
-		drawView = (DrawView) findViewById(R.id.drawView);
-		drawView.setBackgroundColor(Color.WHITE);
 		
+		// Setting up the View Flipper, adding Animations.
+		// TODO: add custom animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 		viewFlipper.setBackgroundColor(Color.WHITE);
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
+		
+		currentDrawView = initNewDrawView();
+		viewFlipper.addView(currentDrawView);
+		
+		// add some more DrawViews,
+		viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView());
 
-		Bundle bundle = getIntent().getExtras();
+		/*Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
 			String fileName = bundle.getString("draw");
 			Bitmap bitmap = BitmapFactory.decodeFile(Environment
@@ -111,8 +82,8 @@ public class DrawActivity extends Activity {
 			if (bitmap != null) {
 				drawView.setBitmap(bitmap);
 			}
-		}
-		drawView.setOnTouchListener(onTouchListener);
+		}*/
+
 		
 		
 		/*/ testy
@@ -144,13 +115,13 @@ public class DrawActivity extends Activity {
 
 		// New Note triggered
 		case (R.id.draw_menu_newnote): {
-			drawView.clearNote();
+			currentDrawView.clearNote();
 			return true;
 		}
 
 			// Save triggered
 		case (R.id.draw_menu_save): {
-			saveNote(drawView.getBitmap());
+			saveNote(currentDrawView.getBitmap());
 			return true;
 		}
 
@@ -197,6 +168,32 @@ public class DrawActivity extends Activity {
 		}
 		return false;
 	}
+	
+	/**
+	 * initiates a new draw view
+	 * @return new draw view
+	 */
+	private DrawView initNewDrawView(){
+		DrawView drawView = new DrawView(this);
+		drawView.setOnTouchListener(new DrawTouchListener(this, drawView));
+		return drawView;
+	}
+	
+	/**
+	 * Shows the next DrawView
+	 */
+	public void showNextDrawView(){
+		if(!viewFlipper.isFlipping())
+			viewFlipper.showNext();
+	}
+	
+	/**
+	 * Shows the previous DrawView
+	 */
+	public void showPreviousDrawView(){
+		if(!viewFlipper.isFlipping())
+			viewFlipper.showPrevious();
+	}
 
 	/**
 	 * This method intents image cropping.
@@ -233,7 +230,7 @@ public class DrawActivity extends Activity {
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
 				try {
-					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+					currentDrawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -253,7 +250,7 @@ public class DrawActivity extends Activity {
 							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, pictureUri));
 					bitmap = MediaStore.Images.Media.getBitmap(
 							getContentResolver(), pictureUri);
-					drawView.setBackground(bitmap);
+					currentDrawView.setBackground(bitmap);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -266,7 +263,7 @@ public class DrawActivity extends Activity {
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
 				try {
-					drawView.setBackground(MediaStore.Images.Media.getBitmap(
+					currentDrawView.setBackground(MediaStore.Images.Media.getBitmap(
 							this.getContentResolver(), imageUri));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
