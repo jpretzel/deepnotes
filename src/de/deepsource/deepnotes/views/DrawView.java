@@ -46,7 +46,6 @@ public class DrawView extends View{
 				}else{
 					lastPair = null;
 				}
-			
 				canvas.save();
 			}
 			pointList.clear();
@@ -90,6 +89,9 @@ public class DrawView extends View{
 		init();
 	}
 
+	/**
+	 * init
+	 */
 	public void init() {
 		paint.setColor(Color.RED);
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
@@ -102,7 +104,6 @@ public class DrawView extends View{
 		
 		paint.setAntiAlias(true);
 		paint.setDither(true);
-
 	}
 
 	/**

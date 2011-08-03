@@ -57,11 +57,11 @@ public class DrawActivity extends Activity {
 		setContentView(R.layout.draw);
 		
 		// Setting up the View Flipper, adding Animations.
-		// TODO: add custom animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-		viewFlipper.setBackgroundColor(Color.WHITE);
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
+		// TODO: add image background
+		viewFlipper.setBackgroundColor(Color.DKGRAY);
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideout));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slidein));
 		
 		currentDrawView = initNewDrawView();
 		viewFlipper.addView(currentDrawView);
@@ -176,6 +176,7 @@ public class DrawActivity extends Activity {
 	private DrawView initNewDrawView(){
 		DrawView drawView = new DrawView(this);
 		drawView.setOnTouchListener(new DrawTouchListener(this, drawView));
+		drawView.setBackgroundColor(Color.WHITE);
 		return drawView;
 	}
 	
@@ -299,7 +300,15 @@ public class DrawActivity extends Activity {
 			return true;
 		}
 		
+		// Left Arrow key (Emulator)
+		if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+			showPreviousDrawView();
+		}
 		
+		// Right Arrow key (Emulator)
+		if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
+			showNextDrawView();
+		}		
 		
 		return super.onKeyDown(keyCode, event);
 	}
