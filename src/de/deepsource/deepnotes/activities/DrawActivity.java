@@ -2,22 +2,20 @@ package de.deepsource.deepnotes.activities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -121,7 +119,7 @@ public class DrawActivity extends Activity {
 
 			// Save triggered
 		case (R.id.draw_menu_save): {
-			saveNote(currentDrawView.getBitmap());
+			saveNote(String.valueOf(System.currentTimeMillis()));
 			return true;
 		}
 
@@ -140,13 +138,13 @@ public class DrawActivity extends Activity {
 
 			// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
-			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			String fileName = getFullyQualifiedFileString(Deepnotes.saveFolder
-					+ Deepnotes.savePhotos, ".jpg");
-			File file = new File(fileName);
-			pictureUri = Uri.fromFile(file);
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
+//			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//			String fileName = getFullyQualifiedFileString(Deepnotes.saveFolder
+//					+ Deepnotes.savePhotos, ".jpg");
+//			File file = new File(fileName);
+//			pictureUri = Uri.fromFile(file);
+//			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+//			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
 
 			return true;
 		}
@@ -319,38 +317,48 @@ public class DrawActivity extends Activity {
 	 * @param bitmap
 	 * @return
 	 */
-	public boolean saveNote(Bitmap bitmap) {
-		ContentValues values = new ContentValues(4);
-		values.put(Images.Media.TITLE, "test");
-		values.put(Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-		values.put(Images.Media.MIME_TYPE, "image/png");
-		values.put(Images.Media.DATA,
-				getFullyQualifiedFileString(Deepnotes.saveFolder, ".png"));
-
-		ContentResolver resolver = getContentResolver();
-		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-				values);
-
+	private boolean saveNote(String fileName) {
+		// TODO: boolean or no boolean? for a dialog for example?
+		// save thumbnail
+		String savePath = getFilesDir() + Deepnotes.saveThumbnail;
+		File file = new File(savePath);
+		file.mkdirs();
+		
+		Bitmap thumbnail = createThumbnail();
+		
 		try {
-			OutputStream outStream = resolver.openOutputStream(uri);
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, outStream);
-			outStream.close();
-		} catch (Exception e) {
+			FileOutputStream fos = new FileOutputStream(savePath + fileName + ".png");
+			thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
 		}
-
-		sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-
+				
 		return true;
 	}
-
-	private String getFullyQualifiedFileString(String subPath, String suffix) {
-		final File path = new File(Environment.getExternalStorageDirectory()
-				+ subPath);
-
-		path.mkdirs();
-
-		return path.toString() + "/"
-				+ String.valueOf(System.currentTimeMillis()) + suffix;
+	
+	/**
+	 * Calculates a thumbnail representing the note.
+	 * The first page of the note (empty or not) will be scaled by 0.5.
+	 * 
+	 * @return The thumbnail as Bitmap.
+	 */
+	private Bitmap createThumbnail() {
+		// get first page of the note
+		Bitmap firstPage = ((DrawView)viewFlipper.getChildAt(0)).getBitmap();
+		
+		// scale factor = 0.5
+		float scale = 0.5f;
+		
+		// create matrix
+		Matrix matirx = new Matrix();
+		matirx.postScale(scale, scale);
+		
+		return Bitmap.createBitmap(firstPage, 0, 0, firstPage.getWidth(), firstPage.getHeight(), matirx, true);
 	}
+	
 }

@@ -8,7 +8,6 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -27,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.deepsource.deepnotes.R;
+import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;
 
 public class MainActivity extends FragmentActivity {
@@ -72,9 +72,10 @@ public class MainActivity extends FragmentActivity {
 	 * Loads all saved notes.
 	 */
 	public void loadNotes() {
-		File notePath = new File(Environment.getExternalStorageDirectory() + "/deepnotes/");
+		File notePath = new File(getFilesDir() + Deepnotes.saveThumbnail);
 		
 		if (notePath.exists()) {
+			Log.e("Test", "haloo");
 			File[] notePages = notePath.listFiles(new FilenameFilter() {
 				
 				@Override
@@ -159,7 +160,7 @@ public class MainActivity extends FragmentActivity {
 			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 			
 			fileName.setText(note.getFileName());
-			noteImage.setImageDrawable(note.getImage());
+			noteImage.setImageDrawable(note.getThumbnail());
 			
 			return noteView;
 		}

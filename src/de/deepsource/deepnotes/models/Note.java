@@ -2,15 +2,13 @@ package de.deepsource.deepnotes.models;
 
 import java.io.File;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 
 public class Note {
 	
 	private String path;
-	private BitmapDrawable image;
+	private BitmapDrawable thumbnail;
 	private String fileName;
 	
 	public Note(String path) {
@@ -22,22 +20,7 @@ public class Note {
 		
 		File imageFile = new File(path);
 		if (imageFile.exists()) {
-			Bitmap bitmap = BitmapFactory.decodeFile(path);
-			
-			int width = bitmap.getWidth();
-			int height = bitmap.getHeight();
-			int newWidth = width / 2;
-			int newHeight = height / 2;
-			
-			float scaleWidth = ((float) newWidth) / width;
-			float scaleHeight = ((float) newHeight) / height;
-			
-			Matrix matirx = new Matrix();
-			matirx.postScale(scaleWidth, scaleHeight);
-			
-			Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matirx, true);
-			
-			image = new BitmapDrawable(resizedBitmap);
+			thumbnail = new BitmapDrawable(BitmapFactory.decodeFile(path));
 		}
 	}
 	
@@ -45,8 +28,8 @@ public class Note {
 		return path;
 	}
 	
-	public BitmapDrawable getImage() {
-		return image;
+	public BitmapDrawable getThumbnail() {
+		return thumbnail;
 	}
 	
 	public String getFileName() {
