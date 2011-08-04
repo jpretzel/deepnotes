@@ -9,23 +9,21 @@ import android.graphics.drawable.BitmapDrawable;
 
 public class Note {
 	
-	private String path;
+	private String created;
 	private BitmapDrawable thumbnail;
 	private String fileName;
 	
 	public Note(String path) {
-		this.path = path;
-		
 		// get filename from path
 //		fileName = new File(path).getName();
 		fileName = path.substring(path.lastIndexOf('/') + 1);
 		
 		// get a date from filename
-		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
-		Date created = new Date(Long.parseLong(fileName));
+		created = fileName.substring(0, fileName.lastIndexOf('.'));
+		Date dateCreated = new Date(Long.parseLong(created));
 		// TODO: localized pattern
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy - HH:mm");
-		fileName = sdf.format(created);
+		created = sdf.format(dateCreated);
 		
 		File imageFile = new File(path);
 		if (imageFile.exists()) {
@@ -33,8 +31,8 @@ public class Note {
 		}
 	}
 	
-	public String getPath() {
-		return path;
+	public String getCreated() {
+		return created;
 	}
 	
 	public BitmapDrawable getThumbnail() {

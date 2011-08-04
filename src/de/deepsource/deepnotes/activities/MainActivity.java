@@ -1,7 +1,6 @@
 package de.deepsource.deepnotes.activities;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,18 +74,7 @@ public class MainActivity extends FragmentActivity {
 		File notePath = new File(getFilesDir() + Deepnotes.saveThumbnail);
 		
 		if (notePath.exists()) {
-			Log.e("Test", "haloo");
-			File[] notePages = notePath.listFiles(new FilenameFilter() {
-				
-				@Override
-				public boolean accept(File dir, String filename) {
-					if (!filename.equals("photos")) {
-						return true;
-					}
-					
-					return false;
-				}
-			});
+			File[] notePages = notePath.listFiles();
 			
 			for (int i = 0; i < notePages.length; i++) {
 				notes.add(new Note(notePages[i].toString()));
@@ -159,7 +147,7 @@ public class MainActivity extends FragmentActivity {
 			TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
 			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 			
-			fileName.setText(note.getFileName());
+			fileName.setText(note.getCreated());
 			noteImage.setImageDrawable(note.getThumbnail());
 			
 			return noteView;
