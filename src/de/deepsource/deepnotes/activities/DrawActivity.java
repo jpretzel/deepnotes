@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
@@ -322,13 +323,16 @@ public class DrawActivity extends Activity {
 		// save thumbnail
 		String savePath = getFilesDir() + Deepnotes.saveThumbnail;
 		File file = new File(savePath);
+		
+		// Creates the directory named by this abstract pathname, 
+		// including any necessary but nonexistent parent directories.
 		file.mkdirs();
 		
 		Bitmap thumbnail = createThumbnail();
 		
 		try {
 			FileOutputStream fos = new FileOutputStream(savePath + fileName + ".png");
-			thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			thumbnail.compress(Bitmap.CompressFormat.JPEG, 80, fos);
 			fos.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -337,6 +341,45 @@ public class DrawActivity extends Activity {
 			e.printStackTrace();
 			return false;
 		}
+		
+		// save note pages with separate backgrounds
+		for (int i = 0; i < viewFlipper.getChildCount(); i++) {
+			savePath = getFilesDir() + fileName;
+			file = new File(savePath);
+			file.mkdirs();
+			
+			// save note
+			DrawView toSave = (DrawView) viewFlipper.getChildAt(i);
+			Bitmap note = toSave.getBitmap();
+			
+			try {
+				FileOutputStream fos = new FileOutputStream(savePath + i + ".png");
+				note.compress(Bitmap.CompressFormat.PNG, 100, fos);
+				fos.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			// save background
+			Bitmap background = toSave.getBackgroundBitmap();
+			
+			try {
+				FileOutputStream fos = new FileOutputStream(savePath + i + "_background.png");
+				background.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+				fos.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 				
 		return true;
 	}
@@ -350,6 +393,7 @@ public class DrawActivity extends Activity {
 	private Bitmap createThumbnail() {
 		// get first page of the note
 		Bitmap firstPage = ((DrawView)viewFlipper.getChildAt(0)).getBitmap();
+		Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0)).getBackgroundBitmap();
 		
 		// scale factor = 0.5
 		float scale = 0.5f;
@@ -358,7 +402,15 @@ public class DrawActivity extends Activity {
 		Matrix matirx = new Matrix();
 		matirx.postScale(scale, scale);
 		
-		return Bitmap.createBitmap(firstPage, 0, 0, firstPage.getWidth(), firstPage.getHeight(), matirx, true);
+		// create scaled bitmaps
+		Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0, firstPage.getWidth(), firstPage.getHeight(), matirx, true);
+		Bitmap firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0, 0, firstBackground.getWidth(), firstBackground.getHeight(), matirx, true);
+		
+		// combine both bitmaps
+		Canvas pageAndBackground = new Canvas(firstBackgroundScaled);
+		pageAndBackground.drawBitmap(firstPageScaled, 0f, 0f, null);
+		
+		return firstBackgroundScaled;
 	}
 	
 }

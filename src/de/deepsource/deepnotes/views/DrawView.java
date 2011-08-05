@@ -159,5 +159,9 @@ public class DrawView extends View{
 	public void setPaintColor(int color) {
 		paint.setColor(color);
 	}
+	
+	public Bitmap getBackgroundBitmap() {
+		return background;
+	}
 
 }
