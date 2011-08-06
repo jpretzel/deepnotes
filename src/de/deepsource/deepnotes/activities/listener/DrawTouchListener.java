@@ -7,7 +7,6 @@ import de.deepsource.deepnotes.views.DrawView;
 
 public class DrawTouchListener implements View.OnTouchListener {
 
-	private boolean multiTouch = false;
 	private DrawView drawView;
 	private DrawActivity drawActivity;
 	
