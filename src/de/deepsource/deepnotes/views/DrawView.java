@@ -2,6 +2,7 @@ package de.deepsource.deepnotes.views;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,10 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.widget.ViewFlipper;
-
 import de.deepsource.deepnotes.models.CoordinatePair;
 
 public class DrawView extends View{
