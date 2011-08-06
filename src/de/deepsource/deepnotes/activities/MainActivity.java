@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -55,12 +54,9 @@ public class MainActivity extends FragmentActivity {
 							int position, long id) {
 						
 						Intent intent = new Intent(context, DrawActivity.class);
-						intent.putExtra("draw", notes.get(position).getFileName());
+						intent.putExtra("load", notes.get(position).getFileName());
 						
-						startActivity(intent);
-						
-						Log.e("CLICK", notes.get(position).getFileName());
-						
+						startActivity(intent);			
 					}
 				});
         
@@ -76,8 +72,8 @@ public class MainActivity extends FragmentActivity {
 		if (notePath.exists()) {
 			File[] notePages = notePath.listFiles();
 			
-			for (int i = 0; i < notePages.length; i++) {
-				notes.add(new Note(notePages[i].toString()));
+			for (File note : notePages) {
+				notes.add(new Note(note.toString()));
 				na.notifyDataSetChanged();
 			}
 		}

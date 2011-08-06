@@ -19,8 +19,8 @@ public class Note {
 		fileName = path.substring(path.lastIndexOf('/') + 1);
 		
 		// get a date from filename
-		created = fileName.substring(0, fileName.lastIndexOf('.'));
-		Date dateCreated = new Date(Long.parseLong(created));
+		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		Date dateCreated = new Date(Long.parseLong(fileName));
 		// TODO: localized pattern
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy - HH:mm");
 		created = sdf.format(dateCreated);
