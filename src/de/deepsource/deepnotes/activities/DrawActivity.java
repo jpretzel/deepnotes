@@ -315,6 +315,13 @@ public class DrawActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 	
+	/**
+	 * An AsyncTask to save the current note, it's backgrounds and
+	 * a thumbnail. While working this task will show a ProgressDialog
+	 * telling the user that it is saving at the moment.
+	 * 
+	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
+	 */
 	private class SaveNote extends AsyncTask<String, Void, Void> {
 		
 		private ProgressDialog dialog;
@@ -325,6 +332,7 @@ public class DrawActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(String... params) {
+			// TODO: some checking for params count. or don't use params at all?
 			String fileName = params[0];
 			
 			// save thumbnail
@@ -421,12 +429,15 @@ public class DrawActivity extends Activity {
 			// create matrix
 			Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
+			
+			int width = firstPage.getWidth();
+			int height = firstPage.getHeight();
 
 			// create scaled bitmaps
 			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
-					firstPage.getWidth(), firstPage.getHeight(), matirx, true);
+					width, height, matirx, true);
 			Bitmap firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
-					0, firstBackground.getWidth(), firstBackground.getHeight(),
+					0, width, height,
 					matirx, true);
 
 			// combine both bitmaps
