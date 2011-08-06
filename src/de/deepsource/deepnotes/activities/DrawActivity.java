@@ -59,12 +59,9 @@ public class DrawActivity extends Activity {
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 		// TODO: add image background
-		viewFlipper.setBackgroundColor(Color.DKGRAY);
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideout));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slidein));
-
+		
+		//viewFlipper.setBackgroundColor(Color.DKGRAY);
+		
 		currentDrawView = initNewDrawView();
 		viewFlipper.addView(currentDrawView);
 
@@ -184,16 +181,20 @@ public class DrawActivity extends Activity {
 	/**
 	 * Shows the next DrawView
 	 */
-	public void showNextDrawView() {
-		if (!viewFlipper.isFlipping())
+	public void showNextDrawView(){
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoleft));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slideinfromright));
+		if(!viewFlipper.isFlipping())
 			viewFlipper.showNext();
 	}
 
 	/**
 	 * Shows the previous DrawView
 	 */
-	public void showPreviousDrawView() {
-		if (!viewFlipper.isFlipping())
+	public void showPreviousDrawView(){
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoright));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slideinfromleft));
+		if(!viewFlipper.isFlipping())
 			viewFlipper.showPrevious();
 	}
 
