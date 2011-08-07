@@ -21,7 +21,7 @@ public class DrawTouchListener implements View.OnTouchListener {
 
 	public boolean onTouch(View v, MotionEvent event) {
 		// Checking for multiTouch
-		if (event.getPointerCount() > 1) {
+		if (event.getPointerCount() == 1) {
 			switch (event.getAction()) {
 			// 2-finger click, storing first coordinate
 			case (MotionEvent.ACTION_DOWN):

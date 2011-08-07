@@ -4,7 +4,7 @@
 		android:toXDelta="0%p" android:duration="400" />
 	<translate android:startOffset="800" android:fromXDelta="10%p"
 		android:toXDelta="0%p" android:duration="400" />
-	<scale android:startOffset="1600" android:fromXScale="0.8"
+	<scale android:startOffset="800" android:fromXScale="0.8"
 		android:toXScale="1.0" android:fromYScale="0.8" android:toYScale="1.0"
 		android:duration="400" android:zAdjustment="bottom" />
 </set>
