@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -27,6 +26,7 @@ import android.widget.TextView;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;
+import de.deepsource.deepnotes.utilities.IOManager;
 
 public class MainActivity extends FragmentActivity {
 
@@ -55,12 +55,9 @@ public class MainActivity extends FragmentActivity {
 							int position, long id) {
 						
 						Intent intent = new Intent(context, DrawActivity.class);
-						intent.putExtra("draw", notes.get(position).getFileName());
+						intent.putExtra("load", notes.get(position).getFileName());
 						
-						startActivity(intent);
-						
-						Log.e("CLICK", notes.get(position).getFileName());
-						
+						startActivity(intent);			
 					}
 				});
         
@@ -76,8 +73,8 @@ public class MainActivity extends FragmentActivity {
 		if (notePath.exists()) {
 			File[] notePages = notePath.listFiles();
 			
-			for (int i = 0; i < notePages.length; i++) {
-				notes.add(new Note(notePages[i].toString()));
+			for (File note : notePages) {
+				notes.add(new Note(note.toString()));
 				na.notifyDataSetChanged();
 			}
 		}
@@ -98,7 +95,7 @@ public class MainActivity extends FragmentActivity {
 		super.onOptionsItemSelected(item);
 		
 		switch (item.getItemId()) {
-		case (R.id.main_menu_addnote):{
+		case (R.id.main_menu_addnote): {
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivity(intent);
 			return true;
@@ -115,7 +112,30 @@ public class MainActivity extends FragmentActivity {
 		
 		MenuInflater inflater = new MenuInflater(this);
 		inflater.inflate(R.menu.main_contextmenu, menu);
+		// TODO: add localized menu name
 		menu.setHeaderTitle("WAS WEI§ ICH");
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+		
+		switch (item.getItemId()) {
+		case (R.id.main_contextmenu_removenote): {
+			AdapterView.AdapterContextMenuInfo menuInfo;
+			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			int index = menuInfo.position;
+			
+			if (IOManager.deleteNote(this, notes.get(index).getFileName())) {
+				notes.remove(index);
+				na.notifyDataSetChanged();
+			}
+			
+			return true;
+		}
+		}
+		
+		return false;
 	}
 	
 	public class NotesAdapter extends ArrayAdapter<Note> {

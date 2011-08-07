@@ -11,6 +11,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -28,6 +29,7 @@ import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
+import de.deepsource.deepnotes.utilities.IOManager;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -71,6 +73,7 @@ public class DrawActivity extends Activity {
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
+	private String fileName;
 
 	/**
 	 * Called when the activity is first created.
@@ -84,9 +87,9 @@ public class DrawActivity extends Activity {
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 		// TODO: add image background
-		
-		//viewFlipper.setBackgroundColor(Color.DKGRAY);
-		
+
+		// viewFlipper.setBackgroundColor(Color.DKGRAY);
+
 		currentDrawView = initNewDrawView();
 		viewFlipper.addView(currentDrawView);
 
@@ -95,14 +98,12 @@ public class DrawActivity extends Activity {
 		viewFlipper.addView(initNewDrawView());
 		viewFlipper.addView(initNewDrawView());
 
-		/*
-		 * Bundle bundle = getIntent().getExtras(); if (bundle != null) { String
-		 * fileName = bundle.getString("draw"); Bitmap bitmap =
-		 * BitmapFactory.decodeFile(Environment .getExternalStorageDirectory() +
-		 * Deepnotes.saveFolder + fileName);
-		 * 
-		 * if (bitmap != null) { drawView.setBitmap(bitmap); } }
-		 */
+		// load note if one was opened
+		if (getIntent().hasExtra("load")) {
+			Bundle bundle = getIntent().getExtras();
+			fileName = bundle.getString("load");
+			loadNotePages();
+		}
 
 		/*
 		 * / testy ViewFlipper vf = (ViewFlipper)
@@ -112,6 +113,45 @@ public class DrawActivity extends Activity {
 		 * vf.setInAnimation(AnimationUtils.loadAnimation(this,
 		 * android.R.anim.slide_in_left));
 		 */
+	}
+
+	/**
+	 * Loads an opened note with all it's saved pages and Backgrounds.
+	 */
+	public void loadNotePages() {
+		File notePath = new File(getFilesDir(), fileName + "/");
+
+		if (notePath.exists()) {
+			File[] files = notePath.listFiles();
+
+			for (File file : files) {
+				String name = file.getName();
+				int index = 0;
+				try {
+					index = Integer.parseInt(String.valueOf(name.charAt(name
+							.lastIndexOf('.') - 1)));
+				} catch (NumberFormatException e) {
+					// don't run false files
+					continue;
+				}
+
+				// don't run false files
+				if (index < 4) {
+					// load the file as Bitmap
+					Bitmap bitmap = BitmapFactory.decodeFile(file
+							.getAbsolutePath());
+					DrawView loadView = (DrawView) viewFlipper
+							.getChildAt(index);
+
+					// is the file a background or not?
+					if (name.contains("background")) {
+						loadView.setBackground(bitmap);
+					} else {
+						loadView.setBitmap(bitmap);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -143,8 +183,26 @@ public class DrawActivity extends Activity {
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
-//			saveNote(String.valueOf(System.currentTimeMillis()));
-			new SaveNote(this).execute(String.valueOf(System.currentTimeMillis()));
+			// do we have a new note?
+			if (fileName == null) {
+				fileName = String.valueOf(System.currentTimeMillis());
+			}
+			
+			new SaveNote(this).execute(fileName);
+			
+			return true;
+		}
+		
+		// delete triggered
+		case (R.id.draw_menu_delete): {
+			// only call if the note was saved before
+			if (fileName != null) {
+				if (IOManager.deleteNote(this, fileName))
+					Log.e("DELETE", "note deleted");
+			}
+			
+			finish();
+			
 			return true;
 		}
 
@@ -211,10 +269,12 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Sebastian Ullrich
 	 */
-	public void showNextDrawView(){
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoleft));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slideinfromright));
-		if(!viewFlipper.isFlipping())
+	public void showNextDrawView() {
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideouttoleft));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideinfromright));
+		if (!viewFlipper.isFlipping())
 			viewFlipper.showNext();
 	}
 
@@ -223,10 +283,12 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Sebastian Ullrich
 	 */
-	public void showPreviousDrawView(){
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoright));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, R.anim.slideinfromleft));
-		if(!viewFlipper.isFlipping())
+	public void showPreviousDrawView() {
+		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideouttoright));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideinfromleft));
+		if (!viewFlipper.isFlipping())
 			viewFlipper.showPrevious();
 	}
 
@@ -353,18 +415,20 @@ public class DrawActivity extends Activity {
 
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	/**
-	 * An AsyncTask to save the current note, it's backgrounds and
-	 * a thumbnail. While working this task will show a ProgressDialog
-	 * telling the user that it is saving at the moment.
+	 * An AsyncTask to save the current note, it's backgrounds and a thumbnail.
+	 * While working this task will show a ProgressDialog telling the user that
+	 * it is saving at the moment.
+	 * 
+	 * TODO: only save modified pages and backgrounds
 	 * 
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
 	private class SaveNote extends AsyncTask<String, Void, Void> {
-		
+
 		private ProgressDialog dialog;
-		
+
 		public SaveNote(Activity activity) {
 			dialog = new ProgressDialog(activity);
 		}
@@ -373,7 +437,7 @@ public class DrawActivity extends Activity {
 		protected Void doInBackground(String... params) {
 			// TODO: some checking for params count. or don't use params at all?
 			String fileName = params[0];
-			
+
 			// save thumbnail
 			String savePath = getFilesDir() + Deepnotes.saveThumbnail;
 			File file = new File(savePath);
@@ -397,7 +461,7 @@ public class DrawActivity extends Activity {
 
 			// save note pages with separate backgrounds
 			for (int i = 0; i < viewFlipper.getChildCount(); i++) {
-				savePath = getFilesDir() + fileName;
+				savePath = getFilesDir() + "/" + fileName + "/";
 				file = new File(savePath);
 				file.mkdirs();
 
@@ -420,8 +484,8 @@ public class DrawActivity extends Activity {
 				Bitmap background = toSave.getBackgroundBitmap();
 
 				try {
-					FileOutputStream fos = new FileOutputStream(savePath + i
-							+ "_background.png");
+					FileOutputStream fos = new FileOutputStream(savePath
+							+ "background_" + i + ".png");
 					background.compress(Bitmap.CompressFormat.JPEG, 80, fos);
 					fos.close();
 				} catch (FileNotFoundException e) {
@@ -430,10 +494,10 @@ public class DrawActivity extends Activity {
 					e.printStackTrace();
 				}
 			}
-			
+
 			return null;
 		}
-		
+
 		@Override
 		protected void onPreExecute() {
 			// TODO: add localized string
@@ -441,7 +505,7 @@ public class DrawActivity extends Activity {
 			dialog.show();
 			super.onPreExecute();
 		}
-		
+
 		@Override
 		protected void onPostExecute(Void result) {
 			if (dialog.isShowing()) {
@@ -449,16 +513,17 @@ public class DrawActivity extends Activity {
 			}
 			super.onPostExecute(result);
 		}
-		
+
 		/**
-		 * Calculates a thumbnail representing the note. The first page of the note
-		 * (empty or not) will be scaled by 0.5.
+		 * Calculates a thumbnail representing the note. The first page of the
+		 * note (empty or not) will be scaled by 0.5.
 		 * 
 		 * @return The thumbnail as Bitmap.
 		 */
 		private Bitmap createThumbnail() {
 			// get first page of the note
-			Bitmap firstPage = ((DrawView) viewFlipper.getChildAt(0)).getBitmap();
+			Bitmap firstPage = ((DrawView) viewFlipper.getChildAt(0))
+					.getBitmap();
 			Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0))
 					.getBackgroundBitmap();
 
@@ -468,16 +533,15 @@ public class DrawActivity extends Activity {
 			// create matrix
 			Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
-			
+
 			int width = firstPage.getWidth();
 			int height = firstPage.getHeight();
 
 			// create scaled bitmaps
 			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
 					width, height, matirx, true);
-			Bitmap firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
-					0, width, height,
-					matirx, true);
+			Bitmap firstBackgroundScaled = Bitmap.createBitmap(firstBackground,
+					0, 0, width, height, matirx, true);
 
 			// combine both bitmaps
 			Canvas pageAndBackground = new Canvas(firstBackgroundScaled);
@@ -485,7 +549,7 @@ public class DrawActivity extends Activity {
 
 			return firstBackgroundScaled;
 		}
-		
+
 	}
 
 }
