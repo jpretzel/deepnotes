@@ -39,18 +39,43 @@ import de.deepsource.deepnotes.views.DrawView;
 public class DrawActivity extends Activity {
 
 	/**
-	 * Custom request codes to identify the assign result data to its origin.
+	 * Custom request code to identify the <i>image pick from gallery</i>.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
+	
+	/**
+	 * Custom request code to identify the <i>camera image capture</i>.
+	 * 
+	 * @author Jan Pretzel
+	 */
 	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	// private static final int REQUEST_IMAGE_SHARE = 0x00000011;
+	
+	/**
+	 * Custom request code to identify the <i>image share event</i>.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	@SuppressWarnings("unused")
+	private static final int REQUEST_IMAGE_SHARE = 0x00000011;
+	
+	/**
+	 * Custom request code to identify the <i>image crop</i>.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
+	
+	
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
 
 	/**
 	 * Called when the activity is first created.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,6 +116,8 @@ public class DrawActivity extends Activity {
 
 	/**
 	 * Adding the menu.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -167,9 +194,10 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * initiates a new draw view
+	 * Initiates a new DrawView
 	 * 
-	 * @return new draw view
+	 * @return new DrawView
+	 * @author Sebastian Ullrich
 	 */
 	private DrawView initNewDrawView() {
 		DrawView drawView = new DrawView(this);
@@ -179,7 +207,9 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * Shows the next DrawView
+	 * Shows the next DrawView by triggering an animated page turn.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView(){
 		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoleft));
@@ -189,7 +219,9 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * Shows the previous DrawView
+	 * Shows the previous DrawView by triggering an animated page turn.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView(){
 		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slideouttoright));
@@ -203,7 +235,10 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @param data
 	 *            Uri of imageresource
+	 *            
+	 * @author Sebastian Ullrich
 	 */
+	@SuppressWarnings("unused")
 	private void cropImage(Uri data) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 
@@ -222,13 +257,15 @@ public class DrawActivity extends Activity {
 
 	/**
 	 * Called whenever an Intent from this activity is finished.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
 				+ resultCode);
 
-		// Import from gallery result
+		/* Import from gallery result */
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
@@ -243,7 +280,7 @@ public class DrawActivity extends Activity {
 				// cropImage(data.getData());
 			}
 
-		// Import from camera result
+		/* Import from camera result */
 		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
 			if (resultCode == RESULT_OK) {
 				Bitmap bitmap = null;
@@ -261,7 +298,7 @@ public class DrawActivity extends Activity {
 				}
 			}
 
-		// crop result
+		/* crop result */
 		if (requestCode == REQUEST_IMAGE_CROP)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
@@ -277,11 +314,13 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * customizing the key listener
+	 * Customizing the key listener.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			// Creating the save dialog.
+			/* Creating the save dialog. */
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.save_dialog)
 					.setPositiveButton(R.string.yes,
@@ -302,12 +341,12 @@ public class DrawActivity extends Activity {
 			return true;
 		}
 
-		// Left Arrow key (Emulator)
+		/* Left Arrow key (Emulator / Hardkey Device) */
 		if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 			showPreviousDrawView();
 		}
 
-		// Right Arrow key (Emulator)
+		/* Right Arrow key (Emulator / Hardkey Device) */
 		if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
 			showNextDrawView();
 		}
