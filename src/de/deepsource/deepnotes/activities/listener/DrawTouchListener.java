@@ -67,7 +67,7 @@ public class DrawTouchListener implements View.OnTouchListener {
 		 * To test swipe on an physical device set: 
 		 * 		event.getPointerCount() > 1
 		 */
-		if (event.getPointerCount() == 1) {
+		if (event.getPointerCount() > 1) {
 			Log.e("swipeTrigger", String.valueOf(swipeTrigger));
 			switch (event.getAction()) {
 			
