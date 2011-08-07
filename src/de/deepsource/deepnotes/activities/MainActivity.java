@@ -26,6 +26,7 @@ import android.widget.TextView;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;
+import de.deepsource.deepnotes.utilities.IOManager;
 
 public class MainActivity extends FragmentActivity {
 
@@ -94,7 +95,7 @@ public class MainActivity extends FragmentActivity {
 		super.onOptionsItemSelected(item);
 		
 		switch (item.getItemId()) {
-		case (R.id.main_menu_addnote):{
+		case (R.id.main_menu_addnote): {
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivity(intent);
 			return true;
@@ -111,7 +112,30 @@ public class MainActivity extends FragmentActivity {
 		
 		MenuInflater inflater = new MenuInflater(this);
 		inflater.inflate(R.menu.main_contextmenu, menu);
+		// TODO: add localized menu name
 		menu.setHeaderTitle("WAS WEI§ ICH");
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+		
+		switch (item.getItemId()) {
+		case (R.id.main_contextmenu_removenote): {
+			AdapterView.AdapterContextMenuInfo menuInfo;
+			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			int index = menuInfo.position;
+			
+			if (IOManager.deleteNote(this, notes.get(index).getFileName())) {
+				notes.remove(index);
+				na.notifyDataSetChanged();
+			}
+			
+			return true;
+		}
+		}
+		
+		return false;
 	}
 	
 	public class NotesAdapter extends ArrayAdapter<Note> {

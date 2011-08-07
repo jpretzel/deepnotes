@@ -29,6 +29,7 @@ import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
+import de.deepsource.deepnotes.utilities.IOManager;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -49,6 +50,7 @@ public class DrawActivity extends Activity {
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
+	private String fileName;
 
 	/**
 	 * Called when the activity is first created.
@@ -73,6 +75,8 @@ public class DrawActivity extends Activity {
 
 		// load note if one was opened
 		if (getIntent().hasExtra("load")) {
+			Bundle bundle = getIntent().getExtras();
+			fileName = bundle.getString("load");
 			loadNotePages();
 		}
 
@@ -90,9 +94,6 @@ public class DrawActivity extends Activity {
 	 * Loads an opened note with all it's saved pages and Backgrounds.
 	 */
 	public void loadNotePages() {
-		Bundle bundle = getIntent().getExtras();
-		String fileName = bundle.getString("load");
-
 		File notePath = new File(getFilesDir(), fileName + "/");
 
 		if (notePath.exists()) {
@@ -155,9 +156,26 @@ public class DrawActivity extends Activity {
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
-			// saveNote(String.valueOf(System.currentTimeMillis()));
-			new SaveNote(this).execute(String.valueOf(System
-					.currentTimeMillis()));
+			// do we have a new note?
+			if (fileName == null) {
+				fileName = String.valueOf(System.currentTimeMillis());
+			}
+			
+			new SaveNote(this).execute(fileName);
+			
+			return true;
+		}
+		
+		// delete triggered
+		case (R.id.draw_menu_delete): {
+			// only call if the note was saved before
+			if (fileName != null) {
+				if (IOManager.deleteNote(this, fileName))
+					Log.e("DELETE", "note deleted");
+			}
+			
+			finish();
+			
 			return true;
 		}
 
