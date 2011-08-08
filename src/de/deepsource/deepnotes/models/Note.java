@@ -4,6 +4,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import de.deepsource.deepnotes.application.Deepnotes;
+
+import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 
@@ -13,21 +16,27 @@ public class Note {
 	private BitmapDrawable thumbnail;
 	private String fileName;
 	
-	public Note(String path) {
+	public Note(Context context, String name) {
 		// get filename from path
 //		fileName = new File(path).getName();
-		fileName = path.substring(path.lastIndexOf('/') + 1);
+//		fileName = name.substring(name.lastIndexOf('/') + 1);
+		
+		fileName = name;
 		
 		// get a date from filename
-		fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		// remove suffix if there is one
+		if (fileName.contains(".")) {
+			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+		}
+		
 		Date dateCreated = new Date(Long.parseLong(fileName));
 		// TODO: localized pattern
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy - HH:mm");
 		created = sdf.format(dateCreated);
 		
-		File imageFile = new File(path);
+		File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".png");
 		if (imageFile.exists()) {
-			thumbnail = new BitmapDrawable(BitmapFactory.decodeFile(path));
+			thumbnail = new BitmapDrawable(BitmapFactory.decodeFile(imageFile.toString()));
 		}
 	}
 	

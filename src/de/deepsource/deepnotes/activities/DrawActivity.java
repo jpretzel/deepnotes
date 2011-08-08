@@ -79,6 +79,7 @@ public class DrawActivity extends Activity {
 	 * Called when the activity is first created.
 	 * 
 	 * @author Sebastian Ullrich
+	 * @author Jan Pretzel
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -117,6 +118,9 @@ public class DrawActivity extends Activity {
 
 	/**
 	 * Loads an opened note with all it's saved pages and Backgrounds.
+	 * This will only be called, when the note is not new and was just created.
+	 * 
+	 * @author Jan Pretzel
 	 */
 	public void loadNotePages() {
 		File notePath = new File(getFilesDir(), fileName + "/");
@@ -170,6 +174,9 @@ public class DrawActivity extends Activity {
 
 	/**
 	 * Customizing the menu.
+	 * 
+	 * @author Jan Pretzel
+	 * @author Sebastian Ullrich
 	 */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -321,6 +328,7 @@ public class DrawActivity extends Activity {
 	 * Called whenever an Intent from this activity is finished.
 	 * 
 	 * @author Sebastian Ullrich
+	 * @author Jan Pretzel
 	 */
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -428,18 +436,26 @@ public class DrawActivity extends Activity {
 	private class SaveNote extends AsyncTask<String, Void, Void> {
 
 		private ProgressDialog dialog;
+		private Activity activity;
 
 		public SaveNote(Activity activity) {
 			dialog = new ProgressDialog(activity);
+			this.activity = activity;
 		}
 
+		/**
+		 * The main part of the AsyncTask. Here The note and all it's
+		 * associated parts will be saved to the file system.
+		 * 
+		 * @author Jan Pretzel
+		 */
 		@Override
 		protected Void doInBackground(String... params) {
 			// TODO: some checking for params count. or don't use params at all?
 			String fileName = params[0];
 
 			// save thumbnail
-			String savePath = getFilesDir() + Deepnotes.saveThumbnail;
+			String savePath = getFilesDir() + Deepnotes.SAVE_THUMBNAIL;
 			File file = new File(savePath);
 
 			// Creates the directory named by this abstract pathname,
@@ -498,6 +514,11 @@ public class DrawActivity extends Activity {
 			return null;
 		}
 
+		/**
+		 * Before execution starts, the ProgressDialog will be shown.
+		 * 
+		 * @author Jan Pretzel
+		 */
 		@Override
 		protected void onPreExecute() {
 			// TODO: add localized string
@@ -506,17 +527,31 @@ public class DrawActivity extends Activity {
 			super.onPreExecute();
 		}
 
+		/**
+		 * After execution ends, the ProgressDialog will be dismissed.
+		 * 
+		 * @author Jan Pretzel
+		 */
 		@Override
 		protected void onPostExecute(Void result) {
 			if (dialog.isShowing()) {
 				dialog.dismiss();
 			}
+			
 			super.onPostExecute(result);
+			
+			// tell the MainActivtiy that we saved a note
+			Intent resultIntent = new Intent();
+			resultIntent.putExtra(Deepnotes.SAVED_NOTE_NAME, fileName);
+			activity.setResult(Activity.RESULT_OK, resultIntent);
+			activity.finish();
 		}
 
 		/**
 		 * Calculates a thumbnail representing the note. The first page of the
 		 * note (empty or not) will be scaled by 0.5.
+		 * 
+		 * @author Jan Pretzel
 		 * 
 		 * @return The thumbnail as Bitmap.
 		 */

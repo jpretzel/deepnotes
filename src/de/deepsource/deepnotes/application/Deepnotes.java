@@ -3,7 +3,20 @@ package de.deepsource.deepnotes.application;
 import android.app.Application;
 
 public class Deepnotes extends Application {
-	public static final String saveThumbnail = "/thumbnail/";
+	
+	/**
+	 * Identifier for the sub folder, where thumbnails will be saved.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVE_THUMBNAIL = "/thumbnail/";
+	
+	/**
+	 * Identifier for the note saved in an DrawActivity.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVED_NOTE_NAME = "savedNote";
 	
 	
 	/**
