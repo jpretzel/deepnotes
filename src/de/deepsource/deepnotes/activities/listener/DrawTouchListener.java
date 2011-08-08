@@ -107,6 +107,7 @@ public class DrawTouchListener implements View.OnTouchListener {
 				case (MotionEvent.ACTION_DOWN):
 				case (MotionEvent.ACTION_MOVE):
 					drawView.addPoint(event.getX(), event.getY());
+					break;
 				}
 			}
 		}

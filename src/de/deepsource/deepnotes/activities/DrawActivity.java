@@ -240,11 +240,25 @@ public class DrawActivity extends Activity {
 			// TODO: Attach images! Example:
 			// http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
 			startActivity(intent);
+			return true;
 		}
 
-		// Color Picked
-		case (R.id.draw_menu_changecolor): {
-
+		// Black Color Picked
+		case (R.id.draw_menu_colorblack): {
+			currentDrawView.setPaintColor(Deepnotes.BLACK);
+			return true;
+		}
+		
+		// Red Color Picked
+		case (R.id.draw_menu_colorred): {
+			currentDrawView.setPaintColor(Deepnotes.RED);
+			return true;
+		}
+		
+		// Yellow Color Picked
+		case (R.id.draw_menu_coloryellow): {
+			currentDrawView.setPaintColor(Deepnotes.YELLOW);
+			return true;
 		}
 
 		}

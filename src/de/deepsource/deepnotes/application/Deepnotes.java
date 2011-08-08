@@ -1,6 +1,7 @@
 package de.deepsource.deepnotes.application;
 
 import android.app.Application;
+import android.graphics.Color;
 
 public class Deepnotes extends Application {
 	public static final String saveThumbnail = "/thumbnail/";
@@ -28,4 +29,40 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final long PAINT_TIME_OFFSET = 200;
+	
+	/**
+	 * <h1>Deepnotes Default Color Black</h1>
+	 * 
+	 * Custom style guide dependend color.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final int BLACK = Color.rgb(51, 51, 51);
+	
+	/**
+	 * <h1>Deepnotes Default Color White</h1>
+	 * 
+	 * Custom style guide dependend color.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final int WHITE = Color.WHITE;
+	
+	/**
+	 * <h1>Deepnotes Default Color Red</h1>
+	 * 
+	 * Custom style guide dependend color.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final int RED = Color.rgb(196, 27, 26);
+	
+	/**
+	 * <h1>Deepnotes Default Color Yellow</h1>
+	 * 
+	 * Custom style guide dependend color.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final int YELLOW = Color.rgb(255, 194, 0);
 }

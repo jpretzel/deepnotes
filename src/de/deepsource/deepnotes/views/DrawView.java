@@ -6,21 +6,50 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.CoordinatePair;
 
+/**
+ * Custom View class that implements all the drawing magic.
+ * 
+ * @author Sebastian Ullrich
+ */
 public class DrawView extends View{
 
-	private int pointBufferSize = 1;
+	/**
+	 * Points to be stored before triggering the 
+	 * BackgroundPainter task. This value has strong
+	 * impact on the app's performance. 
+	 * <ul>
+	 *  <li>Low values for high speed devices</li>
+	 * 	<li>High values for slow speed device</li>
+	 * </ul>
+	 */
+	private int pointBufferSize = 3;
+	
+	/**
+	 * Initiation of point counter.
+	 */
 	private int pointBuffer = 0;
 
+	/**
+	 * The foreground bitmap to paint on.
+	 */
 	private Bitmap bitmap;
+	
+	/**
+	 * The background bitmap to set images on.
+	 */
 	private Bitmap background;
 
+	/**
+	 * The parent canvas.
+	 */
 	private Canvas canvas;
 
 	private CoordinatePair pair, lastPair = null;
@@ -28,26 +57,52 @@ public class DrawView extends View{
 
 	private Paint paint = new Paint();
 
+	/**
+	 * Asynchronous background task that draws coordiantes from stack.
+	 * 
+	 * To put a strong focus on speed issues, this background-worker is
+	 * needed to handle the drawing part. Compared to other processes, the drawing
+	 * process is a high intense procedure. To set the hole drawing procedure
+	 * as a background task, which just runs periodically, more resources 
+	 * will be available for the coordinate capture actions, which will lead to
+	 * an increased drawing experience. 
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	private class backgroundPainter extends AsyncTask<Void, Void, Void> {
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(Void... params) {		
+			/* over all coordiantes from Stack */
 			for (int i = 0; i < pointList.size(); i++) {
+				/* assign current coordinate */
 				pair = pointList.get(i);
+				
+				/* coordinate has to be valid (value >= 0) */
 				if(pair.isValid()){
+					
+					/* check if drawing is already in progress */
 					if (lastPair != null) {
+						/* last coordinates available, draw a line */
 						canvas.drawLine(lastPair.getX(), lastPair.getY(),
 								pair.getX(), pair.getY(), paint);
-					} else {
+					} 
+					/* last coordinates aren't available, draw a point*/
+					else {
 						canvas.drawCircle(pair.getX(), pair.getY(), 1f, paint);
 					}
+					
+					/* assign current coordiante as last coordiante */
 					lastPair = pair;
-				}else{
+				}
+				/* current coordinate is invalid */
+				else{
 					lastPair = null;
 				}
 				canvas.save();
 			}
 			pointList.clear();
 
+			/* this will force the ui to be updated */
 			postInvalidate();
 			return null;
 		}
@@ -91,7 +146,7 @@ public class DrawView extends View{
 	 * init
 	 */
 	public void init() {
-		paint.setColor(Color.RED);
+		paint.setColor(Deepnotes.BLACK);
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 
@@ -108,6 +163,7 @@ public class DrawView extends View{
 	 * To set the imported image as background;
 	 * 
 	 * @param bmp
+	 * 				the background to be set
 	 */
 	public void setBackground(Bitmap bmp) {
 		background = bmp;
@@ -146,18 +202,38 @@ public class DrawView extends View{
 		postInvalidate();
 	}
 	
+	/**
+	 * Retuns the current (foreground) bitmap
+	 * 
+	 * @param Bitmap 
+	 * 				current foreground bitmap 
+	 */
 	public Bitmap getBitmap() {
 		return bitmap;
 	}
 
+	/**
+	 * Sets the current (foreground) bitmap
+	 * 
+	 * @param bitmap
+	 * 				current foreground bitmap to set
+	 */
 	public void setBitmap(Bitmap bitmap) {
 		this.bitmap = bitmap;
 	}
 
+	/**
+	 * 
+	 * @param color
+	 */
 	public void setPaintColor(int color) {
 		paint.setColor(color);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public Bitmap getBackgroundBitmap() {
 		return background;
 	}
