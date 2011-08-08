@@ -74,6 +74,7 @@ public class DrawActivity extends Activity {
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
 	private String fileName;
+	private int notePosition;
 
 	/**
 	 * Called when the activity is first created.
@@ -100,9 +101,10 @@ public class DrawActivity extends Activity {
 		viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
-		if (getIntent().hasExtra("load")) {
+		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
 			Bundle bundle = getIntent().getExtras();
-			fileName = bundle.getString("load");
+			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
+			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
 		}
 
@@ -207,6 +209,11 @@ public class DrawActivity extends Activity {
 				if (IOManager.deleteNote(this, fileName))
 					Log.e("DELETE", "note deleted");
 			}
+			
+			// tell the MainActivtiy that we deleted a note
+			Intent resultIntent = new Intent();
+			resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION, notePosition);
+			setResult(Deepnotes.SAVED_NOTE_DELETED, resultIntent);
 			
 			finish();
 			

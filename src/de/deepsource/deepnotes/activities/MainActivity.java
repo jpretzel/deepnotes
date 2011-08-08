@@ -67,9 +67,10 @@ public class MainActivity extends FragmentActivity {
 							int position, long id) {
 						
 						Intent intent = new Intent(context, DrawActivity.class);
-						intent.putExtra("load", notes.get(position).getFileName());
+						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
+						intent.putExtra(Deepnotes.SAVED_NOTE_POSITION, position);
 						
-						startActivity(intent);			
+						startActivityForResult(intent, REQUEST_NOTE);			
 					}
 				});
         
@@ -143,6 +144,11 @@ public class MainActivity extends FragmentActivity {
 				Bundle bundle = data.getExtras();
 				String noteName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 				notes.add(0, new Note(this.getApplicationContext(), noteName));
+				na.notifyDataSetChanged();
+			} else if (resultCode == Deepnotes.SAVED_NOTE_DELETED) {
+				Bundle bundle = data.getExtras();
+				int notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
+				notes.remove(notePosition);
 				na.notifyDataSetChanged();
 			}
 		}
