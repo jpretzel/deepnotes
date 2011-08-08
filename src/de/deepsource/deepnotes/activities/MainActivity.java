@@ -89,7 +89,7 @@ public class MainActivity extends FragmentActivity {
 			File[] notePages = notePath.listFiles();
 			
 			for (File note : notePages) {
-				notes.add(0, new Note(this.getApplicationContext(), note.getName()));
+				notes.add(new Note(this.getApplicationContext(), note.getName()));
 				na.notifyDataSetChanged();
 			}
 		}
@@ -150,6 +150,13 @@ public class MainActivity extends FragmentActivity {
 				int notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 				notes.remove(notePosition);
 				na.notifyDataSetChanged();
+			} else if (resultCode == Deepnotes.SAVED_NOTE_MODIFIED) {
+				Bundle bundle = data.getExtras();
+				int notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
+				String noteName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
+				notes.remove(notePosition);
+				notes.add(notePosition, new Note(this.getApplicationContext(), noteName));
+				na.notifyDataSetChanged();
 			}
 		}
 		}
@@ -167,8 +174,7 @@ public class MainActivity extends FragmentActivity {
 		
 		MenuInflater inflater = new MenuInflater(this);
 		inflater.inflate(R.menu.main_contextmenu, menu);
-		// TODO: add localized menu name
-		menu.setHeaderTitle("WAS WEI§ ICH");
+		menu.setHeaderTitle(R.string.note);
 	}
 	
 	/**

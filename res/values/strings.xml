@@ -14,4 +14,6 @@
     <string name="share">Share</string>
     <string name="delete">Delete</string>
     <string name="save">Save</string>
+    <string name="note">Note</string>
+    <string name="saving_note">Saving note...</string>
 </resources>

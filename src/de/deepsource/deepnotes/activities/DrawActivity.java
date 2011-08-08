@@ -74,7 +74,7 @@ public class DrawActivity extends Activity {
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
 	private String fileName;
-	private int notePosition;
+	private Integer notePosition;
 
 	/**
 	 * Called when the activity is first created.
@@ -106,6 +106,7 @@ public class DrawActivity extends Activity {
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
+//			loadNotePage(0);
 		}
 
 		/*
@@ -155,10 +156,24 @@ public class DrawActivity extends Activity {
 					} else {
 						loadView.setBitmap(bitmap);
 					}
+					
+//					bitmap.recycle();
 				}
 			}
 		}
 	}
+	
+	/*public void loadNotePage(int index) {
+		File notePath = new File(getFilesDir(), fileName + "/");
+		
+		if (notePath.exists()) {
+			Bitmap note = BitmapFactory.decodeFile(notePath.toString() + String.valueOf(index) + ".png");
+			currentDrawView.setBitmap(note);
+			
+			Bitmap background = BitmapFactory.decodeFile(notePath.toString() + "background_" + String.valueOf(index) + ".png");
+			currentDrawView.setBackground(background);
+		}
+	}*/
 
 	/**
 	 * Adding the menu.
@@ -204,16 +219,17 @@ public class DrawActivity extends Activity {
 		
 		// delete triggered
 		case (R.id.draw_menu_delete): {
-			// only call if the note was saved before
-			if (fileName != null) {
-				if (IOManager.deleteNote(this, fileName))
-					Log.e("DELETE", "note deleted");
-			}
-			
-			// tell the MainActivtiy that we deleted a note
 			Intent resultIntent = new Intent();
-			resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION, notePosition);
-			setResult(Deepnotes.SAVED_NOTE_DELETED, resultIntent);
+			
+			// only call if there is a note to delete
+			if (fileName != null && IOManager.deleteNote(this, fileName)) {
+				// tell the MainActivtiy that we deleted a note
+				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION,
+						notePosition);
+				setResult(Deepnotes.SAVED_NOTE_DELETED, resultIntent);
+			} else {
+				setResult(Activity.RESULT_CANCELED);
+			}
 			
 			finish();
 			
@@ -543,13 +559,14 @@ public class DrawActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			// TODO: add localized string
-			dialog.setMessage("Saving...");
+			dialog.setMessage(getString(R.string.saving_note));
 			dialog.show();
 			super.onPreExecute();
 		}
 
 		/**
 		 * After execution ends, the ProgressDialog will be dismissed.
+		 * Also we finish the activity and tell MainActivity what to do.
 		 * 
 		 * @author Jan Pretzel
 		 */
@@ -564,7 +581,15 @@ public class DrawActivity extends Activity {
 			// tell the MainActivtiy that we saved a note
 			Intent resultIntent = new Intent();
 			resultIntent.putExtra(Deepnotes.SAVED_NOTE_NAME, fileName);
-			activity.setResult(Activity.RESULT_OK, resultIntent);
+			
+			// if we have a modified note MainActivity needs to know
+			if (notePosition != null) {
+				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION, notePosition);
+				activity.setResult(Deepnotes.SAVED_NOTE_MODIFIED, resultIntent);
+			} else {
+				activity.setResult(Activity.RESULT_OK, resultIntent);
+			}
+			
 			activity.finish();
 		}
 
