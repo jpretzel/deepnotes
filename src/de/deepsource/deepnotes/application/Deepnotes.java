@@ -4,7 +4,31 @@ import android.app.Application;
 import android.graphics.Color;
 
 public class Deepnotes extends Application {
-	public static final String saveThumbnail = "/thumbnail/";
+	
+	/**
+	 * Identifier for the sub folder, where thumbnails will be saved.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVE_THUMBNAIL = "/thumbnail/";
+	
+	/**
+	 * Identifier for a note's name send with an intent.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVED_NOTE_NAME = "savedNoteName";
+	
+	/**
+	 * Identifier for a note's position in the GridView, send with an intent.
+	 * With the help of the position the note's thumbnail can be updated
+	 * or deleted.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVED_NOTE_POSITION = "savedNotePosition";
+	
+	public static final int SAVED_NOTE_DELETED = 0x00000002;
 	
 	
 	/**
