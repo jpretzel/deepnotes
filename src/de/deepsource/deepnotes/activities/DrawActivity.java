@@ -75,6 +75,27 @@ public class DrawActivity extends Activity {
 	private ViewFlipper viewFlipper;
 	private String fileName;
 	private int notePosition;
+	private int currentPaint;
+	
+	/* current picked color */
+	private int currentColor = Deepnotes.BLACK;
+	
+	/**
+	 * @return the currentColor
+	 */
+	public int getCurrentColor() {
+		return currentColor;
+	}
+
+	/**
+	 * @param currentColor the currentColor to set
+	 */
+	public void setCurrentColor(int currentColor) {
+		this.currentColor = currentColor;
+		currentDrawView.setPaintColor(currentColor);
+	}
+
+	private boolean saveStateChanged = false;
 
 	/**
 	 * Called when the activity is first created.
@@ -93,12 +114,16 @@ public class DrawActivity extends Activity {
 		// viewFlipper.setBackgroundColor(Color.DKGRAY);
 
 		currentDrawView = initNewDrawView();
+		
+		// set the default paint color
+		setCurrentPaint(Deepnotes.BLACK);
+		
 		viewFlipper.addView(currentDrawView);
 
 		// add some more DrawViews,
 		viewFlipper.addView(initNewDrawView());
-		viewFlipper.addView(initNewDrawView());
-		viewFlipper.addView(initNewDrawView());
+		//viewFlipper.addView(initNewDrawView());
+		//viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
@@ -107,15 +132,20 @@ public class DrawActivity extends Activity {
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
 		}
+	}
 
-		/*
-		 * / testy ViewFlipper vf = (ViewFlipper)
-		 * findViewById(R.id.viewFlipper); vf.setBackgroundColor(Color.WHITE);
-		 * vf.setOutAnimation(AnimationUtils.loadAnimation(this,
-		 * android.R.anim.slide_out_right));
-		 * vf.setInAnimation(AnimationUtils.loadAnimation(this,
-		 * android.R.anim.slide_in_left));
-		 */
+	/**
+	 * @return the currentPaint
+	 */
+	public int getCurrentPaint() {
+		return currentPaint;
+	}
+
+	/**
+	 * @param currentPaint the currentPaint to set
+	 */
+	public void setCurrentPaint(int currentPaint) {
+		this.currentPaint = currentPaint;
 	}
 
 	/**
@@ -192,13 +222,7 @@ public class DrawActivity extends Activity {
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
-			// do we have a new note?
-			if (fileName == null) {
-				fileName = String.valueOf(System.currentTimeMillis());
-			}
-			
-			new SaveNote(this).execute(fileName);
-			
+			saveNote();			
 			return true;
 		}
 		
@@ -222,7 +246,6 @@ public class DrawActivity extends Activity {
 
 		// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
-
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -259,19 +282,19 @@ public class DrawActivity extends Activity {
 
 		// Black Color Picked
 		case (R.id.draw_menu_colorblack): {
-			currentDrawView.setPaintColor(Deepnotes.BLACK);
+			setCurrentColor(Deepnotes.BLACK);
 			return true;
 		}
 		
 		// Red Color Picked
 		case (R.id.draw_menu_colorred): {
-			currentDrawView.setPaintColor(Deepnotes.RED);
+			setCurrentColor(Deepnotes.RED);
 			return true;
 		}
 		
 		// Yellow Color Picked
 		case (R.id.draw_menu_coloryellow): {
-			currentDrawView.setPaintColor(Deepnotes.YELLOW);
+			setCurrentColor(Deepnotes.YELLOW);
 			return true;
 		}
 
@@ -288,8 +311,20 @@ public class DrawActivity extends Activity {
 	private DrawView initNewDrawView() {
 		DrawView drawView = new DrawView(this);
 		drawView.setOnTouchListener(new DrawTouchListener(this, drawView));
-		drawView.setBackgroundColor(Color.WHITE);
+		drawView.setBackgroundColor(Color.GRAY);
 		return drawView;
+	}
+	
+	/**
+	 * 
+	 */
+	private void saveNote(){
+		// do we have a new note?
+		if (fileName == null) {
+			fileName = String.valueOf(System.currentTimeMillis());
+		}
+		
+		new SaveNote(this).execute(fileName);
 	}
 
 	/**
@@ -304,6 +339,8 @@ public class DrawActivity extends Activity {
 				R.anim.slideinfromright));
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showNext();
+		
+		
 	}
 
 	/**
@@ -312,12 +349,23 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
+		
 		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 				R.anim.slideouttoright));
 		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
 				R.anim.slideinfromleft));
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showPrevious();
+		
+		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
+		currentDrawView.setPaintColor(getCurrentColor());
+	}
+
+	/**
+	 * 
+	 */
+	private void updateCurrentPaintColor(DrawView origin, DrawView target){
+		target.setPaintColor(origin.getPaintColor());
 	}
 
 	/**
@@ -411,24 +459,31 @@ public class DrawActivity extends Activity {
 	 */
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			/* Creating the save dialog. */
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.save_dialog)
-					.setPositiveButton(R.string.yes,
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									finish();
-								}
-							})
-					.setNegativeButton(R.string.no,
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									dialog.cancel();
-								}
-							});
-			builder.create().show();
+			/* check for changes */
+			if(isSaveStateChanged()){
+				/* Creating the save dialog. */
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(R.string.save_dialog).setCancelable(true)
+						.setPositiveButton(R.string.yes,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// call the save procedure.
+										saveNote();
+										finish();
+									}
+								})
+						.setNegativeButton(R.string.no,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										finish();
+									}
+								});
+				builder.create().show();
+			}else{
+				finish();
+			}
 			return true;
 		}
 
@@ -606,6 +661,20 @@ public class DrawActivity extends Activity {
 			return firstBackgroundScaled;
 		}
 
+	}
+	
+	/**
+	 * @return the saveStateChanged
+	 */
+	public boolean isSaveStateChanged() {
+		return saveStateChanged;
+	}
+
+	/**
+	 * @param saveStateChanged the saveStateChanged to set
+	 */
+	public void setSaveStateChanged(boolean saveStateChanged) {
+		this.saveStateChanged = saveStateChanged;
 	}
 
 }

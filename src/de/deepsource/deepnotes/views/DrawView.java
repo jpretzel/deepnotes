@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.CoordinatePair;
 
 /**
@@ -146,15 +145,14 @@ public class DrawView extends View{
 	 * init
 	 */
 	public void init() {
-		paint.setColor(Deepnotes.BLACK);
+		
+		Log.e("init()","北北北北北北北");
+		
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-
 		canvas = new Canvas(bitmap);
-		
 		paint.setStrokeWidth(10f);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		
 		paint.setAntiAlias(true);
 		paint.setDither(true);
 	}
@@ -221,13 +219,22 @@ public class DrawView extends View{
 	public void setBitmap(Bitmap bitmap) {
 		this.bitmap = bitmap;
 	}
-
+	
 	/**
 	 * 
 	 * @param color
 	 */
 	public void setPaintColor(int color) {
 		paint.setColor(color);
+	}
+	
+	/**
+	 * Returns the current picked color.
+	 * 
+	 * @return current picked color.
+	 */
+	public int getPaintColor() {
+		return paint.getColor();
 	}
 	
 	/**

@@ -96,8 +96,11 @@ public class DrawTouchListener implements View.OnTouchListener {
 			 * information.
 			 */
 			if (event.getDownTime() > Deepnotes.PAINT_TIME_OFFSET) {
+				
+				/* There have been changes, a save dialog should apear. */
+				drawActivity.setSaveStateChanged(true);
+				
 				switch (event.getAction()) {
-
 				/* single-touch lost */
 				case (MotionEvent.ACTION_UP):
 					drawView.addPoint(-1f, -1f);
