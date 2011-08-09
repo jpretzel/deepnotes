@@ -26,6 +26,8 @@
     <string name="delete">Löschen</string>
     <string name="page_back">Seite zurück</string>
     <string name="page_forward">Seite vor</string>
+    <string name="note">Notiz</string>
+    <string name="saving_note">Notiz wird gespeichert...</string>
 </resources>
 
 
