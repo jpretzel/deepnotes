@@ -1,12 +1,16 @@
 package de.deepsource.deepnotes.views;
 
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -85,7 +89,7 @@ public class DrawView extends View{
 						canvas.drawLine(lastPair.getX(), lastPair.getY(),
 								pair.getX(), pair.getY(), paint);
 					} 
-					/* last coordinates aren't available, draw a point*/
+					/* last coordinates aren't available, draw a point */
 					else {
 						canvas.drawCircle(pair.getX(), pair.getY(), 1f, paint);
 					}
@@ -146,11 +150,11 @@ public class DrawView extends View{
 	 */
 	public void init() {
 		
-		Log.e("init()","北北北北北北北");
+		setBackgroundColor(Color.WHITE);
 		
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-		canvas = new Canvas(bitmap);
+		canvas = new Canvas(bitmap);		
 		paint.setStrokeWidth(10f);
 		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setAntiAlias(true);
@@ -213,11 +217,11 @@ public class DrawView extends View{
 	/**
 	 * Sets the current (foreground) bitmap
 	 * 
-	 * @param bitmap
+	 * @param bmp
 	 * 				current foreground bitmap to set
 	 */
-	public void setBitmap(Bitmap bitmap) {
-		this.bitmap = bitmap;
+	public void loadBitmap(Bitmap bmp) {
+		canvas.drawBitmap(bmp, new Matrix(), paint);
 	}
 	
 	/**

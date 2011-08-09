@@ -112,8 +112,6 @@ public class DrawActivity extends Activity {
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 		// TODO: add image background
 
-		// viewFlipper.setBackgroundColor(Color.DKGRAY);
-
 		currentDrawView = initNewDrawView();
 		
 		// set the default paint color
@@ -185,9 +183,10 @@ public class DrawActivity extends Activity {
 					if (name.contains("background")) {
 						loadView.setBackground(bitmap);
 					} else {
-						loadView.setBitmap(bitmap);
+						loadView.loadBitmap(bitmap);
 					}
 					
+					updateCurrentPaintColor();
 //					bitmap.recycle();
 				}
 			}
@@ -357,7 +356,7 @@ public class DrawActivity extends Activity {
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showNext();
 		
-		
+		updateCurrentPaintColor();
 	}
 
 	/**
@@ -374,15 +373,15 @@ public class DrawActivity extends Activity {
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showPrevious();
 		
-		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
-		currentDrawView.setPaintColor(getCurrentColor());
+		updateCurrentPaintColor();
 	}
 
 	/**
 	 * 
 	 */
-	private void updateCurrentPaintColor(DrawView origin, DrawView target){
-		target.setPaintColor(origin.getPaintColor());
+	private void updateCurrentPaintColor(){
+		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
+		currentDrawView.setPaintColor(getCurrentColor());
 	}
 
 	/**
@@ -487,7 +486,10 @@ public class DrawActivity extends Activity {
 											int id) {
 										// call the save procedure.
 										saveNote();
-										finish();
+										
+										/* save dialog will call
+										 * finish()
+										 */
 									}
 								})
 						.setNegativeButton(R.string.no,
