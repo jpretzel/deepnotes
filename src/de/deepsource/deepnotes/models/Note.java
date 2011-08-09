@@ -34,7 +34,7 @@ public class Note {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy - HH:mm");
 		created = sdf.format(dateCreated);
 		
-		File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".png");
+		File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".jpg");
 		if (imageFile.exists()) {
 			thumbnail = new BitmapDrawable(BitmapFactory.decodeFile(imageFile.toString()));
 		}

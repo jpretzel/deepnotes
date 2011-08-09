@@ -66,6 +66,10 @@ public class MainActivity extends FragmentActivity {
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
 						
+						// TODO: observe if this helps with OutOfMemoryError
+						// tell the gc it would be a great time to free some memory
+						System.gc();
+						
 						Intent intent = new Intent(context, DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
 						intent.putExtra(Deepnotes.SAVED_NOTE_POSITION, position);

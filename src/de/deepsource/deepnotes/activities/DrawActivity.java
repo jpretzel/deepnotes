@@ -121,7 +121,7 @@ public class DrawActivity extends Activity {
 
 		// add some more DrawViews,
 		viewFlipper.addView(initNewDrawView());
-		//viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView());
 		//viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
@@ -172,7 +172,7 @@ public class DrawActivity extends Activity {
 				}
 
 				// don't run false files
-				if (index < 4) {
+				if (index < 3) {
 					// load the file as Bitmap
 					Bitmap bitmap = BitmapFactory.decodeFile(file
 							.getAbsolutePath());
@@ -334,7 +334,12 @@ public class DrawActivity extends Activity {
 	/**
 	 * 
 	 */
-	private void saveNote(){
+	private void saveNote() {
+		if (!isSaveStateChanged()) {
+			finish();
+			return;
+		}
+		
 		// do we have a new note?
 		if (fileName == null) {
 			fileName = String.valueOf(System.currentTimeMillis());
@@ -557,53 +562,73 @@ public class DrawActivity extends Activity {
 			// including any necessary but nonexistent parent directories.
 			file.mkdirs();
 
-			Bitmap thumbnail = createThumbnail();
+			Bitmap bitmap = null;
+			DrawView toSave = (DrawView) viewFlipper.getChildAt(0);
 
-			try {
-				FileOutputStream fos = new FileOutputStream(savePath + fileName
-						+ ".png");
-				thumbnail.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-				fos.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (toSave.isModified() || toSave.isBGModified()) {
+				Log.e("SAVE", "saving thumbnail");
+				bitmap = createThumbnail();
+				
+				try {
+					FileOutputStream fos = new FileOutputStream(savePath
+							+ fileName + ".jpg");
+					bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
+					fos.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 
 			// save note pages with separate backgrounds
+			savePath = getFilesDir() + "/" + fileName + "/";
+			file = new File(savePath);
+			
 			for (int i = 0; i < viewFlipper.getChildCount(); i++) {
-				savePath = getFilesDir() + "/" + fileName + "/";
-				file = new File(savePath);
-				file.mkdirs();
+				toSave = (DrawView) viewFlipper.getChildAt(i);
 
-				// save note
-				DrawView toSave = (DrawView) viewFlipper.getChildAt(i);
-				Bitmap note = toSave.getBitmap();
+				if (toSave.isModified()) {
+					Log.e("SAVE", "saving note " + i);
+					// first saved note page will create a sub folder
+					file.mkdirs();
 
-				try {
-					FileOutputStream fos = new FileOutputStream(savePath + i
-							+ ".png");
-					note.compress(Bitmap.CompressFormat.PNG, 100, fos);
-					fos.close();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+					// save note
+					bitmap = toSave.getBitmap();
+
+					try {
+						FileOutputStream fos = new FileOutputStream(savePath
+								+ i + ".png");
+						bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+						fos.close();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
-				// save background
-				Bitmap background = toSave.getBackgroundBitmap();
+				if (toSave.isBGModified()) {
+					Log.e("SAVE", "saving background " + i);
+					// save background
+					bitmap = toSave.getBackgroundBitmap();
 
-				try {
-					FileOutputStream fos = new FileOutputStream(savePath
-							+ "background_" + i + ".png");
-					background.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-					fos.close();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+					try {
+						FileOutputStream fos = new FileOutputStream(savePath
+								+ "background_" + i + ".jpg");
+						bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
+						fos.close();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
+			}
+			
+			// everything is saved, so recycle bitmap
+			if (bitmap != null) {
+				bitmap.recycle();
 			}
 
 			return null;
@@ -616,7 +641,6 @@ public class DrawActivity extends Activity {
 		 */
 		@Override
 		protected void onPreExecute() {
-			// TODO: add localized string
 			dialog.setMessage(getString(R.string.saving_note));
 			dialog.show();
 			super.onPreExecute();
@@ -685,6 +709,10 @@ public class DrawActivity extends Activity {
 			// combine both bitmaps
 			Canvas pageAndBackground = new Canvas(firstBackgroundScaled);
 			pageAndBackground.drawBitmap(firstPageScaled, 0f, 0f, null);
+			
+			// free unused Bitmap (note: the other bitmaps share
+			// some stuff with the returned Bitmap so don't recycle those
+			firstPageScaled.recycle();
 
 			return firstBackgroundScaled;
 		}
