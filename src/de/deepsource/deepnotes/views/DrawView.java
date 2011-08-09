@@ -55,6 +55,9 @@ public class DrawView extends View{
 	private List<CoordinatePair> pointList = new ArrayList<CoordinatePair>();
 
 	private Paint paint = new Paint();
+	
+	private boolean modified = false;
+	private boolean bgModified = false;
 
 	/**
 	 * Asynchronous background task that draws coordiantes from stack.
@@ -165,6 +168,7 @@ public class DrawView extends View{
 	 */
 	public void setBackground(Bitmap bmp) {
 		background = bmp;
+		bgModified = true;
 	}
 
 	/**
@@ -188,6 +192,7 @@ public class DrawView extends View{
 		if (pointBuffer++ >= pointBufferSize) {
 			pointBuffer = 0;
 			new backgroundPainter().execute();
+			modified = true;
 		}
 	}
 
@@ -244,5 +249,12 @@ public class DrawView extends View{
 	public Bitmap getBackgroundBitmap() {
 		return background;
 	}
-
+	
+	public boolean isModified() {
+		return modified;
+	}
+	
+	public boolean isBGModified() {
+		return bgModified;
+	}
 }

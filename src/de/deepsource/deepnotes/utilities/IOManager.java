@@ -18,7 +18,7 @@ public final class IOManager {
 	public static boolean deleteNote(Context context, String noteName) {
 		// delete thumbnail
 		File thumbnail = new File(context.getFilesDir()
-				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".png");
+				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
 		if (!thumbnail.delete()) {
 			return false;
 		}
