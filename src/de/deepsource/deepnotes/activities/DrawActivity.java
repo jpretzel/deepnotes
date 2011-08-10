@@ -2,7 +2,6 @@ package de.deepsource.deepnotes.activities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.app.Activity;
@@ -25,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
@@ -46,14 +46,14 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
-	
+
 	/**
 	 * Custom request code to identify the <i>camera image capture</i>.
 	 * 
 	 * @author Jan Pretzel
 	 */
 	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
-	
+
 	/**
 	 * Custom request code to identify the <i>image share event</i>.
 	 * 
@@ -61,15 +61,14 @@ public class DrawActivity extends Activity {
 	 */
 	@SuppressWarnings("unused")
 	private static final int REQUEST_IMAGE_SHARE = 0x00000011;
-	
+
 	/**
 	 * Custom request code to identify the <i>image crop</i>.
 	 * 
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
-	
-	
+
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
@@ -77,10 +76,10 @@ public class DrawActivity extends Activity {
 
 	private Integer notePosition;
 	private int currentPaint;
-	
+
 	/* current picked color */
 	private int currentColor = Deepnotes.BLACK;
-	
+
 	private boolean saveStateChanged = false;
 
 	/**
@@ -97,10 +96,10 @@ public class DrawActivity extends Activity {
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
 		currentDrawView = initNewDrawView();
-		
+
 		// set the default paint color
 		setCurrentPaint(Deepnotes.BLACK);
-		
+
 		viewFlipper.addView(currentDrawView);
 
 		// add some more DrawViews,
@@ -113,7 +112,7 @@ public class DrawActivity extends Activity {
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
-			//loadNotePage(0);
+			// loadNotePage(0);
 		}
 	}
 
@@ -125,12 +124,13 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * @param currentPaint the currentPaint to set
+	 * @param currentPaint
+	 *            the currentPaint to set
 	 */
 	public void setCurrentPaint(int currentPaint) {
 		this.currentPaint = currentPaint;
 	}
-	
+
 	/**
 	 * @return the currentColor
 	 */
@@ -139,7 +139,8 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * @param currentColor the currentColor to set
+	 * @param currentColor
+	 *            the currentColor to set
 	 */
 	public void setCurrentColor(int currentColor) {
 		this.currentColor = currentColor;
@@ -147,8 +148,8 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * Loads an opened note with all it's saved pages and Backgrounds.
-	 * This will only be called, when the note is not new and was just created.
+	 * Loads an opened note with all it's saved pages and Backgrounds. This will
+	 * only be called, when the note is not new and was just created.
 	 * 
 	 * @author Jan Pretzel
 	 */
@@ -183,24 +184,25 @@ public class DrawActivity extends Activity {
 					} else {
 						loadView.loadBitmap(bitmap);
 					}
-					
+
 					updateCurrentPaintColor();
 				}
 			}
 		}
 	}
-	
-	/*public void loadNotePage(int index) {
-		File notePath = new File(getFilesDir(), fileName + "/");
-		
-		if (notePath.exists()) {
-			Bitmap note = BitmapFactory.decodeFile(notePath.toString() + String.valueOf(index) + ".png");
-			currentDrawView.setBitmap(note);
-			
-			Bitmap background = BitmapFactory.decodeFile(notePath.toString() + "background_" + String.valueOf(index) + ".png");
-			currentDrawView.setBackground(background);
-		}
-	}*/
+
+	/*
+	 * public void loadNotePage(int index) { File notePath = new
+	 * File(getFilesDir(), fileName + "/");
+	 * 
+	 * if (notePath.exists()) { Bitmap note =
+	 * BitmapFactory.decodeFile(notePath.toString() + String.valueOf(index) +
+	 * ".png"); currentDrawView.setBitmap(note);
+	 * 
+	 * Bitmap background = BitmapFactory.decodeFile(notePath.toString() +
+	 * "background_" + String.valueOf(index) + ".png");
+	 * currentDrawView.setBackground(background); } }
+	 */
 
 	/**
 	 * Adding the menu.
@@ -235,14 +237,14 @@ public class DrawActivity extends Activity {
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
-			saveNote();			
+			saveNote();
 			return true;
 		}
-		
+
 		// delete triggered
 		case (R.id.draw_menu_delete): {
 			Intent resultIntent = new Intent();
-			
+
 			// only call if there is a note to delete
 			if (fileName != null && IOManager.deleteNote(this, fileName)) {
 				// tell the MainActivtiy that we deleted a note
@@ -252,9 +254,9 @@ public class DrawActivity extends Activity {
 			} else {
 				setResult(Activity.RESULT_CANCELED);
 			}
-			
+
 			finish();
-			
+
 			return true;
 		}
 
@@ -286,7 +288,7 @@ public class DrawActivity extends Activity {
 
 		// share triggered
 		case (R.id.draw_menu_share): {
-			Intent intent = new Intent(Intent.ACTION_SEND);
+			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			// TODO: Attach images! Example:
 			// http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
@@ -299,13 +301,13 @@ public class DrawActivity extends Activity {
 			setCurrentColor(Deepnotes.BLACK);
 			return true;
 		}
-		
+
 		// Red Color Picked
 		case (R.id.draw_menu_colorred): {
 			setCurrentColor(Deepnotes.RED);
 			return true;
 		}
-		
+
 		// Yellow Color Picked
 		case (R.id.draw_menu_coloryellow): {
 			setCurrentColor(Deepnotes.YELLOW);
@@ -328,7 +330,7 @@ public class DrawActivity extends Activity {
 		drawView.setBackgroundColor(Color.GRAY);
 		return drawView;
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -337,12 +339,12 @@ public class DrawActivity extends Activity {
 			finish();
 			return;
 		}
-		
+
 		// do we have a new note?
 		if (fileName == null) {
 			fileName = String.valueOf(System.currentTimeMillis());
 		}
-		
+
 		new SaveNote(this).execute(fileName);
 	}
 
@@ -358,7 +360,7 @@ public class DrawActivity extends Activity {
 				R.anim.slideinfromright));
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showNext();
-		
+
 		updateCurrentPaintColor();
 	}
 
@@ -374,7 +376,7 @@ public class DrawActivity extends Activity {
 				R.anim.slideinfromleft));
 		if (!viewFlipper.isFlipping())
 			viewFlipper.showPrevious();
-		
+
 		updateCurrentPaintColor();
 	}
 
@@ -382,7 +384,8 @@ public class DrawActivity extends Activity {
 	 * 
 	 */
 	private void updateCurrentPaintColor() {
-		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
+		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper
+				.getDisplayedChild());
 		currentDrawView.setPaintColor(getCurrentColor());
 	}
 
@@ -391,7 +394,7 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @param data
 	 *            Uri of imageresource
-	 *            
+	 * 
 	 * @author Sebastian Ullrich
 	 */
 	@SuppressWarnings("unused")
@@ -478,19 +481,20 @@ public class DrawActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
-			if(isSaveStateChanged()){
+			if (isSaveStateChanged()) {
 				/* Creating the save dialog. */
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setMessage(R.string.save_dialog).setCancelable(true)
+				builder.setMessage(R.string.save_dialog)
+						.setCancelable(true)
 						.setPositiveButton(R.string.yes,
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int id) {
 										// call the save procedure.
 										saveNote();
-										
-										/* save dialog will call
-										 * finish()
+
+										/*
+										 * save dialog will call finish()
 										 */
 									}
 								})
@@ -502,7 +506,7 @@ public class DrawActivity extends Activity {
 									}
 								});
 				builder.create().show();
-			}else{
+			} else {
 				finish();
 			}
 			return true;
@@ -539,8 +543,8 @@ public class DrawActivity extends Activity {
 		}
 
 		/**
-		 * The main part of the AsyncTask. Here The note and all it's
-		 * associated parts will be saved to the file system.
+		 * The main part of the AsyncTask. Here The note and all it's associated
+		 * parts will be saved to the file system.
 		 * 
 		 * @author Jan Pretzel
 		 */
@@ -563,23 +567,14 @@ public class DrawActivity extends Activity {
 			if (toSave.isModified() || toSave.isBGModified()) {
 				Log.e("SAVE", "saving thumbnail");
 				bitmap = createThumbnail();
-				
-				try {
-					FileOutputStream fos = new FileOutputStream(savePath
-							+ fileName + ".jpg");
-					bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
-					fos.close();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				IOManager.writeFile(bitmap, savePath + fileName + ".jpg",
+						Bitmap.CompressFormat.JPEG, 70);
 			}
 
 			// save note pages with separate backgrounds
 			savePath = getFilesDir() + "/" + fileName + "/";
 			file = new File(savePath);
-			
+
 			for (int i = 0; i < viewFlipper.getChildCount(); i++) {
 				toSave = (DrawView) viewFlipper.getChildAt(i);
 
@@ -590,46 +585,28 @@ public class DrawActivity extends Activity {
 
 					// save note
 					bitmap = toSave.getBitmap();
-
-					try {
-						FileOutputStream fos = new FileOutputStream(savePath
-								+ i + ".png");
-						bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-						fos.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					IOManager.writeFile(bitmap, savePath + i + ".png",
+							Bitmap.CompressFormat.PNG, 100);
 				}
 
 				if (toSave.isBGModified()) {
 					Log.e("SAVE", "saving background " + i);
 					// save background
 					bitmap = toSave.getBackgroundBitmap();
-
-					try {
-						FileOutputStream fos = new FileOutputStream(savePath
-								+ "background_" + i + ".jpg");
-						bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
-						fos.close();
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					IOManager.writeFile(bitmap, savePath + "background_" + i + ".jpg",
+							Bitmap.CompressFormat.JPEG, 70);
 				}
-				
+
 				// check for delete status
 				if (toSave.deleteStatus()) {
 					File toDelete = new File(savePath + i + ".png");
 					toDelete.delete();
-					
+
 					toDelete = new File(savePath + "background_" + i + ".jpg");
 					toDelete.delete();
 				}
 			}
-			
+
 			// everything is saved, so recycle bitmap
 			if (bitmap != null) {
 				bitmap.recycle();
@@ -651,8 +628,8 @@ public class DrawActivity extends Activity {
 		}
 
 		/**
-		 * After execution ends, the ProgressDialog will be dismissed.
-		 * Also we finish the activity and tell MainActivity what to do.
+		 * After execution ends, the ProgressDialog will be dismissed. Also we
+		 * finish the activity and tell MainActivity what to do.
 		 * 
 		 * @author Jan Pretzel
 		 */
@@ -661,21 +638,26 @@ public class DrawActivity extends Activity {
 			if (dialog.isShowing()) {
 				dialog.dismiss();
 			}
-			
+
 			super.onPostExecute(result);
 			
+			// TODO: add localized string
+			Toast toast = Toast.makeText(activity, "SAVED!!! YEAH!", Toast.LENGTH_SHORT);
+			toast.show();
+
 			// tell the MainActivtiy that we saved a note
 			Intent resultIntent = new Intent();
 			resultIntent.putExtra(Deepnotes.SAVED_NOTE_NAME, fileName);
-			
+
 			// if we have a modified note MainActivity needs to know
 			if (notePosition != null) {
-				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION, notePosition);
+				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION,
+						notePosition);
 				activity.setResult(Deepnotes.SAVED_NOTE_MODIFIED, resultIntent);
 			} else {
 				activity.setResult(Activity.RESULT_OK, resultIntent);
 			}
-			
+
 			activity.finish();
 		}
 
@@ -692,7 +674,8 @@ public class DrawActivity extends Activity {
 			Bitmap firstPage = ((DrawView) viewFlipper.getChildAt(0))
 					.getBitmap();
 			Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0))
-					.getBackgroundBitmap();;
+					.getBackgroundBitmap();
+			;
 
 			// scale factor = 0.5
 			float scale = 0.5f;
@@ -713,7 +696,7 @@ public class DrawActivity extends Activity {
 			// combine both bitmaps
 			Canvas pageAndBackground = new Canvas(firstBackgroundScaled);
 			pageAndBackground.drawBitmap(firstPageScaled, 0f, 0f, null);
-			
+
 			// free unused Bitmap (note: the other bitmaps share
 			// some stuff with the returned Bitmap so don't recycle those
 			firstPageScaled.recycle();
@@ -722,7 +705,7 @@ public class DrawActivity extends Activity {
 		}
 
 	}
-	
+
 	/**
 	 * @return the saveStateChanged
 	 */
@@ -731,7 +714,8 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * @param saveStateChanged the saveStateChanged to set
+	 * @param saveStateChanged
+	 *            the saveStateChanged to set
 	 */
 	public void setSaveStateChanged(boolean saveStateChanged) {
 		this.saveStateChanged = saveStateChanged;

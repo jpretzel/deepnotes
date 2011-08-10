@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -163,6 +164,12 @@ public class MainActivity extends FragmentActivity {
 				na.notifyDataSetChanged();
 			}
 		}
+		
+		case (123): {
+			if (resultCode == Activity.RESULT_OK) {
+				Log.e("SHARE", "coole sache");
+			}
+		}
 		}
 	}
 	
@@ -202,6 +209,15 @@ public class MainActivity extends FragmentActivity {
 			}
 			
 			return true;
+		}
+		
+		case (R.id.main_contextmenu_sendnote): {
+			AdapterView.AdapterContextMenuInfo menuInfo;
+			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+			int index = menuInfo.position;
+			
+			IOManager.shareNote(this, notes.get(index).getFileName());
+			Log.e("SHARE", "save rdy");
 		}
 		}
 		
