@@ -1,6 +1,5 @@
 package de.deepsource.deepnotes.views;
 
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,10 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import de.deepsource.deepnotes.models.CoordinatePair;
 
@@ -62,6 +59,7 @@ public class DrawView extends View{
 	
 	private boolean modified = false;
 	private boolean bgModified = false;
+	private boolean cleared = false;
 
 	/**
 	 * Asynchronous background task that draws coordiantes from stack.
@@ -205,8 +203,14 @@ public class DrawView extends View{
 	 */
 	public void clearNote() {
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		canvas = new Canvas(bitmap);
 		postInvalidate();
+		
+		// set delete status
+		cleared = true;
+		bgModified = false;
+		modified = false;
 	}
 	
 	/**
@@ -260,5 +264,25 @@ public class DrawView extends View{
 	
 	public boolean isBGModified() {
 		return bgModified;
+	}
+	
+	/**
+	 * Checks for the delete status. The note will be marked to be
+	 * deleted when modified and bgModified are false and cleared is
+	 * true and only then. This status is only reached by clearing the
+	 * note and not doing anything after that. With the help of this 
+	 * method we prevent setting extra statuses on drawing actions and
+	 * background changes.
+	 * 
+	 * @author Jan Pretzel
+	 * 
+	 * @return whether the note should be deleted or not.
+	 */
+	public boolean deleteStatus() {
+		if (!modified && !bgModified && cleared) {
+			return true;
+		}
+		
+		return false;
 	}
 }

@@ -81,21 +81,6 @@ public class DrawActivity extends Activity {
 	/* current picked color */
 	private int currentColor = Deepnotes.BLACK;
 	
-	/**
-	 * @return the currentColor
-	 */
-	public int getCurrentColor() {
-		return currentColor;
-	}
-
-	/**
-	 * @param currentColor the currentColor to set
-	 */
-	public void setCurrentColor(int currentColor) {
-		this.currentColor = currentColor;
-		currentDrawView.setPaintColor(currentColor);
-	}
-
 	private boolean saveStateChanged = false;
 
 	/**
@@ -110,7 +95,6 @@ public class DrawActivity extends Activity {
 
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-		// TODO: add image background
 
 		currentDrawView = initNewDrawView();
 		
@@ -122,7 +106,6 @@ public class DrawActivity extends Activity {
 		// add some more DrawViews,
 		viewFlipper.addView(initNewDrawView());
 		viewFlipper.addView(initNewDrawView());
-		//viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
@@ -146,6 +129,21 @@ public class DrawActivity extends Activity {
 	 */
 	public void setCurrentPaint(int currentPaint) {
 		this.currentPaint = currentPaint;
+	}
+	
+	/**
+	 * @return the currentColor
+	 */
+	public int getCurrentColor() {
+		return currentColor;
+	}
+
+	/**
+	 * @param currentColor the currentColor to set
+	 */
+	public void setCurrentColor(int currentColor) {
+		this.currentColor = currentColor;
+		currentDrawView.setPaintColor(currentColor);
 	}
 
 	/**
@@ -187,7 +185,6 @@ public class DrawActivity extends Activity {
 					}
 					
 					updateCurrentPaintColor();
-//					bitmap.recycle();
 				}
 			}
 		}
@@ -232,6 +229,7 @@ public class DrawActivity extends Activity {
 		// New Note triggered
 		case (R.id.draw_menu_newnote): {
 			currentDrawView.clearNote();
+			setSaveStateChanged(true);
 			return true;
 		}
 
@@ -370,7 +368,6 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		
 		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 				R.anim.slideouttoright));
 		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
@@ -384,7 +381,7 @@ public class DrawActivity extends Activity {
 	/**
 	 * 
 	 */
-	private void updateCurrentPaintColor(){
+	private void updateCurrentPaintColor() {
 		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
 		currentDrawView.setPaintColor(getCurrentColor());
 	}
@@ -529,8 +526,6 @@ public class DrawActivity extends Activity {
 	 * While working this task will show a ProgressDialog telling the user that
 	 * it is saving at the moment.
 	 * 
-	 * TODO: only save modified pages and backgrounds
-	 * 
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
 	private class SaveNote extends AsyncTask<String, Void, Void> {
@@ -624,6 +619,15 @@ public class DrawActivity extends Activity {
 						e.printStackTrace();
 					}
 				}
+				
+				// check for delete status
+				if (toSave.deleteStatus()) {
+					File toDelete = new File(savePath + i + ".png");
+					toDelete.delete();
+					
+					toDelete = new File(savePath + "background_" + i + ".jpg");
+					toDelete.delete();
+				}
 			}
 			
 			// everything is saved, so recycle bitmap
@@ -688,7 +692,7 @@ public class DrawActivity extends Activity {
 			Bitmap firstPage = ((DrawView) viewFlipper.getChildAt(0))
 					.getBitmap();
 			Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0))
-					.getBackgroundBitmap();
+					.getBackgroundBitmap();;
 
 			// scale factor = 0.5
 			float scale = 0.5f;
