@@ -17,6 +17,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -71,10 +72,10 @@ public class DrawActivity extends Activity {
 
 	private Uri pictureUri;
 	private DrawView currentDrawView;
-	private ViewFlipper viewFlipper;
-	private String fileName;
+	protected ViewFlipper viewFlipper;
+	protected String fileName;
 
-	private Integer notePosition;
+	protected Integer notePosition;
 	private int currentPaint;
 
 	/* current picked color */
@@ -88,6 +89,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.draw);
@@ -103,8 +105,8 @@ public class DrawActivity extends Activity {
 		viewFlipper.addView(currentDrawView);
 
 		// add some more DrawViews,
-		viewFlipper.addView(initNewDrawView());
-		viewFlipper.addView(initNewDrawView());
+		//viewFlipper.addView(initNewDrawView());
+		//viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
@@ -112,8 +114,10 @@ public class DrawActivity extends Activity {
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
-			// loadNotePage(0);
+//			loadNotePage(0);
 		}
+		
+		Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
 	/**
@@ -191,24 +195,31 @@ public class DrawActivity extends Activity {
 		}
 	}
 
-	/*
-	 * public void loadNotePage(int index) { File notePath = new
-	 * File(getFilesDir(), fileName + "/");
-	 * 
-	 * if (notePath.exists()) { Bitmap note =
-	 * BitmapFactory.decodeFile(notePath.toString() + String.valueOf(index) +
-	 * ".png"); currentDrawView.setBitmap(note);
-	 * 
-	 * Bitmap background = BitmapFactory.decodeFile(notePath.toString() +
-	 * "background_" + String.valueOf(index) + ".png");
-	 * currentDrawView.setBackground(background); } }
-	 */
+	
+//	public void loadNotePage(int index) {
+//		File notePath = new File(getFilesDir(), fileName + "/");
+//
+//		if (notePath.exists()) {
+//			Log.e("LOAD", notePath.toString() + "/" + index + ".png");
+//			Bitmap note = BitmapFactory.decodeFile(notePath.toString() + "/"
+//					+ index + ".png");
+//			((DrawView)viewFlipper.getChildAt(index)).loadBitmap(note);
+//			
+//			Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+//
+////			Bitmap background = BitmapFactory.decodeFile(notePath.toString()
+////					+ "background_" + index + ".png");
+////			currentDrawView.setBackground(background);
+//		}
+//	}
+	 
 
 	/**
 	 * Adding the menu.
 	 * 
 	 * @author Sebastian Ullrich
 	 */
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
@@ -224,6 +235,7 @@ public class DrawActivity extends Activity {
 	 * @author Jan Pretzel
 	 * @author Sebastian Ullrich
 	 */
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
@@ -231,7 +243,7 @@ public class DrawActivity extends Activity {
 		// New Note triggered
 		case (R.id.draw_menu_newnote): {
 			currentDrawView.clearNote();
-			setSaveStateChanged(true);
+			saveStateChanged = true;
 			return true;
 		}
 
@@ -335,7 +347,7 @@ public class DrawActivity extends Activity {
 	 * 
 	 */
 	private void saveNote() {
-		if (!isSaveStateChanged()) {
+		if (!saveStateChanged) {
 			finish();
 			return;
 		}
@@ -345,7 +357,7 @@ public class DrawActivity extends Activity {
 			fileName = String.valueOf(System.currentTimeMillis());
 		}
 
-		new SaveNote(this).execute(fileName);
+		new SaveNote(this).execute();
 	}
 
 	/**
@@ -358,9 +370,13 @@ public class DrawActivity extends Activity {
 				R.anim.slideouttoleft));
 		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
 				R.anim.slideinfromright));
-		if (!viewFlipper.isFlipping())
+//		if (viewFlipper.getChildCount() < 3) {
+//			viewFlipper.addView(initNewDrawView());
+//			loadNotePage(viewFlipper.getDisplayedChild() + 1);
+//		}
+		if (!viewFlipper.isFlipping()) {
 			viewFlipper.showNext();
-
+		}
 		updateCurrentPaintColor();
 	}
 
@@ -397,19 +413,25 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Sebastian Ullrich
 	 */
-	@SuppressWarnings("unused")
 	private void cropImage(Uri data) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
+		intent.setType("image/*");
+//		intent.setClassName("com.android.gallery", "com.android.camera.CropImage");
+		File file = new File(Environment.getExternalStorageDirectory() + "/test.jpg");
+		pictureUri = Uri.fromFile(file);
 
 		intent.setData(data);
-		intent.putExtra("outputX", 240);
-		intent.putExtra("outputY", 100);
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
+		int x = 480;
+		int y = 800;
+//		intent.putExtra("setWallpaper", false);
+		intent.putExtra("outputX", x);
+		intent.putExtra("outputY", y);
+		intent.putExtra("aspectX", x/2);
+		intent.putExtra("aspectY", y/2);
 		intent.putExtra("scale", true);
-		intent.putExtra("noFaceDetection", true);
-		intent.putExtra("return-data", true);
-		intent.putExtra("output", data);
+//		intent.putExtra("noFaceDetection", true);
+		intent.putExtra("return-data", false);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
 
 		startActivityForResult(intent, REQUEST_IMAGE_CROP);
 	}
@@ -420,24 +442,16 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
+	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		Log.i("ACTIVITY RESULT", "we have a result: " + requestCode + ", "
-				+ resultCode);
 
+		// TODO: switch case
 		/* Import from gallery result */
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
 				Uri imageUri = data.getData();
-				try {
-					currentDrawView.setBackground(MediaStore.Images.Media
-							.getBitmap(this.getContentResolver(), imageUri));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				// cropImage(data.getData());
+				cropImage(imageUri);
 			}
 
 		/* Import from camera result */
@@ -460,14 +474,16 @@ public class DrawActivity extends Activity {
 
 		/* crop result */
 		if (requestCode == REQUEST_IMAGE_CROP)
-			if (resultCode == RESULT_OK) {
-				Uri imageUri = data.getData();
+			if (resultCode == RESULT_OK) {			
+				Bitmap bitmap;
 				try {
-					currentDrawView.setBackground(MediaStore.Images.Media
-							.getBitmap(this.getContentResolver(), imageUri));
+					bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), pictureUri);
+					currentDrawView.setBackground(bitmap);
 				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -478,10 +494,11 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Sebastian Ullrich
 	 */
+	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
-			if (isSaveStateChanged()) {
+			if (saveStateChanged) {
 				/* Creating the save dialog. */
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(R.string.save_dialog)
@@ -532,7 +549,7 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
-	private class SaveNote extends AsyncTask<String, Void, Void> {
+	private class SaveNote extends AsyncTask<Void, Void, Void> {
 
 		private ProgressDialog dialog;
 		private Activity activity;
@@ -549,9 +566,7 @@ public class DrawActivity extends Activity {
 		 * @author Jan Pretzel
 		 */
 		@Override
-		protected Void doInBackground(String... params) {
-			// TODO: some checking for params count. or don't use params at all?
-			String fileName = params[0];
+		protected Void doInBackground(Void... params) {
 
 			// save thumbnail
 			String savePath = getFilesDir() + Deepnotes.SAVE_THUMBNAIL;
@@ -646,7 +661,7 @@ public class DrawActivity extends Activity {
 			toast.show();
 
 			// tell the MainActivtiy that we saved a note
-			Intent resultIntent = new Intent();
+			final Intent resultIntent = new Intent();
 			resultIntent.putExtra(Deepnotes.SAVED_NOTE_NAME, fileName);
 
 			// if we have a modified note MainActivity needs to know
@@ -675,7 +690,6 @@ public class DrawActivity extends Activity {
 					.getBitmap();
 			Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0))
 					.getBackgroundBitmap();
-			;
 
 			// scale factor = 0.5
 			float scale = 0.5f;

@@ -17,11 +17,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 
 /**
@@ -55,8 +57,7 @@ public final class IOManager {
 			}
 		}
 		
-		// TODO: add localized String
-		Toast toast = Toast.makeText(context, "DELTORRRRRRRD!", Toast.LENGTH_SHORT);
+		Toast toast = Toast.makeText(context, R.string.note_deleted, Toast.LENGTH_SHORT);
 		toast.show();
 
 		return true;
@@ -100,25 +101,40 @@ public final class IOManager {
 				for (File notePage : notePages) {
 					Bitmap draw;
 					
-					// check for background
+					// check for background if there is one draw it
+					// else draw a white background
 					String bgPath = notePath + "background_" + notePage.getName();
+					Bitmap note = BitmapFactory.decodeFile(notePage.toString());
+					Canvas canvas;
+					
 					if (new File(bgPath).exists()) {
-						Bitmap note = BitmapFactory.decodeFile(notePage.toString());
 						draw = BitmapFactory.decodeFile(bgPath);
-						Canvas canvas = new Canvas(draw);
-						canvas.drawBitmap(note, 0f, 0f, null);
+						canvas = new Canvas(draw);
 					} else {
-						draw = BitmapFactory.decodeFile(notePage.toString());
+						draw = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+						canvas = new Canvas(draw);
+						canvas.drawColor(Color.WHITE);
 					}
 					
-					String outPath = Environment.getExternalStorageDirectory() + "/" + noteName + "_" + i++ + ".jpg";
+					canvas.drawBitmap(note, 0f, 0f, null);
 					
-					writeFile(draw, outPath, Bitmap.CompressFormat.JPEG, 70);
-					
-					File test = new File(outPath);
-					if (test.exists()) {
-						Uri u = Uri.fromFile(test);
-						uris.add(u);
+					// write to external storage, because other applications
+					// cannot access internal storage of another application
+					if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+						Log.e("WRITE", "cache write");
+						File outPath = new File(Environment.getExternalStorageDirectory()
+								+ "/cache/");
+						
+						outPath.mkdirs();
+						
+						String outFile = outPath.toString() + "/" + noteName + "_" + i++ + ".jpg";
+
+						writeFile(draw, outFile, Bitmap.CompressFormat.JPEG, 70);
+
+						outPath = new File(outFile);
+						if (outPath.exists()) {
+							uris.add(Uri.fromFile(outPath));
+						}
 					}
 				}
 			}
@@ -144,9 +160,25 @@ public final class IOManager {
 			final Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-			activity.startActivity(intent);
+			activity.startActivityForResult(intent, Deepnotes.REQUEST_SHARE_NOTE);
 		}
 		
+	}
+	
+	public static void clearCache() {
+		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+			Log.e("CLEAR", "cache clear");
+			File cachePath = new File(Environment.getExternalStorageDirectory() + "/cache/");
+			if (cachePath.exists()) {
+				File[] cachedImages = cachePath.listFiles();
+				
+				for (File cachedImage : cachedImages) {
+					cachedImage.delete();
+				}
+				
+				cachePath.delete();
+			}
+		}
 	}
 	
 	/**

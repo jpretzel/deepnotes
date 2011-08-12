@@ -39,7 +39,7 @@ public class MainActivity extends FragmentActivity {
 
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
-	private Context context = this;
+	protected final Context context = this;
 	
 	private static final int REQUEST_NOTE = 0x00000001;
 
@@ -71,7 +71,7 @@ public class MainActivity extends FragmentActivity {
 						// tell the gc it would be a great time to free some memory
 						System.gc();
 						
-						Intent intent = new Intent(context, DrawActivity.class);
+						final Intent intent = new Intent(context, DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
 						intent.putExtra(Deepnotes.SAVED_NOTE_POSITION, position);
 						
@@ -80,6 +80,7 @@ public class MainActivity extends FragmentActivity {
 				});
         
         loadNotes();
+        Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}    
 	
 	/**
@@ -126,6 +127,7 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
+			Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 			Intent intent = new Intent(this, DrawActivity.class);
 			startActivityForResult(intent, REQUEST_NOTE);
 			return true;
@@ -163,12 +165,14 @@ public class MainActivity extends FragmentActivity {
 				notes.add(notePosition, new Note(this.getApplicationContext(), noteName));
 				na.notifyDataSetChanged();
 			}
+			
+			break;
 		}
 		
-		case (123): {
-			if (resultCode == Activity.RESULT_OK) {
-				Log.e("SHARE", "coole sache");
-			}
+		case (Deepnotes.REQUEST_SHARE_NOTE): {
+			// always clear cache, regardless of the resultCode
+			IOManager.clearCache();
+			break;
 		}
 		}
 	}
@@ -229,7 +233,7 @@ public class MainActivity extends FragmentActivity {
 	 * 
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
-	public static class NotesAdapter extends ArrayAdapter<Note> {
+	private static class NotesAdapter extends ArrayAdapter<Note> {
 
 		private int resource;
 		

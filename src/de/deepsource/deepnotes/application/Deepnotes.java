@@ -44,6 +44,13 @@ public class Deepnotes extends Application {
 	 */
 	public static final int SAVED_NOTE_MODIFIED = 0x00000003;
 	
+	/**
+	 * Identifier for a request code, to share a note.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final int REQUEST_SHARE_NOTE = 0x00000002;
+	
 	
 	/**
 	 * <h1>Distance moved to trigger an swipe event.</h1>

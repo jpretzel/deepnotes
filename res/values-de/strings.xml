@@ -28,6 +28,7 @@
     <string name="page_forward">Seite vor</string>
     <string name="note">Notiz</string>
     <string name="saving_note">Notiz wird gespeichert...</string>
+    <string name="note_deleted">Notiz wurde gelöscht!</string>
 </resources>
 
 
