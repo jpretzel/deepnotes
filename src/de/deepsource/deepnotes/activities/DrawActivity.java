@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.xml.datatype.Duration;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -21,6 +23,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -355,6 +358,16 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
+		/*viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideouttoleft));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideinfromright));
+		if (!viewFlipper.isFlipping())
+			viewFlipper.showNext();
+			*/
+		
+		showPageToast(true);
+		
 		viewFlipper.showNext();
 		updateCurrentPaintColor();
 	}
@@ -365,8 +378,42 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
+		/*viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideouttoright));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideinfromleft));
+		
+		if (!viewFlipper.isFlipping())
+			viewFlipper.showPrevious();
+			*/
+
+		showPageToast(false);
+		
 		viewFlipper.showPrevious();
 		updateCurrentPaintColor();
+	}
+	
+	private void showPageToast(boolean next){
+		int currentPage = viewFlipper.getDisplayedChild() + 1;
+		int size = viewFlipper.getChildCount();
+		
+		String msg = new String();
+		
+		if(next){
+			// show next page
+			if(currentPage == size)
+				msg = "1";
+			else
+				msg = String.valueOf(currentPage+1);
+		}else{
+			if(currentPage == 1)
+				msg = String.valueOf(size);
+			else
+				msg = String.valueOf(currentPage-1);
+		}
+			
+		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+		toast.show();
 	}
 
 	/**

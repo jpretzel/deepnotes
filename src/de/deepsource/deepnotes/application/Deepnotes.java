@@ -44,7 +44,6 @@ public class Deepnotes extends Application {
 	 */
 	public static final int SAVED_NOTE_MODIFIED = 0x00000003;
 	
-	
 	/**
 	 * <h1>Distance moved to trigger an swipe event.</h1>
 	 * 
@@ -103,4 +102,13 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final int YELLOW = Color.rgb(255, 194, 0);
+	
+	/**
+	 * <h1>Deepnotes Background Color for Note</h1>
+	 * 
+	 * Custom style guide dependend color.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final int NOTE_BACKGROUND_COLOR = Color.rgb(255, 255, 255);
 }

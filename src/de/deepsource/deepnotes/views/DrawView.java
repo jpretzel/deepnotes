@@ -1,5 +1,6 @@
 package de.deepsource.deepnotes.views;
 
+import de.deepsource.deepnotes.utilities.PerformanceTester;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,12 +8,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
-import android.graphics.PointF;
-import android.os.AsyncTask;
-import android.os.Vibrator;
+import android.test.PerformanceTestCase;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -21,22 +18,6 @@ import android.view.View;
  * @author Sebastian Ullrich
  */
 public class DrawView extends View{
-
-	/**
-	 * Points to be stored before triggering the 
-	 * BackgroundPainter task. This value has strong
-	 * impact on the app's performance. 
-	 * <ul>
-	 *  <li>Low values for high speed devices</li>
-	 * 	<li>High values for slow speed device</li>
-	 * </ul>
-	 */
-	private int pointBufferSize = 10;
-	
-	/**
-	 * Initiation of point counter.
-	 */
-	private int pointBuffer = 0;
 
 	/**
 	 * The foreground bitmap to paint on.
@@ -52,33 +33,31 @@ public class DrawView extends View{
 	 * The parent canvas.
 	 */
 	private Canvas canvas;
-
-	/* TOO SLOW
-	private CoordinatePair pair, lastPair = null;
-	private List<CoordinatePair> pointList = new ArrayList<CoordinatePair>();
-	*/
-
-
-
+	
+	/**
+	 * The painter object
+	 */
 	protected Paint paint = new Paint();
 	
-	private boolean modified = false;
-	private boolean bgModified = false;
-	private boolean cleared = false;
-
 	/**
-	 * Asynchronous background task that draws coordiantes from stack.
-	 * 
-	 * To put a strong focus on speed issues, this background-worker is
-	 * needed to handle the drawing part. Compared to other processes, the drawing
-	 * process is a high intense procedure. To set the hole drawing procedure
-	 * as a background task, which just runs periodically, more resources 
-	 * will be available for the coordinate capture actions, which will lead to
-	 * an increased drawing experience. 
-	 * 
-	 * @author Sebastian Ullrich
+	 * Flag for changes
 	 */
+	private boolean modified = false;
 	
+	/**
+	 * Flag for modified background
+	 */
+	private boolean backgroundModified = false;
+	
+	/**
+	 * TODO: donno
+	 */
+	private boolean cleared = false;
+	
+	/**
+	 * flag for existing background
+	 */
+	private boolean hasBackground = false;
 
 	/**
 	 * Constructor.
@@ -118,10 +97,11 @@ public class DrawView extends View{
 	 * init
 	 */
 	public void init() {
-		setBackgroundColor(Color.WHITE);
+		// inti bitmap and canvas
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-		canvas = new Canvas(bitmap);		
+		canvas = new Canvas(bitmap);	
+		
+		// paint config
 		paint.setStrokeWidth(10f);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeCap(Paint.Cap.ROUND);
@@ -138,16 +118,21 @@ public class DrawView extends View{
 	 */
 	public void setBackground(Bitmap bmp) {
 		background = bmp;
-		bgModified = true;
+		hasBackground = true;
+		backgroundModified = true;
 	}
 
 	/**
 	 * Draws the bitmap on background.
 	 */
 	public void onDraw(Canvas canvas) {
+		// fill the bitmap with default background color
 		canvas.drawColor(Color.WHITE);
 		
-		canvas.drawBitmap(background, 0f, 0f, paint);
+		// check if there is a background set
+		if(hasBackground())
+			canvas.drawBitmap(background, 0f, 0f, paint);
+		
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
 		
 		canvas.drawPath(path, paint);
@@ -156,7 +141,11 @@ public class DrawView extends View{
 	private Path path = new Path();
 	private float lastX, lastY;
 	
+	
+	
 	public void startDraw(float x, float y){
+		PerformanceTester.start();
+		
 		path.reset();
 		path.moveTo(x, y);
 		lastX = x;
@@ -165,10 +154,16 @@ public class DrawView extends View{
 	}
 	
 	public void continueDraw(float x, float y){
+		
+		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
+		
+		//path.lineTo(x, y);
+		
 		lastX = x;
 		lastY = y;
 		invalidate();
+		PerformanceTester.hit();
 	}
 	
 	public void stopDraw(){
@@ -176,12 +171,19 @@ public class DrawView extends View{
 		canvas.drawPath(path, paint);
 		path.reset();
 		invalidate();
+		PerformanceTester.hit();
+		PerformanceTester.stop();
+		PerformanceTester.printMessurement();
 	}
 	
 	public void drawPoint(float x, float y){
 		canvas.drawPoint(x, y, paint);
 		canvas.save();
 	}
+	
+	 public boolean hasBackground(){
+		 return hasBackground;
+	 }
 
 	/**
 	 * Clears the current page and post an invalidate state to force an update.
@@ -194,7 +196,7 @@ public class DrawView extends View{
 		
 		// set delete status
 		cleared = true;
-		bgModified = false;
+		backgroundModified = false;
 		modified = false;
 	}
 	
@@ -248,7 +250,7 @@ public class DrawView extends View{
 	}
 	
 	public boolean isBGModified() {
-		return bgModified;
+		return backgroundModified;
 	}
 	
 	/**
@@ -264,7 +266,7 @@ public class DrawView extends View{
 	 * @return whether the note should be deleted or not.
 	 */
 	public boolean deleteStatus() {
-		if (!modified && !bgModified && cleared) {
+		if (!modified && !backgroundModified && cleared) {
 			return true;
 		}
 		
