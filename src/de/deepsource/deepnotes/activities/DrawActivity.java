@@ -30,7 +30,6 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
-import de.deepsource.deepnotes.utilities.PerformanceTester;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**

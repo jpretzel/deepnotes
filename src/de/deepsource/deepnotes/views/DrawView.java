@@ -150,8 +150,10 @@ public class DrawView extends View{
 		path.moveTo(x, y);
 		lastX = x;
 		lastY = y;
-		invalidate();
+		//invalidate();
 	}
+	
+	private static int skip = 0;
 	
 	public void continueDraw(float x, float y){
 		
@@ -162,7 +164,13 @@ public class DrawView extends View{
 		
 		lastX = x;
 		lastY = y;
-		invalidate();
+		
+		if(skip++ > 2){
+			skip = 0;
+			invalidate();
+		}
+		
+		
 		PerformanceTester.hit();
 	}
 	
