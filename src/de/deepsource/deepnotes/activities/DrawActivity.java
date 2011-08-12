@@ -69,7 +69,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
-
+	
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	protected ViewFlipper viewFlipper;
@@ -119,7 +119,7 @@ public class DrawActivity extends Activity {
 		
 		Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
-
+	
 	/**
 	 * @return the currentPaint
 	 */
@@ -359,7 +359,7 @@ public class DrawActivity extends Activity {
 
 		new SaveNote(this).execute();
 	}
-
+	
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
 	 * 
@@ -386,13 +386,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideouttoright));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideinfromleft));
-		if (!viewFlipper.isFlipping())
-			viewFlipper.showPrevious();
-
+		viewFlipper.showPrevious();
 		updateCurrentPaintColor();
 	}
 

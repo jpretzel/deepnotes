@@ -1,18 +1,19 @@
 package de.deepsource.deepnotes.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.AsyncTask;
+import android.os.Vibrator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
-import de.deepsource.deepnotes.models.CoordinatePair;
 
 /**
  * Custom View class that implements all the drawing magic.
@@ -30,7 +31,7 @@ public class DrawView extends View{
 	 * 	<li>High values for slow speed device</li>
 	 * </ul>
 	 */
-	private int pointBufferSize = 3;
+	private int pointBufferSize = 10;
 	
 	/**
 	 * Initiation of point counter.
@@ -52,10 +53,14 @@ public class DrawView extends View{
 	 */
 	private Canvas canvas;
 
+	/* TOO SLOW
 	private CoordinatePair pair, lastPair = null;
 	private List<CoordinatePair> pointList = new ArrayList<CoordinatePair>();
+	*/
 
-	private Paint paint = new Paint();
+
+
+	protected Paint paint = new Paint();
 	
 	private boolean modified = false;
 	private boolean bgModified = false;
@@ -73,44 +78,7 @@ public class DrawView extends View{
 	 * 
 	 * @author Sebastian Ullrich
 	 */
-	private class backgroundPainter extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... params) {		
-			/* over all coordiantes from Stack */
-			for (int i = 0; i < pointList.size(); i++) {
-				/* assign current coordinate */
-				pair = pointList.get(i);
-				
-				/* coordinate has to be valid (value >= 0) */
-				if(pair.isValid()){
-					
-					/* check if drawing is already in progress */
-					if (lastPair != null) {
-						/* last coordinates available, draw a line */
-						canvas.drawLine(lastPair.getX(), lastPair.getY(),
-								pair.getX(), pair.getY(), paint);
-					} 
-					/* last coordinates aren't available, draw a point */
-					else {
-						canvas.drawCircle(pair.getX(), pair.getY(), 1f, paint);
-					}
-					
-					/* assign current coordiante as last coordiante */
-					lastPair = pair;
-				}
-				/* current coordinate is invalid */
-				else{
-					lastPair = null;
-				}
-				canvas.save();
-			}
-			pointList.clear();
-
-			/* this will force the ui to be updated */
-			postInvalidate();
-			return null;
-		}
-	}
+	
 
 	/**
 	 * Constructor.
@@ -150,14 +118,14 @@ public class DrawView extends View{
 	 * init
 	 */
 	public void init() {
-		
 		setBackgroundColor(Color.WHITE);
-		
 		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
 		canvas = new Canvas(bitmap);		
 		paint.setStrokeWidth(10f);
+		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeCap(Paint.Cap.ROUND);
+		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setAntiAlias(true);
 		paint.setDither(true);
 	}
@@ -177,25 +145,42 @@ public class DrawView extends View{
 	 * Draws the bitmap on background.
 	 */
 	public void onDraw(Canvas canvas) {
+		canvas.drawColor(Color.WHITE);
+		
 		canvas.drawBitmap(background, 0f, 0f, paint);
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
+		
+		canvas.drawPath(path, paint);
 	}
-
-	/**
-	 * Stores Coordinates for drawing.
-	 * 
-	 * @param x
-	 *            x-coordinate.
-	 * @param y
-	 *            y-coordiante.
-	 */
-	public void addPoint(float x, float y) {
-		pointList.add(new CoordinatePair(x, y));
-		if (pointBuffer++ >= pointBufferSize) {
-			pointBuffer = 0;
-			new backgroundPainter().execute();
-			modified = true;
-		}
+	
+	private Path path = new Path();
+	private float lastX, lastY;
+	
+	public void startDraw(float x, float y){
+		path.reset();
+		path.moveTo(x, y);
+		lastX = x;
+		lastY = y;
+		invalidate();
+	}
+	
+	public void continueDraw(float x, float y){
+		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
+		lastX = x;
+		lastY = y;
+		invalidate();
+	}
+	
+	public void stopDraw(){
+		path.lineTo(lastX, lastY);
+		canvas.drawPath(path, paint);
+		path.reset();
+		invalidate();
+	}
+	
+	public void drawPoint(float x, float y){
+		canvas.drawPoint(x, y, paint);
+		canvas.save();
 	}
 
 	/**

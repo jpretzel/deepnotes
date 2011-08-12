@@ -31,12 +31,17 @@ public class DrawTouchListener implements View.OnTouchListener {
 	public float swipeXdelta = 0f;
 
 	/**
-	 * Distance moved to trigger an swipe event. Fallback value in 
-	 * case of WindowManager delivers an error value.
+	 * Distance moved to trigger an swipe event. Fallback value in case of
+	 * WindowManager delivers an error value.
 	 * 
 	 * @see Deepnotes
 	 */
 	public float swipeTrigger = 100f;
+
+	private float lastX, lastY = -1;
+	
+	private int index = 0;
+	private float[] line = new float[4];
 
 	/**
 	 * Custom constructor.
@@ -50,10 +55,13 @@ public class DrawTouchListener implements View.OnTouchListener {
 		this.drawView = drawView;
 		this.drawActivity = drawActivity;
 
-		/* overwriting the fallback value, if WindowManager returns a valid value */
+		/*
+		 * overwriting the fallback value, if WindowManager returns a valid
+		 * value
+		 */
 		if (drawActivity.getWindowManager().getDefaultDisplay().getWidth() > 0)
-			swipeTrigger = drawActivity.getWindowManager()
-					.getDefaultDisplay().getWidth()
+			swipeTrigger = drawActivity.getWindowManager().getDefaultDisplay()
+					.getWidth()
 					* Deepnotes.SWIPE_DISTANCE_TRIGGER;
 	}
 
@@ -62,59 +70,66 @@ public class DrawTouchListener implements View.OnTouchListener {
 		 * Checking for multiTouch
 		 * 
 		 * To test swipe in emulator (no painting) set: 
-		 * 		event.getPointerCount() == 1 
+		 * 		event.getPointerCount() == 1
 		 * 
 		 * To test swipe on an physical device set: 
 		 * 		event.getPointerCount() > 1
+		 * 
 		 */
-		if (event.getPointerCount() > 1) {
-			Log.e("swipeTrigger", String.valueOf(swipeTrigger));
+		if (event.getPointerCount() > 1)
+			onMultiTouch(event);
+		else
+			onSingleTouch(event);
+		return true;
+	}
+
+	private boolean onSingleTouch(MotionEvent event) {
+		/*
+		 * Avoid paint events when entering a swipe gesture. See
+		 * de.deepsource.deepnotes.application.Deepnotes for further
+		 * information.
+		 */
+	
+			// There have been changes, a save dialog should apear
+			drawActivity.setSaveStateChanged(true);
+			
 			switch (event.getAction()) {
 			
-			/* 2-finger click, storing first coordinate */
-			case (MotionEvent.ACTION_DOWN):
-				swipeXdelta = event.getX(0);
-				break;
-
-			/* 2-finger swipe, calculating direction */
-			case (MotionEvent.ACTION_MOVE):
-				if (Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
-					if (swipeXdelta < event.getX(0)) {
-						// trigger swipe left
-						drawActivity.showPreviousDrawView();
-					} else {
-						// trigger wipe right
-						drawActivity.showNextDrawView();
-					}
-				}
-				break;
-			}
-		} else {
-			/*
-			 * Avoid paint events when entering a swipe gesture. See
-			 * de.deepsource.deepnotes.application.Deepnotes for further
-			 * information.
-			 */
-			if (event.getDownTime() > Deepnotes.PAINT_TIME_OFFSET) {
-				
-				/* There have been changes, a save dialog should apear. */
-				drawActivity.setSaveStateChanged(true);
-				
-				switch (event.getAction()) {
-				/* single-touch lost */
-				case (MotionEvent.ACTION_UP):
-					drawView.addPoint(-1f, -1f);
-					break;
-
-				/* single-touch enter & move */
 				case (MotionEvent.ACTION_DOWN):
-				case (MotionEvent.ACTION_MOVE):
-					drawView.addPoint(event.getX(), event.getY());
+					drawView.startDraw(event.getX(), event.getY());
 					break;
+				
+				case (MotionEvent.ACTION_MOVE):
+					drawView.continueDraw(event.getX(), event.getY());
+					break;
+				
+				case (MotionEvent.ACTION_UP):
+					drawView.stopDraw();
+					break;
+			}
+			return true;
+	}
+
+	private void onMultiTouch(MotionEvent event) {
+		switch (event.getAction()) {
+
+		// 2-finger click, storing first coordinate
+		case (MotionEvent.ACTION_DOWN):
+			swipeXdelta = event.getX(0);
+			break;
+
+		// 2-finger swipe, calculating direction
+		case (MotionEvent.ACTION_MOVE):
+			if (Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
+				if (swipeXdelta < event.getX(0)) {
+					// trigger swipe left
+					drawActivity.showPreviousDrawView();
+				} else {
+					// trigger wipe right
+					drawActivity.showNextDrawView();
 				}
 			}
+			break;
 		}
-
-		return true;
 	}
 }
