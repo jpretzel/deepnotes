@@ -301,9 +301,6 @@ public class DrawActivity extends Activity {
 		// share triggered
 		case (R.id.draw_menu_share): {
 			
-			// TODO: remove this
-			PerformanceTester.printLog();
-			
 			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			// TODO: Attach images! Example:

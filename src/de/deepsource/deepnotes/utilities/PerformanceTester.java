@@ -25,14 +25,15 @@ public final class PerformanceTester {
 	public static void printMessurement(){
 		double time = (double)(stopMilliseconds - startMilliseconds) / 1000d;
 		double avePps = (double)ppsCounter / (double)time;
-		Log.i("PerformanceTester:", "-----------------------------------");
+		/*Log.i("PerformanceTester:", "-----------------------------------");
 		Log.i("Test Duration:", String.valueOf(time));
 		Log.i("Hits:", String.valueOf(ppsCounter));
 		Log.i("Average Points per Second:", String.valueOf(avePps));
-		Log.i("Copy stats:", String.valueOf(time) + String.valueOf(avePps));
-		Log.i("PerformanceTester:", "-----------------------------------");
+		*/
+		Log.e("Copy stats:", String.valueOf(time) + "\t"+ String.valueOf(avePps));
+		/*Log.i("PerformanceTester:", "-----------------------------------");*/
 		
-		logList[logCounter++] = String.valueOf(time) + String.valueOf(avePps);
+		//logList[logCounter++] = String.valueOf(time) + String.valueOf(avePps);
 		
 		reset();
 	}
