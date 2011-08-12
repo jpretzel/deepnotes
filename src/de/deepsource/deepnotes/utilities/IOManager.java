@@ -99,13 +99,12 @@ public final class IOManager {
 				
 				int i = 0;
 				for (File notePage : notePages) {
-					Bitmap draw;
-					
 					// check for background if there is one draw it
 					// else draw a white background
 					String bgPath = notePath + "background_" + notePage.getName();
 					Bitmap note = BitmapFactory.decodeFile(notePage.toString());
 					Canvas canvas;
+					Bitmap draw;
 					
 					if (new File(bgPath).exists()) {
 						draw = BitmapFactory.decodeFile(bgPath);
