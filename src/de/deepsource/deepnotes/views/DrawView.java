@@ -169,6 +169,7 @@ public class DrawView extends View{
 		lastX = x;
 		lastY = y;
 		invalidate();
+		modified = true;
 	}
 	
 	public void stopDraw(){
