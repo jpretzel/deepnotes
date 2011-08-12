@@ -35,6 +35,7 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
+import de.deepsource.deepnotes.utilities.PerformanceTester;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -292,6 +293,10 @@ public class DrawActivity extends Activity {
 
 		// share triggered
 		case (R.id.draw_menu_share): {
+			
+			// TODO: remove this
+			PerformanceTester.printLog();
+			
 			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			// TODO: Attach images! Example:

@@ -7,6 +7,8 @@ public final class PerformanceTester {
 	private static int ppsCounter = 0;
 	private static long startMilliseconds = 0;
 	private static long stopMilliseconds = 0;
+	private static String[] logList = new String[20];
+	private static int logCounter = 0;
 	
 	public static void start(){
 		startMilliseconds = System.currentTimeMillis();
@@ -27,8 +29,18 @@ public final class PerformanceTester {
 		Log.i("Test Duration:", String.valueOf(time));
 		Log.i("Hits:", String.valueOf(ppsCounter));
 		Log.i("Average Points per Second:", String.valueOf(avePps));
+		Log.i("Copy stats:", String.valueOf(time) + String.valueOf(avePps));
 		Log.i("PerformanceTester:", "-----------------------------------");
+		
+		logList[logCounter++] = String.valueOf(time) + String.valueOf(avePps);
+		
 		reset();
+	}
+	
+	public static void printLog(){
+		for (String l : logList){
+			Log.i("LogList", l);
+		}
 	}
 	
 	private static void reset(){
