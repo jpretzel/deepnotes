@@ -7,6 +7,7 @@ import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -68,7 +70,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
-
+	
 	private Uri pictureUri;
 	private DrawView currentDrawView;
 	private ViewFlipper viewFlipper;
@@ -112,10 +114,9 @@ public class DrawActivity extends Activity {
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
-			// loadNotePage(0);
 		}
 	}
-
+	
 	/**
 	 * @return the currentPaint
 	 */
@@ -347,20 +348,14 @@ public class DrawActivity extends Activity {
 
 		new SaveNote(this).execute(fileName);
 	}
-
+	
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
 	 * 
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideouttoleft));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideinfromright));
-		if (!viewFlipper.isFlipping())
-			viewFlipper.showNext();
-
+		viewFlipper.showNext();
 		updateCurrentPaintColor();
 	}
 
@@ -370,13 +365,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideouttoright));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideinfromleft));
-		if (!viewFlipper.isFlipping())
-			viewFlipper.showPrevious();
-
+		viewFlipper.showPrevious();
 		updateCurrentPaintColor();
 	}
 
