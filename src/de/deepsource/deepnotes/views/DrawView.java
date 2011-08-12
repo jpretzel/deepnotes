@@ -1,6 +1,5 @@
 package de.deepsource.deepnotes.views;
 
-import de.deepsource.deepnotes.utilities.PerformanceTester;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,9 +7,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.test.PerformanceTestCase;
 import android.util.AttributeSet;
 import android.view.View;
+import de.deepsource.deepnotes.utilities.PerformanceTester;
 
 /**
  * Custom View class that implements all the drawing magic.

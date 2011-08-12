@@ -30,7 +30,6 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
-import de.deepsource.deepnotes.utilities.PerformanceTester;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -708,10 +707,8 @@ public class DrawActivity extends Activity {
 		 */
 		private Bitmap createThumbnail() {
 			// get first page of the note
-			Bitmap firstPage = ((DrawView) viewFlipper.getChildAt(0))
-					.getBitmap();
-			Bitmap firstBackground = ((DrawView) viewFlipper.getChildAt(0))
-					.getBackgroundBitmap();
+			DrawView drawView = (DrawView) viewFlipper.getChildAt(0);
+			Bitmap firstPage = drawView.getBitmap();
 
 			// scale factor = 0.5
 			float scale = 0.5f;
@@ -726,11 +723,22 @@ public class DrawActivity extends Activity {
 			// create scaled bitmaps
 			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
 					width, height, matirx, true);
-			Bitmap firstBackgroundScaled = Bitmap.createBitmap(firstBackground,
-					0, 0, width, height, matirx, true);
+			
+			Canvas pageAndBackground;
+			Bitmap firstBackgroundScaled;
+			
+			if (drawView.hasBackground()) {
+				Bitmap firstBackground = drawView.getBackgroundBitmap();
+				firstBackgroundScaled = Bitmap.createBitmap(firstBackground,
+						0, 0, width, height, matirx, true);
+				pageAndBackground = new Canvas(firstBackgroundScaled);
+			} else {
+				firstBackgroundScaled = Bitmap.createBitmap((int) (width * scale), (int) (height * scale), Bitmap.Config.ARGB_8888);
+				pageAndBackground = new Canvas(firstBackgroundScaled);
+				pageAndBackground.drawColor(Color.WHITE);
+			}
 
 			// combine both bitmaps
-			Canvas pageAndBackground = new Canvas(firstBackgroundScaled);
 			pageAndBackground.drawBitmap(firstPageScaled, 0f, 0f, null);
 
 			// free unused Bitmap (note: the other bitmaps share
