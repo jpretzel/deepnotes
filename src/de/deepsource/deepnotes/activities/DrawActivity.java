@@ -24,13 +24,13 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
+import de.deepsource.deepnotes.utilities.PerformanceTester;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
@@ -300,6 +300,10 @@ public class DrawActivity extends Activity {
 
 		// share triggered
 		case (R.id.draw_menu_share): {
+			
+			// TODO: remove this
+			PerformanceTester.printLog();
+			
 			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			// TODO: Attach images! Example:
@@ -366,17 +370,10 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
-		viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideouttoleft));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideinfromright));
-//		if (viewFlipper.getChildCount() < 3) {
-//			viewFlipper.addView(initNewDrawView());
-//			loadNotePage(viewFlipper.getDisplayedChild() + 1);
-//		}
-		if (!viewFlipper.isFlipping()) {
-			viewFlipper.showNext();
-		}
+		
+		showPageToast(true);
+		
+		viewFlipper.showNext();
 		updateCurrentPaintColor();
 	}
 
@@ -386,8 +383,42 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
+		/*viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideouttoright));
+		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+				R.anim.slideinfromleft));
+		
+		if (!viewFlipper.isFlipping())
+			viewFlipper.showPrevious();
+			*/
+
+		showPageToast(false);
+		
 		viewFlipper.showPrevious();
 		updateCurrentPaintColor();
+	}
+	
+	private void showPageToast(boolean next){
+		int currentPage = viewFlipper.getDisplayedChild() + 1;
+		int size = viewFlipper.getChildCount();
+		
+		String msg = new String();
+		
+		if(next){
+			// show next page
+			if(currentPage == size)
+				msg = "1";
+			else
+				msg = String.valueOf(currentPage+1);
+		}else{
+			if(currentPage == 1)
+				msg = String.valueOf(size);
+			else
+				msg = String.valueOf(currentPage-1);
+		}
+			
+		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+		toast.show();
 	}
 
 	/**
