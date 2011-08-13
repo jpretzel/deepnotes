@@ -97,7 +97,7 @@ public class DrawView extends View{
 	 */
 	public void init() {
 		// inti bitmap and canvas
-		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
 		canvas = new Canvas(bitmap);	
 		
 		// paint config
@@ -189,8 +189,8 @@ public class DrawView extends View{
 	 * Clears the current page and post an invalidate state to force an update.
 	 */
 	public void clearNote() {
-		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
-		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
+		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
 		canvas = new Canvas(bitmap);
 		postInvalidate();
 		
@@ -271,5 +271,12 @@ public class DrawView extends View{
 		}
 		
 		return false;
+	}
+	
+	public void recycle() {
+		bitmap.recycle();
+		
+		if (background != null)
+		background.recycle();
 	}
 }

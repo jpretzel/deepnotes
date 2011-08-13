@@ -104,8 +104,8 @@ public class DrawActivity extends Activity {
 		viewFlipper.addView(currentDrawView);
 
 		// add some more DrawViews,
-		//viewFlipper.addView(initNewDrawView());
-		//viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView());
 
 		// load note if one was opened
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
@@ -518,6 +518,7 @@ public class DrawActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			currentDrawView.recycle();
 			/* check for changes */
 			if (saveStateChanged) {
 				/* Creating the save dialog. */
@@ -733,7 +734,7 @@ public class DrawActivity extends Activity {
 						0, 0, width, height, matirx, true);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 			} else {
-				firstBackgroundScaled = Bitmap.createBitmap((int) (width * scale), (int) (height * scale), Bitmap.Config.ARGB_8888);
+				firstBackgroundScaled = Bitmap.createBitmap((int) (width * scale), (int) (height * scale), Bitmap.Config.ARGB_4444);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 				pageAndBackground.drawColor(Color.WHITE);
 			}
