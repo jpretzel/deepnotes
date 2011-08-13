@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import de.deepsource.deepnotes.utilities.PerformanceTester;
 
@@ -140,8 +141,6 @@ public class DrawView extends View{
 	private Path path = new Path();
 	private float lastX, lastY;
 	
-	
-	
 	public void startDraw(float x, float y){
 		PerformanceTester.start();
 		
@@ -149,20 +148,52 @@ public class DrawView extends View{
 		path.moveTo(x, y);
 		lastX = x;
 		lastY = y;
-		invalidate();
+		//invalidate();
+		
+		modified = true;
 	}
+	
+	private static final float invalidateOffset = 50f;
 	
 	public void continueDraw(float x, float y){
 		
 		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
+	
+			if(y < lastY){
+				if(x < lastX){
+					postInvalidate(
+							(int)(x - invalidateOffset), 
+							(int)(y - invalidateOffset), 
+							(int)(lastX + invalidateOffset), 
+							(int)(lastY + invalidateOffset));
+				}else{
+					postInvalidate(
+							(int)(lastX - invalidateOffset), 
+							(int)(y - invalidateOffset), 
+							(int)(x + invalidateOffset), 
+							(int)(lastY + invalidateOffset));
+				}
+			}else{
+				if(x < lastX){
+					postInvalidate(
+							(int)(x - invalidateOffset), 
+							(int)(lastY - invalidateOffset), 
+							(int)(lastX + invalidateOffset), 
+							(int)(y + invalidateOffset));
+				}else{
+					postInvalidate(
+							(int)(lastX - invalidateOffset), 
+							(int)(lastY - invalidateOffset), 
+							(int)(x + invalidateOffset), 
+							(int)(y + invalidateOffset));
+				}
+			}
 		
 		//path.lineTo(x, y);
-		
 		lastX = x;
 		lastY = y;
-		invalidate();
-		modified = true;
+		
 		PerformanceTester.hit();
 	}
 	
