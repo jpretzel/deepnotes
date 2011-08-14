@@ -254,18 +254,7 @@ public class DrawActivity extends Activity {
 
 		// delete triggered
 		case (R.id.draw_menu_delete): {
-			Intent resultIntent = new Intent();
-
-			// only call if there is a note to delete
-			if (fileName != null && IOManager.deleteNote(this, fileName)) {
-				// tell the MainActivtiy that we deleted a note
-				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION,
-						notePosition);
-				setResult(Deepnotes.SAVED_NOTE_DELETED, resultIntent);
-			} else {
-				setResult(Activity.RESULT_CANCELED);
-			}
-
+			IOManager.deleteNote(this, fileName);
 			finish();
 
 			return true;
@@ -273,9 +262,8 @@ public class DrawActivity extends Activity {
 
 		// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
-			Intent intent = new Intent();
+			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 			intent.setType("image/*");
-			intent.setAction(Intent.ACTION_GET_CONTENT);
 			startActivityForResult(
 					Intent.createChooser(intent, "Bild auswählen"),
 					REQUEST_IMAGE_FROM_GALLERY);
@@ -285,25 +273,22 @@ public class DrawActivity extends Activity {
 
 		// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
-			// Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			// String fileName =
 			// getFullyQualifiedFileString(Deepnotes.saveFolder
 			// + Deepnotes.savePhotos, ".jpg");
 			// File file = new File(fileName);
-			// pictureUri = Uri.fromFile(file);
-			// intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-			// startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
+			pictureUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/testcam.jpg"));
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
 
 			return true;
 		}
 
 		// share triggered
 		case (R.id.draw_menu_share): {
-			
 			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
-			// TODO: Attach images! Example:
-			// http://stackoverflow.com/questions/4552831/how-to-attach-multiple-files-to-email-client-in-android
 			startActivity(intent);
 			return true;
 		}
@@ -432,27 +417,30 @@ public class DrawActivity extends Activity {
 	 * @param data
 	 *            Uri of imageresource
 	 * 
+	 * @author Jan Pretzel
 	 * @author Sebastian Ullrich
 	 */
-	private void cropImage(Uri data) {
+	private void cropImage() {
+//		Intent intent = new Intent(this, CropImage.class);
+		
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
 //		intent.setClassName("com.android.gallery", "com.android.camera.CropImage");
 		File file = new File(Environment.getExternalStorageDirectory() + "/test.jpg");
-		pictureUri = Uri.fromFile(file);
+		Uri output = Uri.fromFile(file);
 
-		intent.setData(data);
+		intent.setData(pictureUri);
 		int x = 480;
 		int y = 800;
 //		intent.putExtra("setWallpaper", false);
 		intent.putExtra("outputX", x);
 		intent.putExtra("outputY", y);
-		intent.putExtra("aspectX", x/2);
-		intent.putExtra("aspectY", y/2);
+		intent.putExtra("aspectX", x);
+		intent.putExtra("aspectY", y);
 		intent.putExtra("scale", true);
 //		intent.putExtra("noFaceDetection", true);
 		intent.putExtra("return-data", false);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, output);
 
 		startActivityForResult(intent, REQUEST_IMAGE_CROP);
 	}
@@ -471,14 +459,14 @@ public class DrawActivity extends Activity {
 		/* Import from gallery result */
 		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
 			if (resultCode == RESULT_OK) {
-				Uri imageUri = data.getData();
-				cropImage(imageUri);
+				pictureUri = data.getData();
+				cropImage();
 			}
 
 		/* Import from camera result */
 		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
 			if (resultCode == RESULT_OK) {
-				Bitmap bitmap = null;
+				/*Bitmap bitmap = null;
 				try {
 					// TODO: add image do MediaStore
 					sendBroadcast(new Intent(
@@ -490,7 +478,9 @@ public class DrawActivity extends Activity {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				}*/
+				
+				cropImage();
 			}
 
 		/* crop result */
@@ -518,7 +508,6 @@ public class DrawActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			currentDrawView.recycle();
 			/* check for changes */
 			if (saveStateChanged) {
 				/* Creating the save dialog. */
@@ -678,23 +667,10 @@ public class DrawActivity extends Activity {
 
 			super.onPostExecute(result);
 			
-			// TODO: add localized string
-			Toast toast = Toast.makeText(activity, "SAVED!!! YEAH!", Toast.LENGTH_SHORT);
+			Toast toast = Toast.makeText(activity, R.string.note_saved, Toast.LENGTH_SHORT);
 			toast.show();
 
-			// tell the MainActivtiy that we saved a note
-			final Intent resultIntent = new Intent();
-			resultIntent.putExtra(Deepnotes.SAVED_NOTE_NAME, fileName);
-
-			// if we have a modified note MainActivity needs to know
-			if (notePosition != null) {
-				resultIntent.putExtra(Deepnotes.SAVED_NOTE_POSITION,
-						notePosition);
-				activity.setResult(Deepnotes.SAVED_NOTE_MODIFIED, resultIntent);
-			} else {
-				activity.setResult(Activity.RESULT_OK, resultIntent);
-			}
-
+			// need to finish in onPostExecute, else we leak the window
 			activity.finish();
 		}
 
@@ -750,6 +726,35 @@ public class DrawActivity extends Activity {
 		}
 
 	}
+	
+//	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//		super.onSaveInstanceState(outState);
+//		
+//		outState.putParcelable("0", ((DrawView) viewFlipper.getChildAt(0)).getBitmap());
+//		outState.putParcelable("1", ((DrawView) viewFlipper.getChildAt(1)).getBitmap());
+//		outState.putParcelable("2", ((DrawView) viewFlipper.getChildAt(2)).getBitmap());
+//	}
+//	
+//	@Override
+//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//		super.onRestoreInstanceState(savedInstanceState);
+//		
+//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//	}
+	
+//	@Override
+//	protected void onPause() {
+//		super.onPause();
+//		
+//		int count = viewFlipper.getChildCount();
+//		for (int i = 0; i < count; i++) {
+//			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
+//			dw.recycle();
+//		}
+//	}
 
 	/**
 	 * @return the saveStateChanged
