@@ -58,6 +58,11 @@ public class DrawView extends View{
 	 * flag for existing background
 	 */
 	private boolean hasBackground = false;
+	
+	/**
+	 * visibility flag
+	 */
+	private boolean isVisible = true;
 
 	/**
 	 * Constructor.
@@ -220,10 +225,16 @@ public class DrawView extends View{
 	 * Clears the current page and post an invalidate state to force an update.
 	 */
 	public void clearNote() {
-		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
+		bitmap = Bitmap.createBitmap(
+				Deepnotes.getViewportWidth(), 
+				Deepnotes.getViewportHeight(), 
+				Bitmap.Config.ARGB_4444);
 		
 		if(hasBackground)
-			background = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
+			background = Bitmap.createBitmap(
+					Deepnotes.getViewportWidth(), 
+					Deepnotes.getViewportHeight(), 
+					Bitmap.Config.ARGB_4444);
 
 		canvas = new Canvas(bitmap);
 		postInvalidate();
@@ -307,11 +318,20 @@ public class DrawView extends View{
 		return false;
 	}
 	
-	public void recycle() {
-		bitmap.recycle();
-		
-		if (background != null) {
-			background.recycle();
+	/**
+	 * 
+	 * @param visible
+	 * @author Sebastian Ullrich
+	 */
+	public void setVisible(boolean visible) {
+		isVisible = visible;
+		if(visible){
+			init();
+			// TODO: load note;
+		}else{
+			bitmap.recycle();
+			if (hasBackground)
+				background.recycle();
 		}
 	}
 }
