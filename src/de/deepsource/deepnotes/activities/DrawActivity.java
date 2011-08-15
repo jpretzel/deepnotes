@@ -171,6 +171,9 @@ public class DrawActivity extends Activity {
 
 				// don't run false files
 				if (index < 3) {
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inTempStorage = new byte[16*1024];
+					
 					// load the file as Bitmap
 					Bitmap bitmap = BitmapFactory.decodeFile(file
 							.getAbsolutePath());
@@ -201,6 +204,9 @@ public class DrawActivity extends Activity {
 		if (notePath.exists()) {
 			String notePathString = notePath.toString();
 			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inTempStorage = new byte[16*1024];
 			
 			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
 					+ index + ".png");
