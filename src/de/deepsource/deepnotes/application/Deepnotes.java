@@ -20,31 +20,6 @@ public class Deepnotes extends Application {
 	public static final String SAVED_NOTE_NAME = "savedNoteName";
 	
 	/**
-	 * Identifier for a note's position in the GridView, send with an intent.
-	 * With the help of the position the note's thumbnail can be updated
-	 * or deleted.
-	 * 
-	 * @author Jan Pretzel
-	 */
-	public static final String SAVED_NOTE_POSITION = "savedNotePosition";
-	
-	/**
-	 * Custom result code to tell the MainActivity that the note
-	 * was deleted.
-	 * 
-	 * @author Jan Pretzel
-	 */
-	public static final int SAVED_NOTE_DELETED = 0x00000002;
-	
-	/**
-	 * Custom result code to tell the MainActivity that the note
-	 * was modified, and the thumbnail needs to be updated.
-	 * 
-	 * @author Jan Pretzel
-	 */
-	public static final int SAVED_NOTE_MODIFIED = 0x00000003;
-	
-	/**
 	 * Identifier for a request code, to share a note.
 	 * 
 	 * @author Jan Pretzel

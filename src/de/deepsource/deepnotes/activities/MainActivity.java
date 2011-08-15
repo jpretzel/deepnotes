@@ -70,7 +70,6 @@ public class MainActivity extends FragmentActivity {
 						
 						final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
-						intent.putExtra(Deepnotes.SAVED_NOTE_POSITION, position);
 						
 						startActivity(intent);
 					}

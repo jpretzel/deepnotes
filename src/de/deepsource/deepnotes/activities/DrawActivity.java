@@ -107,9 +107,8 @@ public class DrawActivity extends Activity {
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
 			Bundle bundle = getIntent().getExtras();
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
-			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
-			loadNotePages();
-			// loadNotePage(0);
+//			loadNotePages();
+			loadNotePage(0);
 		}
 
 		Log.e("INIT",
@@ -191,23 +190,32 @@ public class DrawActivity extends Activity {
 		}
 	}
 
-	// public void loadNotePage(int index) {
-	// File notePath = new File(getFilesDir(), fileName + "/");
-	//
-	// if (notePath.exists()) {
-	// Log.e("LOAD", notePath.toString() + "/" + index + ".png");
-	// Bitmap note = BitmapFactory.decodeFile(notePath.toString() + "/"
-	// + index + ".png");
-	// ((DrawView)viewFlipper.getChildAt(index)).loadBitmap(note);
-	//
-	// Log.e("INIT",
-	// String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-	//
-	// // Bitmap background = BitmapFactory.decodeFile(notePath.toString()
-	// // + "background_" + index + ".png");
-	// // currentDrawView.setBackground(background);
-	// }
-	// }
+	/**
+	 * @author Jan Pretzel
+	 * 
+	 * @param index
+	 */
+	public void loadNotePage(int index) {
+		File notePath = new File(getFilesDir(), fileName + "/");
+
+		if (notePath.exists()) {
+			String notePathString = notePath.toString();
+			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			
+			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
+					+ index + ".png");
+			dw.loadBitmap(note);
+
+			File backgroundFile = new File(notePathString + "/background_" + index + ".jpg");
+			if (backgroundFile.exists()) {
+				Bitmap background = BitmapFactory.decodeFile(backgroundFile.toString());
+				dw.setBackground(background);
+			}
+			
+			Log.e("INIT", String.valueOf(android.os.Debug
+					.getNativeHeapAllocatedSize()));
+		}
+	}
 
 	/**
 	 * Adding the menu.
@@ -697,7 +705,7 @@ public class DrawActivity extends Activity {
 			Bitmap firstPage = drawView.getBitmap();
 
 			// scale factor = 0.5
-			float scale = 0.5f;
+			float scale = 0.1f;
 
 			// create matrix
 			Matrix matirx = new Matrix();
