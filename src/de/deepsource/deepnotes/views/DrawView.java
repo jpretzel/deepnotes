@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import de.deepsource.deepnotes.utilities.PerformanceTester;
 
@@ -98,7 +97,7 @@ public class DrawView extends View{
 	 */
 	public void init() {
 		// inti bitmap and canvas
-		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_8888);
+		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
 		canvas = new Canvas(bitmap);	
 		
 		// paint config
@@ -221,9 +220,10 @@ public class DrawView extends View{
 	 */
 	public void clearNote() {
 		bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+		
 		if(hasBackground)
 			background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-		
+
 		canvas = new Canvas(bitmap);
 		postInvalidate();
 		
@@ -304,5 +304,12 @@ public class DrawView extends View{
 		}
 		
 		return false;
+	}
+	
+	public void recycle() {
+		bitmap.recycle();
+		
+		if (background != null)
+		background.recycle();
 	}
 }

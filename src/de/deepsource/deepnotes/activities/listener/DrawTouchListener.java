@@ -1,6 +1,5 @@
 package de.deepsource.deepnotes.activities.listener;
 
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import de.deepsource.deepnotes.activities.DrawActivity;

@@ -2,9 +2,10 @@ package de.deepsource.deepnotes.activities;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,8 +41,6 @@ public class MainActivity extends FragmentActivity {
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
 	protected final Context context = this;
-	
-	private static final int REQUEST_NOTE = 0x00000001;
 
 	/** 
 	 * Called when the activity is first created. 
@@ -54,7 +53,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.main);
         
         notes = new ArrayList<Note>();
-        na = new NotesAdapter(this, R.layout.note_item, R.id.fileName, notes);
+        na = new NotesAdapter(context.getApplicationContext(), R.layout.note_item, R.id.fileName, notes);
         
         GridView notesView = (GridView) findViewById(R.id.notesView);
         registerForContextMenu(notesView);
@@ -67,19 +66,15 @@ public class MainActivity extends FragmentActivity {
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
 						
-						// TODO: observe if this helps with OutOfMemoryError
-						// tell the gc it would be a great time to free some memory
-						System.gc();
-						
-						final Intent intent = new Intent(context, DrawActivity.class);
+						final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
 						intent.putExtra(Deepnotes.SAVED_NOTE_POSITION, position);
 						
-						startActivityForResult(intent, REQUEST_NOTE);			
+						startActivity(intent);
 					}
 				});
         
-        loadNotes();
+//        loadNotes();
         Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}    
 	
@@ -94,8 +89,15 @@ public class MainActivity extends FragmentActivity {
 		if (notePath.exists()) {
 			File[] notePages = notePath.listFiles();
 			
+			// sort this array in reverse order (newest first)
+			// this is needed, because lisFiles() documentation says:
+			// "There is no guarantee that the name strings in the resulting 
+			// array will appear in any specific order; they are not, in 
+			// particular, guaranteed to appear in alphabetical order."
+			Arrays.sort(notePages, Collections.reverseOrder());
+			
 			for (File note : notePages) {
-				notes.add(new Note(this.getApplicationContext(), note.getName()));
+				notes.add(new Note(context.getApplicationContext(), note.getName()));
 				na.notifyDataSetChanged();
 			}
 		}
@@ -110,7 +112,7 @@ public class MainActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
-		MenuInflater inflater = new MenuInflater(this);
+		MenuInflater inflater = new MenuInflater(context.getApplicationContext());
 		inflater.inflate(R.menu.main_menu, menu);
 		
 		return true;
@@ -128,8 +130,8 @@ public class MainActivity extends FragmentActivity {
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
 			Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-			Intent intent = new Intent(this, DrawActivity.class);
-			startActivityForResult(intent, REQUEST_NOTE);
+			Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
+			startActivity(intent);
 			return true;
 		}
 		}
@@ -146,31 +148,11 @@ public class MainActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
-		case (REQUEST_NOTE): {
-			if (resultCode == Activity.RESULT_OK) {
-				Bundle bundle = data.getExtras();
-				String noteName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
-				notes.add(0, new Note(this.getApplicationContext(), noteName));
-				na.notifyDataSetChanged();
-			} else if (resultCode == Deepnotes.SAVED_NOTE_DELETED) {
-				Bundle bundle = data.getExtras();
-				int notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
-				notes.remove(notePosition);
-				na.notifyDataSetChanged();
-			} else if (resultCode == Deepnotes.SAVED_NOTE_MODIFIED) {
-				Bundle bundle = data.getExtras();
-				int notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
-				String noteName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
-				notes.remove(notePosition);
-				notes.add(notePosition, new Note(this.getApplicationContext(), noteName));
-				na.notifyDataSetChanged();
-			}
-			
-			break;
-		}
 		
 		case (Deepnotes.REQUEST_SHARE_NOTE): {
 			// always clear cache, regardless of the resultCode
+			// TODO: find another way to clear cache
+			// this will lead to the share app not loading any image at all
 			IOManager.clearCache();
 			break;
 		}
@@ -187,7 +169,7 @@ public class MainActivity extends FragmentActivity {
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
-		MenuInflater inflater = new MenuInflater(this);
+		MenuInflater inflater = new MenuInflater(context.getApplicationContext());
 		inflater.inflate(R.menu.main_contextmenu, menu);
 		menu.setHeaderTitle(R.string.note);
 	}
@@ -207,7 +189,7 @@ public class MainActivity extends FragmentActivity {
 			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 			int index = menuInfo.position;
 			
-			if (IOManager.deleteNote(this, notes.get(index).getFileName())) {
+			if (IOManager.deleteNote(context.getApplicationContext(), notes.get(index).getFileName())) {
 				notes.remove(index);
 				na.notifyDataSetChanged();
 			}
@@ -226,6 +208,21 @@ public class MainActivity extends FragmentActivity {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadNotes();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		// recylce notes to free up memory
+		notes.clear();
+		na.notifyDataSetChanged();
 	}
 	
 	/**
@@ -263,7 +260,7 @@ public class MainActivity extends FragmentActivity {
 			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 			
 			fileName.setText(note.getCreated());
-			noteImage.setImageDrawable(note.getThumbnail());
+			noteImage.setImageBitmap(note.getThumbnail());
 			
 			return noteView;
 		}

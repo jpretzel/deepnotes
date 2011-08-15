@@ -4,16 +4,15 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import de.deepsource.deepnotes.application.Deepnotes;
-
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import de.deepsource.deepnotes.application.Deepnotes;
 
 public class Note {
 	
 	private String created;
-	private BitmapDrawable thumbnail;
+	private Bitmap thumbnail;
 	private String fileName;
 	
 	public Note(Context context, String name) {
@@ -36,15 +35,15 @@ public class Note {
 		
 		File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".jpg");
 		if (imageFile.exists()) {
-			thumbnail = new BitmapDrawable(BitmapFactory.decodeFile(imageFile.toString()));
+			thumbnail = BitmapFactory.decodeFile(imageFile.toString());
 		}
 	}
-	
+
 	public String getCreated() {
 		return created;
 	}
 	
-	public BitmapDrawable getThumbnail() {
+	public Bitmap getThumbnail() {
 		return thumbnail;
 	}
 	
