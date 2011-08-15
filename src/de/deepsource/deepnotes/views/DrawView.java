@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
+import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.PerformanceTester;
 
 /**
@@ -97,7 +98,7 @@ public class DrawView extends View{
 	 */
 	public void init() {
 		// inti bitmap and canvas
-		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
+		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
 		canvas = new Canvas(bitmap);	
 		
 		// paint config
@@ -219,10 +220,10 @@ public class DrawView extends View{
 	 * Clears the current page and post an invalidate state to force an update.
 	 */
 	public void clearNote() {
-		bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
 		
 		if(hasBackground)
-			background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+			background = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
 
 		canvas = new Canvas(bitmap);
 		postInvalidate();
@@ -309,7 +310,8 @@ public class DrawView extends View{
 	public void recycle() {
 		bitmap.recycle();
 		
-		if (background != null)
-		background.recycle();
+		if (background != null) {
+			background.recycle();
+		}
 	}
 }

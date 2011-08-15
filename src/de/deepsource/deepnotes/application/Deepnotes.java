@@ -51,6 +51,9 @@ public class Deepnotes extends Application {
 	 */
 	public static final int REQUEST_SHARE_NOTE = 0x00000002;
 	
+	private static int viewportWidth;
+	private static int viewportHeight;
+	
 	/**
 	 * <h1>Distance moved to trigger an swipe event.</h1>
 	 * 
@@ -118,4 +121,20 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final int NOTE_BACKGROUND_COLOR = Color.rgb(255, 255, 255);
+
+	public static int getViewportWidth() {
+		return viewportWidth;
+	}
+
+	public static void setViewportWidth(int _viewportWidth) {
+		viewportWidth = _viewportWidth;
+	}
+
+	public static int getViewportHeight() {
+		return viewportHeight;
+	}
+
+	public static void setViewportHeight(int _viewportHeight) {
+		viewportHeight = _viewportHeight;
+	}
 }

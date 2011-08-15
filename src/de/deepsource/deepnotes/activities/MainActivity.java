@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +42,7 @@ public class MainActivity extends FragmentActivity {
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
 	protected final Context context = this;
+	private GridView notesView;
 
 	/** 
 	 * Called when the activity is first created. 
@@ -55,7 +57,7 @@ public class MainActivity extends FragmentActivity {
         notes = new ArrayList<Note>();
         na = new NotesAdapter(context.getApplicationContext(), R.layout.note_item, R.id.fileName, notes);
         
-        GridView notesView = (GridView) findViewById(R.id.notesView);
+        notesView = (GridView) findViewById(R.id.notesView);
         registerForContextMenu(notesView);
         notesView.setAdapter(na);
         
@@ -73,6 +75,12 @@ public class MainActivity extends FragmentActivity {
 						startActivity(intent);
 					}
 				});
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        
+        Log.e("WIDTH", String.valueOf(display.getWidth()));
+        Deepnotes.setViewportWidth(display.getWidth());
+        Deepnotes.setViewportHeight(display.getHeight());
         
 //        loadNotes();
         Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));

@@ -110,7 +110,7 @@ public final class IOManager {
 						draw = BitmapFactory.decodeFile(bgPath);
 						canvas = new Canvas(draw);
 					} else {
-						draw = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
+						draw = Bitmap.createBitmap(Deepnotes.getViewportWidth(), Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
 						canvas = new Canvas(draw);
 						canvas.drawColor(Color.WHITE);
 					}
