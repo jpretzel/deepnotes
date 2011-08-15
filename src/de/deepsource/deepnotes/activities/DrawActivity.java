@@ -171,8 +171,6 @@ public class DrawActivity extends Activity {
 
 				// don't run false files
 				if (index < 3) {
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					options.inTempStorage = new byte[16*1024];
 					
 					// load the file as Bitmap
 					Bitmap bitmap = BitmapFactory.decodeFile(file
@@ -203,9 +201,6 @@ public class DrawActivity extends Activity {
 		if (notePath.exists()) {
 			String notePathString = notePath.toString();
 			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
-			
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inTempStorage = new byte[16*1024];
 			
 			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
 					+ index + ".png");
@@ -798,6 +793,15 @@ public class DrawActivity extends Activity {
 		Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
+	@Override
+	protected void onDestroy() {
+		// trying to free heap by force
+		Log.i("DrawActivity", "onDestroy() called.");
+		super.onDestroy();
+		currentDrawView.destroyDrawingCache();
+		currentDrawView = null;
+	}
+	
 	/**
 	 * @return the saveStateChanged
 	 */

@@ -8,6 +8,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.PerformanceTester;
@@ -332,6 +333,7 @@ public class DrawView extends View{
 			bitmap.recycle();
 			if (hasBackground)
 				background.recycle();
+			canvas = null;
 		}
 	}
 }

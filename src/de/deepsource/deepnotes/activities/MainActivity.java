@@ -78,8 +78,8 @@ public class MainActivity extends FragmentActivity {
         Display display = getWindowManager().getDefaultDisplay();
         
         Log.e("WIDTH", String.valueOf(display.getWidth()));
-        Deepnotes.setViewportWidth(800);
-        Deepnotes.setViewportHeight(600);
+        Deepnotes.setViewportWidth(display.getWidth());
+        Deepnotes.setViewportHeight(display.getHeight());
         
 //        loadNotes();
         Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
