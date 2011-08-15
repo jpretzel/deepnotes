@@ -445,8 +445,8 @@ public class DrawActivity extends Activity {
 		outputUri = Uri.fromFile(file);
 
 		intent.setData(pictureUri);
-		int x = 480;
-		int y = 800;
+		int x = Deepnotes.getViewportWidth();
+		int y = Deepnotes.getViewportHeight();
 		// intent.putExtra("setWallpaper", false);
 		intent.putExtra("outputX", x);
 		intent.putExtra("outputY", y);
