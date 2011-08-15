@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import de.deepsource.deepnotes.utilities.PerformanceTester;
 
@@ -160,35 +159,35 @@ public class DrawView extends View{
 		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
 	
-			if(y < lastY){
-				if(x < lastX){
-					postInvalidate(
-							(int)(x - invalidateOffset), 
-							(int)(y - invalidateOffset), 
-							(int)(lastX + invalidateOffset), 
-							(int)(lastY + invalidateOffset));
-				}else{
-					postInvalidate(
-							(int)(lastX - invalidateOffset), 
-							(int)(y - invalidateOffset), 
-							(int)(x + invalidateOffset), 
-							(int)(lastY + invalidateOffset));
-				}
+		if(y < lastY){
+			if(x < lastX){
+				postInvalidate(
+						(int)(x - invalidateOffset), 
+						(int)(y - invalidateOffset), 
+						(int)(lastX + invalidateOffset), 
+						(int)(lastY + invalidateOffset));
 			}else{
-				if(x < lastX){
-					postInvalidate(
-							(int)(x - invalidateOffset), 
-							(int)(lastY - invalidateOffset), 
-							(int)(lastX + invalidateOffset), 
-							(int)(y + invalidateOffset));
-				}else{
-					postInvalidate(
-							(int)(lastX - invalidateOffset), 
-							(int)(lastY - invalidateOffset), 
-							(int)(x + invalidateOffset), 
-							(int)(y + invalidateOffset));
-				}
+				postInvalidate(
+						(int)(lastX - invalidateOffset), 
+						(int)(y - invalidateOffset), 
+						(int)(x + invalidateOffset), 
+						(int)(lastY + invalidateOffset));
 			}
+		}else{
+			if(x < lastX){
+				postInvalidate(
+						(int)(x - invalidateOffset), 
+						(int)(lastY - invalidateOffset), 
+						(int)(lastX + invalidateOffset), 
+						(int)(y + invalidateOffset));
+			}else{
+				postInvalidate(
+						(int)(lastX - invalidateOffset), 
+						(int)(lastY - invalidateOffset), 
+						(int)(x + invalidateOffset), 
+						(int)(y + invalidateOffset));
+			}
+		}
 		
 		//path.lineTo(x, y);
 		lastX = x;
@@ -220,8 +219,11 @@ public class DrawView extends View{
 	 * Clears the current page and post an invalidate state to force an update.
 	 */
 	public void clearNote() {
-		bitmap = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
-		background = Bitmap.createBitmap(480, 800, Bitmap.Config.ARGB_4444);
+		bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+		
+		if(hasBackground)
+			background = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+
 		canvas = new Canvas(bitmap);
 		postInvalidate();
 		
