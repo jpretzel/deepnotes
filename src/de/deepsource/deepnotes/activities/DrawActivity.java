@@ -3,12 +3,15 @@ package de.deepsource.deepnotes.activities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -55,21 +58,14 @@ public class DrawActivity extends Activity {
 	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
 
 	/**
-	 * Custom request code to identify the <i>image share event</i>.
-	 * 
-	 * @author Sebastian Ullrich
-	 */
-	@SuppressWarnings("unused")
-	private static final int REQUEST_IMAGE_SHARE = 0x00000011;
-
-	/**
 	 * Custom request code to identify the <i>image crop</i>.
 	 * 
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
-	
+
 	private Uri pictureUri;
+	private Uri outputUri;
 	private DrawView currentDrawView;
 	protected ViewFlipper viewFlipper;
 	protected String fileName;
@@ -113,12 +109,13 @@ public class DrawActivity extends Activity {
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			notePosition = bundle.getInt(Deepnotes.SAVED_NOTE_POSITION);
 			loadNotePages();
-//			loadNotePage(0);
+			// loadNotePage(0);
 		}
-		
-		Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+
+		Log.e("INIT",
+				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
-	
+
 	/**
 	 * @return the currentPaint
 	 */
@@ -194,24 +191,23 @@ public class DrawActivity extends Activity {
 		}
 	}
 
-	
-//	public void loadNotePage(int index) {
-//		File notePath = new File(getFilesDir(), fileName + "/");
-//
-//		if (notePath.exists()) {
-//			Log.e("LOAD", notePath.toString() + "/" + index + ".png");
-//			Bitmap note = BitmapFactory.decodeFile(notePath.toString() + "/"
-//					+ index + ".png");
-//			((DrawView)viewFlipper.getChildAt(index)).loadBitmap(note);
-//			
-//			Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-//
-////			Bitmap background = BitmapFactory.decodeFile(notePath.toString()
-////					+ "background_" + index + ".png");
-////			currentDrawView.setBackground(background);
-//		}
-//	}
-	 
+	// public void loadNotePage(int index) {
+	// File notePath = new File(getFilesDir(), fileName + "/");
+	//
+	// if (notePath.exists()) {
+	// Log.e("LOAD", notePath.toString() + "/" + index + ".png");
+	// Bitmap note = BitmapFactory.decodeFile(notePath.toString() + "/"
+	// + index + ".png");
+	// ((DrawView)viewFlipper.getChildAt(index)).loadBitmap(note);
+	//
+	// Log.e("INIT",
+	// String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+	//
+	// // Bitmap background = BitmapFactory.decodeFile(notePath.toString()
+	// // + "background_" + index + ".png");
+	// // currentDrawView.setBackground(background);
+	// }
+	// }
 
 	/**
 	 * Adding the menu.
@@ -278,8 +274,10 @@ public class DrawActivity extends Activity {
 			// getFullyQualifiedFileString(Deepnotes.saveFolder
 			// + Deepnotes.savePhotos, ".jpg");
 			// File file = new File(fileName);
-			pictureUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/testcam.jpg"));
+			pictureUri = Uri.fromFile(new File(Environment
+					.getExternalStorageDirectory() + "/testcam.jpg"));
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+			intent.putExtra("return-data", true);
 			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
 
 			return true;
@@ -344,16 +342,16 @@ public class DrawActivity extends Activity {
 
 		new SaveNote(this).execute();
 	}
-	
+
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
 	 * 
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
-		
+
 		showPageToast(true);
-		
+
 		viewFlipper.showNext();
 		updateCurrentPaintColor();
 	}
@@ -364,40 +362,40 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		/*viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideouttoright));
-		viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-				R.anim.slideinfromleft));
-		
-		if (!viewFlipper.isFlipping())
-			viewFlipper.showPrevious();
-			*/
+		/*
+		 * viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+		 * R.anim.slideouttoright));
+		 * viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
+		 * R.anim.slideinfromleft));
+		 * 
+		 * if (!viewFlipper.isFlipping()) viewFlipper.showPrevious();
+		 */
 
 		showPageToast(false);
-		
+
 		viewFlipper.showPrevious();
 		updateCurrentPaintColor();
 	}
-	
-	private void showPageToast(boolean next){
+
+	private void showPageToast(boolean next) {
 		int currentPage = viewFlipper.getDisplayedChild() + 1;
 		int size = viewFlipper.getChildCount();
-		
+
 		String msg = new String();
-		
-		if(next){
+
+		if (next) {
 			// show next page
-			if(currentPage == size)
+			if (currentPage == size)
 				msg = "1";
 			else
-				msg = String.valueOf(currentPage+1);
-		}else{
-			if(currentPage == 1)
+				msg = String.valueOf(currentPage + 1);
+		} else {
+			if (currentPage == 1)
 				msg = String.valueOf(size);
 			else
-				msg = String.valueOf(currentPage-1);
+				msg = String.valueOf(currentPage - 1);
 		}
-			
+
 		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
 		toast.show();
 	}
@@ -414,33 +412,50 @@ public class DrawActivity extends Activity {
 	/**
 	 * This method intents image cropping.
 	 * 
+	 * @author Jan Pretzel
+	 * @author Sebastian Ullrich
+	 * 
 	 * @param data
 	 *            Uri of imageresource
 	 * 
-	 * @author Jan Pretzel
-	 * @author Sebastian Ullrich
 	 */
 	private void cropImage() {
-//		Intent intent = new Intent(this, CropImage.class);
-		
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
-//		intent.setClassName("com.android.gallery", "com.android.camera.CropImage");
-		File file = new File(Environment.getExternalStorageDirectory() + "/test.jpg");
-		Uri output = Uri.fromFile(file);
+		
+		List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
+		
+		Log.e("CROP", String.valueOf(resolveInfo.size()));
+		
+		if (resolveInfo.size() == 0) {
+			Toast.makeText(this, "No crop application found.", Toast.LENGTH_SHORT).show();
+			
+			// TODO: crop without user input
+			
+			return;
+		}
+		
+		// force the intent to take crop activity (won't 
+		// work from camera activity without this!)
+		ResolveInfo res = resolveInfo.get(0);
+		intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+
+		File file = new File(Environment.getExternalStorageDirectory()
+				+ "/test.jpg");
+		outputUri = Uri.fromFile(file);
 
 		intent.setData(pictureUri);
 		int x = 480;
 		int y = 800;
-//		intent.putExtra("setWallpaper", false);
+		// intent.putExtra("setWallpaper", false);
 		intent.putExtra("outputX", x);
 		intent.putExtra("outputY", y);
 		intent.putExtra("aspectX", x);
 		intent.putExtra("aspectY", y);
 		intent.putExtra("scale", true);
-//		intent.putExtra("noFaceDetection", true);
+		// intent.putExtra("noFaceDetection", true);
 		intent.putExtra("return-data", false);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, output);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 
 		startActivityForResult(intent, REQUEST_IMAGE_CROP);
 	}
@@ -455,49 +470,42 @@ public class DrawActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		// TODO: switch case
+		switch (requestCode) {
 		/* Import from gallery result */
-		if (requestCode == REQUEST_IMAGE_FROM_GALLERY)
+		case (REQUEST_IMAGE_FROM_GALLERY): {
 			if (resultCode == RESULT_OK) {
 				pictureUri = data.getData();
 				cropImage();
+
+				break;
 			}
+		}
 
 		/* Import from camera result */
-		if (requestCode == REQUEST_IMAGE_FROM_CAMERA)
+		case (REQUEST_IMAGE_FROM_CAMERA): {
 			if (resultCode == RESULT_OK) {
-				/*Bitmap bitmap = null;
-				try {
-					// TODO: add image do MediaStore
-					sendBroadcast(new Intent(
-							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, pictureUri));
-					bitmap = MediaStore.Images.Media.getBitmap(
-							getContentResolver(), pictureUri);
-					currentDrawView.setBackground(bitmap);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}*/
-				
 				cropImage();
+
+				break;
 			}
+		}
 
 		/* crop result */
-		if (requestCode == REQUEST_IMAGE_CROP)
-			if (resultCode == RESULT_OK) {			
+		case (REQUEST_IMAGE_CROP): {
+			if (resultCode == RESULT_OK) {
 				Bitmap bitmap;
 				try {
-					bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), pictureUri);
+					bitmap = MediaStore.Images.Media.getBitmap(
+							getContentResolver(), outputUri);
 					currentDrawView.setBackground(bitmap);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+		}
+		}
 	}
 
 	/**
@@ -619,8 +627,8 @@ public class DrawActivity extends Activity {
 					Log.e("SAVE", "saving background " + i);
 					// save background
 					bitmap = toSave.getBackgroundBitmap();
-					IOManager.writeFile(bitmap, savePath + "background_" + i + ".jpg",
-							Bitmap.CompressFormat.JPEG, 70);
+					IOManager.writeFile(bitmap, savePath + "background_" + i
+							+ ".jpg", Bitmap.CompressFormat.JPEG, 70);
 				}
 
 				// check for delete status
@@ -666,8 +674,9 @@ public class DrawActivity extends Activity {
 			}
 
 			super.onPostExecute(result);
-			
-			Toast toast = Toast.makeText(activity, R.string.note_saved, Toast.LENGTH_SHORT);
+
+			Toast toast = Toast.makeText(activity, R.string.note_saved,
+					Toast.LENGTH_SHORT);
 			toast.show();
 
 			// need to finish in onPostExecute, else we leak the window
@@ -700,17 +709,19 @@ public class DrawActivity extends Activity {
 			// create scaled bitmaps
 			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
 					width, height, matirx, true);
-			
+
 			Canvas pageAndBackground;
 			Bitmap firstBackgroundScaled;
-			
+
 			if (drawView.hasBackground()) {
 				Bitmap firstBackground = drawView.getBackgroundBitmap();
-				firstBackgroundScaled = Bitmap.createBitmap(firstBackground,
-						0, 0, width, height, matirx, true);
+				firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
+						0, width, height, matirx, true);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 			} else {
-				firstBackgroundScaled = Bitmap.createBitmap((int) (width * scale), (int) (height * scale), Bitmap.Config.ARGB_4444);
+				firstBackgroundScaled = Bitmap.createBitmap(
+						(int) (width * scale), (int) (height * scale),
+						Bitmap.Config.ARGB_4444);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 				pageAndBackground.drawColor(Color.WHITE);
 			}
@@ -726,35 +737,41 @@ public class DrawActivity extends Activity {
 		}
 
 	}
-	
-//	@Override
-//	protected void onSaveInstanceState(Bundle outState) {
-//		super.onSaveInstanceState(outState);
-//		
-//		outState.putParcelable("0", ((DrawView) viewFlipper.getChildAt(0)).getBitmap());
-//		outState.putParcelable("1", ((DrawView) viewFlipper.getChildAt(1)).getBitmap());
-//		outState.putParcelable("2", ((DrawView) viewFlipper.getChildAt(2)).getBitmap());
-//	}
-//	
-//	@Override
-//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//		super.onRestoreInstanceState(savedInstanceState);
-//		
-//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
-//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
-//		((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
-//	}
-	
-//	@Override
-//	protected void onPause() {
-//		super.onPause();
-//		
-//		int count = viewFlipper.getChildCount();
-//		for (int i = 0; i < count; i++) {
-//			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
-//			dw.recycle();
-//		}
-//	}
+
+	// @Override
+	// protected void onSaveInstanceState(Bundle outState) {
+	// super.onSaveInstanceState(outState);
+	//
+	// outState.putParcelable("0", ((DrawView)
+	// viewFlipper.getChildAt(0)).getBitmap());
+	// outState.putParcelable("1", ((DrawView)
+	// viewFlipper.getChildAt(1)).getBitmap());
+	// outState.putParcelable("2", ((DrawView)
+	// viewFlipper.getChildAt(2)).getBitmap());
+	// }
+	//
+	// @Override
+	// protected void onRestoreInstanceState(Bundle savedInstanceState) {
+	// super.onRestoreInstanceState(savedInstanceState);
+	//
+	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
+	// savedInstanceState.getParcelable("0"));
+	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
+	// savedInstanceState.getParcelable("0"));
+	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
+	// savedInstanceState.getParcelable("0"));
+	// }
+
+	// @Override
+	// protected void onPause() {
+	// super.onPause();
+	//
+	// int count = viewFlipper.getChildCount();
+	// for (int i = 0; i < count; i++) {
+	// DrawView dw = (DrawView) viewFlipper.getChildAt(i);
+	// dw.recycle();
+	// }
+	// }
 
 	/**
 	 * @return the saveStateChanged
