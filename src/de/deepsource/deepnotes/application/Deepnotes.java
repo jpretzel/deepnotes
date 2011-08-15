@@ -26,8 +26,17 @@ public class Deepnotes extends Application {
 	 */
 	public static final int REQUEST_SHARE_NOTE = 0x00000002;
 	
+	/**
+	 * 
+	 */
 	private static int viewportWidth;
+	
+	/**
+	 * 
+	 */
 	private static int viewportHeight;
+	
+	public static final int NOTEPAGE_COUNT = 3;
 	
 	/**
 	 * <h1>Distance moved to trigger an swipe event.</h1>

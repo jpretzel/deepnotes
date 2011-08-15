@@ -107,8 +107,8 @@ public class DrawActivity extends Activity {
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
 			Bundle bundle = getIntent().getExtras();
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
-//			loadNotePages();
-			loadNotePage(0);
+			loadNotePages();
+//			loadNotePage(0);
 		}
 
 		Log.e("INIT",
@@ -184,7 +184,6 @@ public class DrawActivity extends Activity {
 						loadView.loadBitmap(bitmap);
 					}
 
-					updateCurrentPaintColor();
 				}
 			}
 		}
@@ -350,6 +349,8 @@ public class DrawActivity extends Activity {
 
 		new SaveNote(this).execute();
 	}
+	
+	
 
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
@@ -357,11 +358,29 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
-
 		showPageToast(true);
-
+		
+//		int currentId = viewFlipper.getDisplayedChild();
+//		int nextId;
+//		
+//		if (currentId + 1 >= Deepnotes.NOTEPAGE_COUNT) {
+//			nextId = 0;
+//		} else {
+//			nextId = currentId + 1;
+//		}
+//		
+//		View dw = viewFlipper.getChildAt(nextId);
+//		
+//		if (dw == null) {
+//			viewFlipper.addView(initNewDrawView());
+//		}
+//		
+//		loadNotePage(nextId);
+//		
+//		((DrawView) viewFlipper.getChildAt(currentId)).setVisible(false);
+		
 		viewFlipper.showNext();
-		updateCurrentPaintColor();
+		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
 	}
 
 	/**
@@ -382,7 +401,7 @@ public class DrawActivity extends Activity {
 		showPageToast(false);
 
 		viewFlipper.showPrevious();
-		updateCurrentPaintColor();
+
 	}
 
 	private void showPageToast(boolean next) {
@@ -406,15 +425,6 @@ public class DrawActivity extends Activity {
 
 		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
 		toast.show();
-	}
-
-	/**
-	 * 
-	 */
-	private void updateCurrentPaintColor() {
-		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper
-				.getDisplayedChild());
-		currentDrawView.setPaintColor(getCurrentColor());
 	}
 
 	/**
@@ -523,6 +533,9 @@ public class DrawActivity extends Activity {
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+			Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+		}
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
 			if (saveStateChanged) {
@@ -536,21 +549,21 @@ public class DrawActivity extends Activity {
 											int id) {
 										// call the save procedure.
 										saveNote();
-
-										/*
-										 * save dialog will call finish()
-										 */
+										recycle();
+										finish();
 									}
 								})
 						.setNegativeButton(R.string.no,
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int id) {
+										recycle();
 										finish();
 									}
 								});
 				builder.create().show();
 			} else {
+				recycle();
 				finish();
 			}
 			return true;
@@ -688,7 +701,6 @@ public class DrawActivity extends Activity {
 			toast.show();
 
 			// need to finish in onPostExecute, else we leak the window
-			activity.finish();
 		}
 
 		/**
@@ -746,40 +758,39 @@ public class DrawActivity extends Activity {
 
 	}
 
-	// @Override
-	// protected void onSaveInstanceState(Bundle outState) {
-	// super.onSaveInstanceState(outState);
-	//
-	// outState.putParcelable("0", ((DrawView)
-	// viewFlipper.getChildAt(0)).getBitmap());
-	// outState.putParcelable("1", ((DrawView)
-	// viewFlipper.getChildAt(1)).getBitmap());
-	// outState.putParcelable("2", ((DrawView)
-	// viewFlipper.getChildAt(2)).getBitmap());
-	// }
-	//
-	// @Override
-	// protected void onRestoreInstanceState(Bundle savedInstanceState) {
-	// super.onRestoreInstanceState(savedInstanceState);
-	//
-	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
-	// savedInstanceState.getParcelable("0"));
-	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
-	// savedInstanceState.getParcelable("0"));
-	// ((DrawView) viewFlipper.getChildAt(0)).loadBitmap((Bitmap)
-	// savedInstanceState.getParcelable("0"));
-	// }
+//	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//		super.onSaveInstanceState(outState);
+//
+//		outState.putParcelable("0",
+//				((DrawView) viewFlipper.getChildAt(0)).getBitmap());
+//		outState.putParcelable("1",
+//				((DrawView) viewFlipper.getChildAt(1)).getBitmap());
+//		outState.putParcelable("2",
+//				((DrawView) viewFlipper.getChildAt(2)).getBitmap());
+//	}
+//
+//	@Override
+//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//		super.onRestoreInstanceState(savedInstanceState);
+//
+//		((DrawView) viewFlipper.getChildAt(0))
+//				.loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//		((DrawView) viewFlipper.getChildAt(0))
+//				.loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//		((DrawView) viewFlipper.getChildAt(0))
+//				.loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
+//	}
 
-	// @Override
-	// protected void onPause() {
-	// super.onPause();
-	//
-	// int count = viewFlipper.getChildCount();
-	// for (int i = 0; i < count; i++) {
-	// DrawView dw = (DrawView) viewFlipper.getChildAt(i);
-	// dw.recycle();
-	// }
-	// }
+	
+	protected void recycle() {
+		int count = viewFlipper.getChildCount();
+		for (int i = 0; i < count; i++) {
+			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
+			dw.setVisible(false);
+		}
+		Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+	}
 
 	/**
 	 * @return the saveStateChanged

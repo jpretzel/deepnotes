@@ -1,5 +1,6 @@
 package de.deepsource.deepnotes.activities.listener;
 
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import de.deepsource.deepnotes.activities.DrawActivity;
@@ -36,11 +37,8 @@ public class DrawTouchListener implements View.OnTouchListener {
 	 * @see Deepnotes
 	 */
 	public float swipeTrigger = 100f;
-
-	private float lastX, lastY = -1;
 	
-	private int index = 0;
-	private float[] line = new float[4];
+	private boolean swipeGestureTriggered = false;
 
 	/**
 	 * Custom constructor.
@@ -89,13 +87,14 @@ public class DrawTouchListener implements View.OnTouchListener {
 		 * information.
 		 */
 	
-			// There have been changes, a save dialog should apear
+			// There have been changes, a save dialog should appear
 			drawActivity.setSaveStateChanged(true);
 			
 			switch (event.getAction()) {
 			
 				case (MotionEvent.ACTION_DOWN):
 					drawView.startDraw(event.getX(), event.getY());
+					swipeXdelta = event.getX(0);
 					break;
 				
 				case (MotionEvent.ACTION_MOVE):
@@ -104,6 +103,7 @@ public class DrawTouchListener implements View.OnTouchListener {
 				
 				case (MotionEvent.ACTION_UP):
 					drawView.stopDraw();
+					swipeGestureTriggered = false;
 					break;
 			}
 			return true;
@@ -112,14 +112,10 @@ public class DrawTouchListener implements View.OnTouchListener {
 	private void onMultiTouch(MotionEvent event) {
 		switch (event.getAction()) {
 
-		// 2-finger click, storing first coordinate
-		case (MotionEvent.ACTION_DOWN):
-			swipeXdelta = event.getX(0);
-			break;
-
 		// 2-finger swipe, calculating direction
 		case (MotionEvent.ACTION_MOVE):
-			if (Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
+			Log.e("MULTI", "MOVE");
+			if (!swipeGestureTriggered && Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
 				if (swipeXdelta < event.getX(0)) {
 					// trigger swipe left
 					drawActivity.showPreviousDrawView();
@@ -127,6 +123,8 @@ public class DrawTouchListener implements View.OnTouchListener {
 					// trigger wipe right
 					drawActivity.showNextDrawView();
 				}
+				
+				swipeGestureTriggered = true;
 			}
 			break;
 		}
