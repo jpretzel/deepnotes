@@ -159,7 +159,7 @@ public class DrawActivity extends Activity {
 
 		if (notePath.exists()) {
 			File[] files = notePath.listFiles();
-			Bitmap bitmap = null;
+			WeakReference<Bitmap> weakBitmap = null;
 
 			for (File file : files) {
 				String name = file.getName();
@@ -175,16 +175,17 @@ public class DrawActivity extends Activity {
 				// don't run false files
 				if (index < 3) {
 					// load the file as Bitmap
-					bitmap = BitmapFactory.decodeFile(file
-							.getAbsolutePath());
+					weakBitmap = new WeakReference<Bitmap>(BitmapFactory.decodeFile(file
+							.getAbsolutePath()));
+					
 					DrawView loadView = (DrawView) viewFlipper
 							.getChildAt(index);
 
 					// is the file a background or not?
 					if (name.contains("background")) {
-						loadView.setBackground(new WeakReference<Bitmap>(bitmap));
+						loadView.setBackground(weakBitmap);
 					} else {
-						loadView.loadBitmap(new WeakReference<Bitmap>(bitmap));
+						loadView.loadBitmap(weakBitmap);
 					}
 				}
 			}
