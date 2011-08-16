@@ -3,6 +3,7 @@ package de.deepsource.deepnotes.activities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import android.app.Activity;
@@ -181,9 +182,9 @@ public class DrawActivity extends Activity {
 
 					// is the file a background or not?
 					if (name.contains("background")) {
-						loadView.setBackground(bitmap);
+						loadView.setBackground(new WeakReference<Bitmap>(bitmap));
 					} else {
-						loadView.loadBitmap(bitmap);
+						loadView.loadBitmap(new WeakReference<Bitmap>(bitmap));
 					}
 				}
 			}
@@ -523,7 +524,7 @@ public class DrawActivity extends Activity {
 				try {
 					bitmap = MediaStore.Images.Media.getBitmap(
 							getContentResolver(), outputUri);
-					currentDrawView.setBackground(bitmap);
+					currentDrawView.setBackground(new WeakReference<Bitmap>(bitmap));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

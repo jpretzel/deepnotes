@@ -1,5 +1,7 @@
 package de.deepsource.deepnotes.views;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -121,8 +123,8 @@ public class DrawView extends View{
 	 * @param bmp
 	 * 				the background to be set
 	 */
-	public void setBackground(Bitmap bmp) {
-		background = bmp;
+	public void setBackground(WeakReference<Bitmap> weakBitmap) {
+		background = weakBitmap.get();
 		hasBackground = true;
 		backgroundModified = true;
 	}
@@ -261,8 +263,8 @@ public class DrawView extends View{
 	 * @param bmp
 	 * 				current foreground bitmap to set
 	 */
-	public void loadBitmap(Bitmap bmp) {
-		canvas.drawBitmap(bmp, new Matrix(), paint);
+	public void loadBitmap(WeakReference<Bitmap> weakBitmap) {
+		canvas.drawBitmap(weakBitmap.get(), new Matrix(), paint);
 	}
 	
 	/**
