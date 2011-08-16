@@ -70,11 +70,6 @@ public class MainActivity extends FragmentActivity {
 						
 						final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
-						
-						Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-						// TODO: does it help?
-						//System.gc();
-						Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 
 						startActivity(intent);
 					}
@@ -82,7 +77,6 @@ public class MainActivity extends FragmentActivity {
         
         Display display = getWindowManager().getDefaultDisplay();
         
-        Log.e("WIDTH", String.valueOf(display.getWidth()));
         Deepnotes.setViewportWidth(display.getWidth());
         Deepnotes.setViewportHeight(display.getHeight());
         
@@ -140,10 +134,14 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
-			Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 			Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 			startActivity(intent);
 			return true;
+		}
+		
+		case (R.id.gc): {
+			System.gc();
+			Log.e("CALL GC", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 		}
 		}
 		
@@ -225,7 +223,7 @@ public class MainActivity extends FragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		loadNotes();
-		Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+		Log.e("MAIN RESUME", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 	
 	@Override

@@ -1,7 +1,5 @@
 package de.deepsource.deepnotes.views;
 
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,16 +8,18 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import de.deepsource.deepnotes.activities.DrawActivity;
 import de.deepsource.deepnotes.application.Deepnotes;
-import de.deepsource.deepnotes.utilities.PerformanceTester;
 
 /**
  * Custom View class that implements all the drawing magic.
  * 
  * @author Sebastian Ullrich
  */
-public class DrawView extends View{
+public class DrawView extends View implements View.OnTouchListener {
 
 	/**
 	 * The foreground bitmap to paint on.
@@ -55,16 +55,6 @@ public class DrawView extends View{
 	 * TODO: donno
 	 */
 	private boolean cleared = false;
-	
-	/**
-	 * flag for existing background
-	 */
-	private boolean hasBackground = false;
-	
-	/**
-	 * visibility flag
-	 */
-	private boolean isVisible = true;
 
 	/**
 	 * Constructor.
@@ -115,6 +105,12 @@ public class DrawView extends View{
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setAntiAlias(true);
 		paint.setDither(true);
+		
+		setOnTouchListener(this);
+		
+		// TODO: use or don't use?
+		setWillNotDraw(true);
+		setWillNotCacheDrawing(true);
 	}
 
 	/**
@@ -123,15 +119,16 @@ public class DrawView extends View{
 	 * @param bmp
 	 * 				the background to be set
 	 */
-	public void setBackground(WeakReference<Bitmap> weakBitmap) {
-		background = weakBitmap.get();
-		hasBackground = true;
+	public void setBackground(Bitmap Bitmap) {
+		background = Bitmap;
 		backgroundModified = true;
+		((DrawActivity) getContext()).setSaveStateChanged(true);
 	}
 
 	/**
 	 * Draws the bitmap on background.
 	 */
+	@Override
 	public void onDraw(Canvas canvas) {
 		// fill the bitmap with default background color
 		canvas.drawColor(Color.WHITE);
@@ -148,9 +145,7 @@ public class DrawView extends View{
 	private Path path = new Path();
 	private float lastX, lastY;
 	
-	public void startDraw(float x, float y){
-		PerformanceTester.start();
-		
+	public void startDraw(float x, float y) {
 		path.reset();
 		path.moveTo(x, y);
 		lastX = x;
@@ -158,12 +153,12 @@ public class DrawView extends View{
 		//invalidate();
 		
 		modified = true;
+		((DrawActivity) getContext()).setSaveStateChanged(true);
 	}
 	
 	private static final float invalidateOffset = 50f;
 	
-	public void continueDraw(float x, float y){
-		
+	public void continueDraw(float x, float y) {
 		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
 	
@@ -200,28 +195,19 @@ public class DrawView extends View{
 		//path.lineTo(x, y);
 		lastX = x;
 		lastY = y;
-		
-		PerformanceTester.hit();
 	}
 	
-	public void stopDraw(){
+	public void stopDraw() {
 		path.lineTo(lastX, lastY);
 		canvas.drawPath(path, paint);
 		path.reset();
 		invalidate();
-		PerformanceTester.hit();
-		PerformanceTester.stop();
-		PerformanceTester.printMessurement();
 	}
 	
-	public void drawPoint(float x, float y){
+	public void drawPoint(float x, float y) {
 		canvas.drawPoint(x, y, paint);
 		canvas.save();
 	}
-	
-	 public boolean hasBackground(){
-		 return hasBackground;
-	 }
 
 	/**
 	 * Clears the current page and post an invalidate state to force an update.
@@ -232,7 +218,7 @@ public class DrawView extends View{
 				Deepnotes.getViewportHeight(), 
 				Bitmap.Config.ARGB_4444);
 		
-		if(hasBackground)
+		if(backgroundModified)
 			background = Bitmap.createBitmap(
 					Deepnotes.getViewportWidth(), 
 					Deepnotes.getViewportHeight(), 
@@ -263,8 +249,8 @@ public class DrawView extends View{
 	 * @param bmp
 	 * 				current foreground bitmap to set
 	 */
-	public void loadBitmap(WeakReference<Bitmap> weakBitmap) {
-		canvas.drawBitmap(weakBitmap.get(), new Matrix(), paint);
+	public void loadBitmap(Bitmap weakBitmap) {
+		canvas.drawBitmap(weakBitmap, new Matrix(), paint);
 	}
 	
 	/**
@@ -325,19 +311,95 @@ public class DrawView extends View{
 	 * @param visible
 	 * @author Sebastian Ullrich
 	 */
-	public void setVisible(boolean visible) {
-		isVisible = visible;
-		if(visible){
-			init();
-			// TODO: load note;
-		}else{
-			bitmap.recycle();
-			bitmap = null;
-			if (background != null) {
-				background.recycle();
-				background = null;
+	public void recycle() {
+		bitmap.recycle();
+		bitmap = null;
+		if (background != null) {
+			background.recycle();
+			background = null;
+		}
+		canvas = null;
+		paint = null;
+	}
+
+	/******************************************************************************
+	 * TOUCHLISTENER!!!!!!!!!!!!!!!!!
+	 ******************************************************************************/
+	
+	private float swipeXdelta = 0f;
+	
+	private float swipeTrigger = 100f;
+	
+	private boolean swipeGestureTriggered = false;
+	
+	
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		/*
+		 * Checking for multiTouch
+		 * 
+		 * To test swipe in emulator (no painting) set: 
+		 * 		event.getPointerCount() == 1
+		 * 
+		 * To test swipe on an physical device set: 
+		 * 		event.getPointerCount() > 1
+		 * 
+		 */
+		if (event.getPointerCount() > 1)
+			onMultiTouch(event);
+		else
+			onSingleTouch(event);
+		
+		return true;
+	}
+	
+	private boolean onSingleTouch(MotionEvent event) {
+		/*
+		 * Avoid paint events when entering a swipe gesture. See
+		 * de.deepsource.deepnotes.application.Deepnotes for further
+		 * information.
+		 */
+	
+			// There have been changes, a save dialog should appear
+//			drawActivity.setSaveStateChanged(true);
+			
+			switch (event.getAction()) {
+				case (MotionEvent.ACTION_DOWN):
+					startDraw(event.getX(), event.getY());
+					swipeXdelta = event.getX(0);
+					break;
+				
+				case (MotionEvent.ACTION_MOVE):
+					continueDraw(event.getX(), event.getY());
+					break;
+				
+				case (MotionEvent.ACTION_UP):
+					stopDraw();
+					swipeGestureTriggered = false;
+					break;
 			}
-			canvas = null;
+			return true;
+	}
+
+	private void onMultiTouch(MotionEvent event) {
+		switch (event.getAction()) {
+
+		// 2-finger swipe, calculating direction
+		case (MotionEvent.ACTION_MOVE):
+			Log.e("MULTI", "MOVE");
+			if (!swipeGestureTriggered 
+					&& Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
+				if (swipeXdelta < event.getX(0)) {
+					// trigger swipe left
+					((DrawActivity) getContext()).showPreviousDrawView();
+				} else {
+					// trigger wipe right
+					((DrawActivity) getContext()).showNextDrawView();
+				}
+				
+				swipeGestureTriggered = true;
+			}
+			break;
 		}
 	}
 }

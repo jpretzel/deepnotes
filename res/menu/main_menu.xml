@@ -4,5 +4,6 @@
     <group android:id="@+id/handle_notes">
         <item android:title="@string/new_note" android:id="@+id/main_menu_addnote" android:icon="@drawable/ic_menu_add"></item>
     </group>
+    <item android:id="@+id/gc" android:title="GC"></item>
     
 </menu>

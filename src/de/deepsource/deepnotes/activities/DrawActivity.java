@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -32,7 +31,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
-import de.deepsource.deepnotes.activities.listener.DrawTouchListener;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
 import de.deepsource.deepnotes.views.DrawView;
@@ -110,10 +108,9 @@ public class DrawActivity extends Activity {
 			Bundle bundle = getIntent().getExtras();
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 			loadNotePages();
-//			loadNotePage(0);
 		}
 
-		Log.e("INIT",
+		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
@@ -159,7 +156,7 @@ public class DrawActivity extends Activity {
 
 		if (notePath.exists()) {
 			File[] files = notePath.listFiles();
-			WeakReference<Bitmap> weakBitmap = null;
+			Bitmap weakBitmap = null;
 
 			for (File file : files) {
 				String name = file.getName();
@@ -175,8 +172,8 @@ public class DrawActivity extends Activity {
 				// don't run false files
 				if (index < 3) {
 					// load the file as Bitmap
-					weakBitmap = new WeakReference<Bitmap>(BitmapFactory.decodeFile(file
-							.getAbsolutePath()));
+					weakBitmap = BitmapFactory.decodeFile(file
+							.getAbsolutePath());
 					
 					DrawView loadView = (DrawView) viewFlipper
 							.getChildAt(index);
@@ -198,38 +195,6 @@ public class DrawActivity extends Activity {
 	}
 
 	/**
-	 * @author Jan Pretzel
-	 * 
-	 * @param index
-	 */
-//	public void loadNotePage(int index) {
-//		File notePath = new File(getFilesDir(), fileName + "/");
-//
-//		if (notePath.exists()) {
-//			String notePathString = notePath.toString();
-//			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
-//			
-//			BitmapFactory.Options options = new BitmapFactory.Options();
-//			options.inTempStorage = new byte[16*1024];
-//			
-//			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
-//					+ index + ".png");
-//			dw.loadBitmap(note);
-//			note = null;
-//
-//			File backgroundFile = new File(notePathString + "/background_" + index + ".jpg");
-//			if (backgroundFile.exists()) {
-//				Bitmap background = BitmapFactory.decodeFile(backgroundFile.toString());
-//				dw.setBackground(background);
-//				background = null;
-//			}
-//			
-//			Log.e("INIT", String.valueOf(android.os.Debug
-//					.getNativeHeapAllocatedSize()));
-//		}
-//	}
-
-	/**
 	 * Adding the menu.
 	 * 
 	 * @author Sebastian Ullrich
@@ -238,7 +203,7 @@ public class DrawActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		MenuInflater inflater = new MenuInflater(this);
+		MenuInflater inflater = new MenuInflater(this.getApplicationContext());
 		inflater.inflate(R.menu.draw_menu, menu);
 
 		return true;
@@ -264,13 +229,13 @@ public class DrawActivity extends Activity {
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
-			saveNote();
+			saveNote(false);
 			return true;
 		}
 
 		// delete triggered
 		case (R.id.draw_menu_delete): {
-			IOManager.deleteNote(this, fileName);
+			IOManager.deleteNote(this.getApplicationContext(), fileName);
 			finish();
 
 			return true;
@@ -341,7 +306,6 @@ public class DrawActivity extends Activity {
 	 */
 	private DrawView initNewDrawView() {
 		DrawView drawView = new DrawView(this);
-		drawView.setOnTouchListener(new DrawTouchListener(this, drawView));
 		drawView.setBackgroundColor(Color.GRAY);
 		return drawView;
 	}
@@ -349,7 +313,7 @@ public class DrawActivity extends Activity {
 	/**
 	 * 
 	 */
-	private void saveNote() {
+	private void saveNote(boolean finish) {
 		if (!saveStateChanged) {
 			return;
 		}
@@ -359,7 +323,7 @@ public class DrawActivity extends Activity {
 			fileName = String.valueOf(System.currentTimeMillis());
 		}
 
-		new SaveNote(this).execute();
+		new SaveNote(this, finish).execute();
 	}
 
 	/**
@@ -370,27 +334,8 @@ public class DrawActivity extends Activity {
 	public void showNextDrawView() {
 		showPageToast(true);
 		
-//		int currentId = viewFlipper.getDisplayedChild();
-//		int nextId;
-//		
-//		if (currentId + 1 >= Deepnotes.NOTEPAGE_COUNT) {
-//			nextId = 0;
-//		} else {
-//			nextId = currentId + 1;
-//		}
-//		
-//		View dw = viewFlipper.getChildAt(nextId);
-//		
-//		if (dw == null) {
-//			viewFlipper.addView(initNewDrawView());
-//		}
-//		
-//		loadNotePage(nextId);
-//		
-//		((DrawView) viewFlipper.getChildAt(currentId)).setVisible(false);
-		
 		viewFlipper.showNext();
-		currentDrawView = (DrawView) viewFlipper.getChildAt(viewFlipper.getDisplayedChild());
+		currentDrawView = (DrawView) viewFlipper.getCurrentView();
 	}
 
 	/**
@@ -399,19 +344,10 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		/*
-		 * viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-		 * R.anim.slideouttoright));
-		 * viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-		 * R.anim.slideinfromleft));
-		 * 
-		 * if (!viewFlipper.isFlipping()) viewFlipper.showPrevious();
-		 */
-
 		showPageToast(false);
 
 		viewFlipper.showPrevious();
-
+		currentDrawView = (DrawView) viewFlipper.getCurrentView();
 	}
 
 	private void showPageToast(boolean next) {
@@ -433,7 +369,7 @@ public class DrawActivity extends Activity {
 				msg = String.valueOf(currentPage - 1);
 		}
 
-		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+		Toast toast = Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT);
 		toast.show();
 	}
 
@@ -456,7 +392,7 @@ public class DrawActivity extends Activity {
 		Log.e("CROP", String.valueOf(resolveInfo.size()));
 		
 		if (resolveInfo.size() == 0) {
-			Toast.makeText(this, "No crop application found.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.getApplicationContext(), "No crop application found.", Toast.LENGTH_SHORT).show();
 			
 			// TODO: crop without user input
 			
@@ -525,7 +461,7 @@ public class DrawActivity extends Activity {
 				try {
 					bitmap = MediaStore.Images.Media.getBitmap(
 							getContentResolver(), outputUri);
-					currentDrawView.setBackground(new WeakReference<Bitmap>(bitmap));
+					currentDrawView.setBackground(bitmap);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -558,22 +494,18 @@ public class DrawActivity extends Activity {
 									public void onClick(DialogInterface dialog,
 											int id) {
 										// call the save procedure.
-										saveNote();
-										recycle();
-										finish();
+										saveNote(true);
 									}
 								})
 						.setNegativeButton(R.string.no,
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int id) {
-										recycle();
 										finish();
 									}
 								});
 				builder.create().show();
 			} else {
-				recycle();
 				finish();
 			}
 			return true;
@@ -602,11 +534,13 @@ public class DrawActivity extends Activity {
 	private class SaveNote extends AsyncTask<Void, Void, Void> {
 
 		private ProgressDialog dialog;
-		private Context activity;
+		private boolean finish;
+		private Activity activity;
 
-		public SaveNote(Context activity) {
-			this.activity = activity;
+		public SaveNote(Activity activity, boolean finish) {
 			dialog = new ProgressDialog(activity);
+			this. activity = activity;
+			this.finish = finish;
 		}
 
 		/**
@@ -707,11 +641,14 @@ public class DrawActivity extends Activity {
 
 			super.onPostExecute(result);
 
-			Toast toast = Toast.makeText(activity, R.string.note_saved,
+			Toast toast = Toast.makeText(getApplicationContext(), R.string.note_saved,
 					Toast.LENGTH_SHORT);
 			toast.show();
 
 			// need to finish in onPostExecute, else we leak the window
+			if (finish) {
+				activity.finish();
+			}
 		}
 
 		/**
@@ -725,7 +662,7 @@ public class DrawActivity extends Activity {
 		private Bitmap createThumbnail() {
 			// get first page of the note
 			DrawView drawView = (DrawView) viewFlipper.getChildAt(0);
-			Bitmap firstPage = drawView.getBitmap();
+			WeakReference<Bitmap> firstPage =  new WeakReference<Bitmap>(drawView.getBitmap());
 
 			// scale factor = 0.5
 			float scale = 0.1f;
@@ -734,26 +671,26 @@ public class DrawActivity extends Activity {
 			Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
 
-			int width = firstPage.getWidth();
-			int height = firstPage.getHeight();
+			int width = firstPage.get().getWidth();
+			int height = firstPage.get().getHeight();
 
 			// create scaled bitmaps
-			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
+			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage.get(), 0, 0,
 					width, height, matirx, true);
 
 			Canvas pageAndBackground;
-			Bitmap firstBackgroundScaled;
+			WeakReference<Bitmap> firstBackgroundScaled;
 
-			if (drawView.hasBackground()) {
-				Bitmap firstBackground = drawView.getBackgroundBitmap();
-				firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
-						0, width, height, matirx, true);
-				pageAndBackground = new Canvas(firstBackgroundScaled);
+			if (drawView.isBGModified()) {
+				WeakReference<Bitmap> firstBackground = new WeakReference<Bitmap>(drawView.getBackgroundBitmap());
+				firstBackgroundScaled = new WeakReference<Bitmap>(Bitmap.createBitmap(firstBackground.get(), 0,
+						0, width, height, matirx, true));
+				pageAndBackground = new Canvas(firstBackgroundScaled.get());
 			} else {
-				firstBackgroundScaled = Bitmap.createBitmap(
+				firstBackgroundScaled = new WeakReference<Bitmap>(Bitmap.createBitmap(
 						(int) (width * scale), (int) (height * scale),
-						Bitmap.Config.ARGB_4444);
-				pageAndBackground = new Canvas(firstBackgroundScaled);
+						Bitmap.Config.ARGB_4444));
+				pageAndBackground = new Canvas(firstBackgroundScaled.get());
 				pageAndBackground.drawColor(Color.WHITE);
 			}
 
@@ -763,10 +700,11 @@ public class DrawActivity extends Activity {
 			// free unused Bitmap (note: the other bitmaps share
 			// some stuff with the returned Bitmap so don't recycle those
 			firstPageScaled.recycle();
+			firstPageScaled = null;
+			pageAndBackground = null;
 
-			return firstBackgroundScaled;
+			return firstBackgroundScaled.get();
 		}
-
 	}
 
 //	@Override
@@ -793,30 +731,26 @@ public class DrawActivity extends Activity {
 //				.loadBitmap((Bitmap) savedInstanceState.getParcelable("0"));
 //	}
 
-	
-	protected void recycle() {
+	@Override
+	protected void onDestroy() {
+		// trying to free heap by force
+		Log.i("DrawActivity", "onDestroy() called.");
+		super.onDestroy();
+//		viewFlipper.stopFlipping();
+		
+		// THIS IS IMPORTANT
+		// without this the Activity won't get collected by the GC
+		// and we then leak a lot of memory
 		int count = viewFlipper.getChildCount();
 		for (int i = 0; i < count; i++) {
 			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
-			dw.setVisible(false);
+			dw.recycle();
 		}
-		Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-	}
 
-//	@Override
-//	protected void onDestroy() {
-//		// trying to free heap by force
-//		Log.i("DrawActivity", "onDestroy() called.");
-//		super.onDestroy();
-//		currentDrawView.destroyDrawingCache();
+//		// TODO: needed?
+//		viewFlipper.removeAllViews();
+//		viewFlipper = null;
 //		currentDrawView = null;
-//	}
-	
-	/**
-	 * @return the saveStateChanged
-	 */
-	public boolean isSaveStateChanged() {
-		return saveStateChanged;
 	}
 
 	/**

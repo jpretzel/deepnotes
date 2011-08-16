@@ -97,14 +97,16 @@ public final class IOManager {
 					}
 				});
 				
+				Bitmap note = null;
+				Bitmap draw;
+				Canvas canvas;
+				
 				int i = 0;
 				for (File notePage : notePages) {
 					// check for background if there is one draw it
 					// else draw a white background
 					String bgPath = notePath + "background_" + notePage.getName();
-					Bitmap note = BitmapFactory.decodeFile(notePage.toString());
-					Canvas canvas;
-					Bitmap draw;
+					note = BitmapFactory.decodeFile(notePage.toString());
 					
 					if (new File(bgPath).exists()) {
 						draw = BitmapFactory.decodeFile(bgPath);
@@ -135,6 +137,8 @@ public final class IOManager {
 							uris.add(Uri.fromFile(outPath));
 						}
 					}
+					
+					// TODO: recycle
 				}
 			}
 			
