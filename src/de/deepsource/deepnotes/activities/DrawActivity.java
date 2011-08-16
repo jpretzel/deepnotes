@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -157,6 +158,7 @@ public class DrawActivity extends Activity {
 
 		if (notePath.exists()) {
 			File[] files = notePath.listFiles();
+			Bitmap bitmap = null;
 
 			for (File file : files) {
 				String name = file.getName();
@@ -171,11 +173,8 @@ public class DrawActivity extends Activity {
 
 				// don't run false files
 				if (index < 3) {
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					options.inTempStorage = new byte[16*1024];
-					
 					// load the file as Bitmap
-					Bitmap bitmap = BitmapFactory.decodeFile(file
+					bitmap = BitmapFactory.decodeFile(file
 							.getAbsolutePath());
 					DrawView loadView = (DrawView) viewFlipper
 							.getChildAt(index);
@@ -186,9 +185,13 @@ public class DrawActivity extends Activity {
 					} else {
 						loadView.loadBitmap(bitmap);
 					}
-
 				}
 			}
+			
+			/*if (bitmap != null) {
+				bitmap.recycle();
+				bitmap = null;
+			}*/
 		}
 	}
 
@@ -197,30 +200,32 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @param index
 	 */
-	public void loadNotePage(int index) {
-		File notePath = new File(getFilesDir(), fileName + "/");
-
-		if (notePath.exists()) {
-			String notePathString = notePath.toString();
-			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
-			
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inTempStorage = new byte[16*1024];
-			
-			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
-					+ index + ".png");
-			dw.loadBitmap(note);
-
-			File backgroundFile = new File(notePathString + "/background_" + index + ".jpg");
-			if (backgroundFile.exists()) {
-				Bitmap background = BitmapFactory.decodeFile(backgroundFile.toString());
-				dw.setBackground(background);
-			}
-			
-			Log.e("INIT", String.valueOf(android.os.Debug
-					.getNativeHeapAllocatedSize()));
-		}
-	}
+//	public void loadNotePage(int index) {
+//		File notePath = new File(getFilesDir(), fileName + "/");
+//
+//		if (notePath.exists()) {
+//			String notePathString = notePath.toString();
+//			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+//			
+//			BitmapFactory.Options options = new BitmapFactory.Options();
+//			options.inTempStorage = new byte[16*1024];
+//			
+//			Bitmap note = BitmapFactory.decodeFile(notePathString + "/"
+//					+ index + ".png");
+//			dw.loadBitmap(note);
+//			note = null;
+//
+//			File backgroundFile = new File(notePathString + "/background_" + index + ".jpg");
+//			if (backgroundFile.exists()) {
+//				Bitmap background = BitmapFactory.decodeFile(backgroundFile.toString());
+//				dw.setBackground(background);
+//				background = null;
+//			}
+//			
+//			Log.e("INIT", String.valueOf(android.os.Debug
+//					.getNativeHeapAllocatedSize()));
+//		}
+//	}
 
 	/**
 	 * Adding the menu.
@@ -344,7 +349,6 @@ public class DrawActivity extends Activity {
 	 */
 	private void saveNote() {
 		if (!saveStateChanged) {
-			finish();
 			return;
 		}
 
@@ -355,8 +359,6 @@ public class DrawActivity extends Activity {
 
 		new SaveNote(this).execute();
 	}
-	
-	
 
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
@@ -517,7 +519,7 @@ public class DrawActivity extends Activity {
 		/* crop result */
 		case (REQUEST_IMAGE_CROP): {
 			if (resultCode == RESULT_OK) {
-				Bitmap bitmap;
+				Bitmap bitmap = null;
 				try {
 					bitmap = MediaStore.Images.Media.getBitmap(
 							getContentResolver(), outputUri);
@@ -598,11 +600,11 @@ public class DrawActivity extends Activity {
 	private class SaveNote extends AsyncTask<Void, Void, Void> {
 
 		private ProgressDialog dialog;
-		private Activity activity;
+		private Context activity;
 
-		public SaveNote(Activity activity) {
-			dialog = new ProgressDialog(activity);
+		public SaveNote(Context activity) {
 			this.activity = activity;
+			dialog = new ProgressDialog(activity);
 		}
 
 		/**
@@ -666,11 +668,12 @@ public class DrawActivity extends Activity {
 					toDelete = new File(savePath + "background_" + i + ".jpg");
 					toDelete.delete();
 				}
-			}
-
-			// everything is saved, so recycle bitmap
-			if (bitmap != null) {
-				bitmap.recycle();
+				
+				// everything is saved, so recycle bitmap
+				if (bitmap != null) {
+					bitmap.recycle();
+					bitmap = null;
+				}
 			}
 
 			return null;

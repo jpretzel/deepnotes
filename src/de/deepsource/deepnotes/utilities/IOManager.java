@@ -213,6 +213,7 @@ public final class IOManager {
 
 		if (bitmap != null) {
 			bitmap.recycle();
+			bitmap = null;
 		}
 	}
 }

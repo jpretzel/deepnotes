@@ -71,6 +71,11 @@ public class MainActivity extends FragmentActivity {
 						final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
 						
+						Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+						// TODO: does it help?
+						//System.gc();
+						Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+
 						startActivity(intent);
 					}
 				});
@@ -82,7 +87,6 @@ public class MainActivity extends FragmentActivity {
         Deepnotes.setViewportHeight(600);
         
 //        loadNotes();
-        Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}  
 	
 	/**
@@ -221,13 +225,19 @@ public class MainActivity extends FragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		loadNotes();
+		Log.e("INIT", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		
-		// recylce notes to free up memory
+		int count = notes.size();
+		for (int i = 0; i < count; i++) {
+			notes.get(i).recycle();
+		}
+		
+		// recycle notes to free up memory
 		notes.clear();
 		na.notifyDataSetChanged();
 	}

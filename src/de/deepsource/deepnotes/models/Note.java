@@ -38,6 +38,11 @@ public class Note {
 			thumbnail = BitmapFactory.decodeFile(imageFile.toString());
 		}
 	}
+	
+	public void recycle() {
+		thumbnail.recycle();
+		thumbnail = null;
+	}
 
 	public String getCreated() {
 		return created;

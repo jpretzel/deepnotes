@@ -135,7 +135,7 @@ public class DrawView extends View{
 		canvas.drawColor(Color.WHITE);
 		
 		// check if there is a background set
-		if(hasBackground())
+		if(background != null)
 			canvas.drawBitmap(background, 0f, 0f, paint);
 		
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
@@ -330,8 +330,12 @@ public class DrawView extends View{
 			// TODO: load note;
 		}else{
 			bitmap.recycle();
-			if (hasBackground)
+			bitmap = null;
+			if (background != null) {
 				background.recycle();
+				background = null;
+			}
+			canvas = null;
 		}
 	}
 }
