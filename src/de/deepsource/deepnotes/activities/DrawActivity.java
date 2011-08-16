@@ -801,6 +801,15 @@ public class DrawActivity extends Activity {
 		Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
+//	@Override
+//	protected void onDestroy() {
+//		// trying to free heap by force
+//		Log.i("DrawActivity", "onDestroy() called.");
+//		super.onDestroy();
+//		currentDrawView.destroyDrawingCache();
+//		currentDrawView = null;
+//	}
+	
 	/**
 	 * @return the saveStateChanged
 	 */
