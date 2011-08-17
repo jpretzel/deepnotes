@@ -188,6 +188,28 @@ public class DrawActivity extends Activity {
 			}
 		}
 	}
+	
+	/**
+	 * @author Jan Pretzel
+	 * 
+	 * @param index
+	 */
+	public void reloadNotePage(int index) {
+		File notePath = new File(getFilesDir(), fileName + "/");
+
+		if (notePath.exists()) {
+			String notePathString = notePath.toString();
+			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			
+			File noteFile = new File(notePathString + "/" + index + ".png");
+			if (noteFile.exists()) {
+				Bitmap note = BitmapFactory.decodeFile(
+						notePathString + "/"
+						+ index + ".png");
+				dw.loadBitmap(note);
+			}
+		}
+	}
 
 	/**
 	 * Adding the menu.
@@ -458,6 +480,7 @@ public class DrawActivity extends Activity {
 				}
 			}
 			
+			// delete temporary created files
 			new File(outputUri.toString()).delete();
 		}
 		}
