@@ -1,5 +1,7 @@
 package de.deepsource.deepnotes.views;
 
+import java.util.Vector;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,6 +9,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -90,6 +95,9 @@ public class DrawView extends View implements View.OnTouchListener {
 		init();
 	}
 
+	private Vector<Path> pathVector = new Vector<Path>();
+	private Vector<Paint> paintVector = new Vector<Paint>();
+	
 	/**
 	 * init
 	 */
@@ -130,6 +138,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	@Override
 	public void onDraw(Canvas canvas) {
+
 		// fill the bitmap with default background color
 		canvas.drawColor(Color.WHITE);
 		
@@ -138,8 +147,8 @@ public class DrawView extends View implements View.OnTouchListener {
 			canvas.drawBitmap(background, 0f, 0f, paint);
 		
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
-		
 		canvas.drawPath(path, paint);
+		
 	}
 	
 	private Path path = new Path();
@@ -200,15 +209,34 @@ public class DrawView extends View implements View.OnTouchListener {
 	public void stopDraw() {
 		path.lineTo(lastX, lastY);
 		canvas.drawPath(path, paint);
+		
+		// storing undo information
+		pathVector.add(new Path(path));
+		paintVector.add(new Paint(paint));
+		
 		path.reset();
+		
 		invalidate();
 	}
 	
-	public void drawPoint(float x, float y) {
-		canvas.drawPoint(x, y, paint);
-		canvas.save();
+	public void undo(){
+		if (pathVector.isEmpty())
+			return;
+		
+		Log.i("undo called.",pathVector.size() + "");
+		
+		clearNote();
+		
+		pathVector.remove(pathVector.size()-1);
+		paintVector.remove(paintVector.size()-1);
+		
+		int pvc = pathVector.size();
+		
+		for(int i = 0; i < pvc; i++){
+			canvas.drawPath(pathVector.get(i), paintVector.get(i));
+		}
 	}
-
+	
 	/**
 	 * Clears the current page and post an invalidate state to force an update.
 	 */
@@ -217,12 +245,6 @@ public class DrawView extends View implements View.OnTouchListener {
 				Deepnotes.getViewportWidth(), 
 				Deepnotes.getViewportHeight(), 
 				Bitmap.Config.ARGB_4444);
-		
-		if(backgroundModified)
-			background = Bitmap.createBitmap(
-					Deepnotes.getViewportWidth(), 
-					Deepnotes.getViewportHeight(), 
-					Bitmap.Config.ARGB_4444);
 
 		canvas = new Canvas(bitmap);
 		postInvalidate();
@@ -349,7 +371,6 @@ public class DrawView extends View implements View.OnTouchListener {
 			onMultiTouch(event);
 		else
 			onSingleTouch(event);
-		
 		return true;
 	}
 	
