@@ -76,7 +76,7 @@ public class DrawActivity extends Activity {
 	/* current picked color */
 	private int currentColor = Deepnotes.BLACK;
 
-	private boolean saveStateChanged = false;
+	protected boolean saveStateChanged = false;
 
 	/**
 	 * Called when the activity is first created.
@@ -147,7 +147,8 @@ public class DrawActivity extends Activity {
 
 	/**
 	 * Loads an opened note with all it's saved pages and Backgrounds. This will
-	 * only be called, when the note is not new and was just created.
+	 * only be called, when a saved note was opened and not when a new note 
+	 * was just created.
 	 * 
 	 * @author Jan Pretzel
 	 */
@@ -190,9 +191,12 @@ public class DrawActivity extends Activity {
 	}
 	
 	/**
+	 * Reloads a given note page of the note.
+	 * The background will not be reloaded!
+	 * 
 	 * @author Jan Pretzel
 	 * 
-	 * @param index
+	 * @param index The index of the page that will be reloaded.
 	 */
 	public void reloadNotePage(int index) {
 		File notePath = new File(getFilesDir(), fileName + "/");
@@ -272,19 +276,28 @@ public class DrawActivity extends Activity {
 
 		// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
-			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			pictureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory() + "/camera.jpg"));
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-			intent.putExtra("return-data", true);
-			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
+			if (Environment.getExternalStorageState().equals(
+					Environment.MEDIA_MOUNTED)) {
+				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+				
+				File file = new File(Environment.getExternalStorageDirectory() + Deepnotes.SAVE_CACHE);
+				file.mkdirs();
+				
+				pictureUri = Uri.fromFile(new File(file, "/camera.jpg"));
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+				intent.putExtra("return-data", true);
+				startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
+			} else {
+				Toast.makeText(this.getApplicationContext(),
+						"External Storage not mounted", Toast.LENGTH_SHORT).show();
+			}
 
 			return true;
 		}
 
 		// share triggered
 		case (R.id.draw_menu_share): {
-			Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+			final Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			startActivity(intent);
 			return true;
@@ -398,7 +411,7 @@ public class DrawActivity extends Activity {
 	 * 
 	 */
 	private void cropImage() {
-		Intent intent = new Intent("com.android.camera.action.CROP");
+		final Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
 		
 		List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
@@ -406,34 +419,47 @@ public class DrawActivity extends Activity {
 		Log.e("CROP", String.valueOf(resolveInfo.size()));
 		
 		if (resolveInfo.size() == 0) {
-			Toast.makeText(this.getApplicationContext(), "No crop application found.", Toast.LENGTH_SHORT).show();
-			
+			Toast.makeText(this.getApplicationContext(),
+					"No crop application found.", Toast.LENGTH_SHORT).show();
+
 			// TODO: crop without user input
-			
+
 			return;
 		}
 		
 		// force the intent to take crop activity (won't 
 		// work from camera activity without this!)
 		ResolveInfo res = resolveInfo.get(0);
-		intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+		intent.setComponent(new ComponentName(
+				res.activityInfo.packageName, 
+				res.activityInfo.name));
 
-		File file = new File(Environment.getExternalStorageDirectory()
-				+ "/crop.jpg");
-		outputUri = Uri.fromFile(file);
+		if (Environment.getExternalStorageState().equals(
+				Environment.MEDIA_MOUNTED)) {
+			File file = new File(Environment.getExternalStorageDirectory()
+					+ Deepnotes.SAVE_CACHE);
+			
+			file.mkdirs();
+			file = new File(file, "crop.jpg");
+			
+			outputUri = Uri.fromFile(file);
 
-		intent.setData(pictureUri);
-		int x = Deepnotes.getViewportWidth();
-		int y = Deepnotes.getViewportHeight();
-		intent.putExtra("outputX", x);
-		intent.putExtra("outputY", y);
-		intent.putExtra("aspectX", x);
-		intent.putExtra("aspectY", y);
-		intent.putExtra("scale", true);
-		intent.putExtra("return-data", false);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
+			intent.setData(pictureUri);
+			int x = Deepnotes.getViewportWidth();
+			int y = Deepnotes.getViewportHeight();
+			intent.putExtra("outputX", x);
+			intent.putExtra("outputY", y);
+			intent.putExtra("aspectX", x);
+			intent.putExtra("aspectY", y);
+			intent.putExtra("scale", true);
+			intent.putExtra("return-data", false);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 
-		startActivityForResult(intent, REQUEST_IMAGE_CROP);
+			startActivityForResult(intent, REQUEST_IMAGE_CROP);
+		} else {
+			Toast.makeText(this.getApplicationContext(),
+					"External Storage not mounted", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/**
@@ -479,10 +505,27 @@ public class DrawActivity extends Activity {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
+				
 			}
 			
 			// delete temporary created files
-			new File(outputUri.toString()).delete();
+			// the file behind outputUri is always created 
+			// and needs to be deleted
+			if (outputUri != null) {
+				new File(outputUri.getPath()).delete();
+			}
+			
+			// if we came from the camera activity we need
+			// to delete pictureUri too
+			if (pictureUri != null) {
+				String cameraImg = pictureUri.getPath();
+				if (cameraImg.contains("camera.jpg")) {
+					new File(cameraImg).delete();
+				}
+			}
+			
+			break;
 		}
 		}
 	}
@@ -657,6 +700,9 @@ public class DrawActivity extends Activity {
 			}
 
 			super.onPostExecute(result);
+			
+			// reset saveStateChanged
+			saveStateChanged = false;
 
 			Toast toast = Toast.makeText(getApplicationContext(), R.string.note_saved,
 					Toast.LENGTH_SHORT);

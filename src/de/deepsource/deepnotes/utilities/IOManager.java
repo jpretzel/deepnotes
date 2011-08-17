@@ -139,9 +139,22 @@ public final class IOManager {
 						if (outPath.exists()) {
 							uris.add(Uri.fromFile(outPath));
 						}
+					} else {
+						Toast.makeText(activity.getApplicationContext(), "External Storage not mounted", Toast.LENGTH_SHORT).show();
 					}
 					
-					// TODO: recycle
+					// recycle
+					if (note != null) {
+						note.recycle();
+						note = null;
+					}
+					
+					if (draw != null) {
+						draw.recycle();
+						draw = null;
+					}
+					
+					canvas = null;
 				}
 			}
 			

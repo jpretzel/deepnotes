@@ -13,6 +13,13 @@ public class Deepnotes extends Application {
 	public static final String SAVE_THUMBNAIL = "/thumbnail/";
 	
 	/**
+	 * Identifier for the sub folder, where cached files will be saved.
+	 * 
+	 * @author Jan Pretzel
+	 */
+	public static final String SAVE_CACHE = "/deepnotes/cache/";
+	
+	/**
 	 * Identifier for a note's name send with an intent.
 	 * 
 	 * @author Jan Pretzel

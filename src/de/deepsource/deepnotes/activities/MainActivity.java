@@ -134,7 +134,7 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
-			Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
+			final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
 			startActivity(intent);
 			return true;
 		}
