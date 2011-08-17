@@ -58,7 +58,6 @@ public class Note {
 		}
 		
 		Date dateCreated = new Date(Long.parseLong(fileName));
-		// TODO: localized pattern
 		SimpleDateFormat sdf = new SimpleDateFormat(context.getString(R.string.date_time_format));
 		created = sdf.format(dateCreated);
 		
