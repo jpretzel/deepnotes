@@ -59,6 +59,11 @@ public class DrawView extends View implements View.OnTouchListener {
 	private boolean cleared = false;
 
 	/**
+	 * Holds a flag neither the note is new or loaded.
+	 */
+	private boolean isNewNote = true;
+	
+	/**
 	 * Constructor.
 	 * 
 	 * @param context
@@ -131,7 +136,9 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * Draws the bitmap on background.
+	 * This method redraws the hole surface of this view.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	@Override
 	public void onDraw(Canvas canvas) {
@@ -151,6 +158,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	private Path path = new Path();
 	private float lastX, lastY;
 	
+	/**
+	 * This Method starts drawing on a new path.
+	 * 
+	 * @param x Initial startpoint x.
+	 * @param y Initial startpoint y.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	public void startDraw(float x, float y) {
 		path.reset();
 		path.moveTo(x, y);
@@ -162,12 +177,29 @@ public class DrawView extends View implements View.OnTouchListener {
 		((DrawActivity) getContext()).setSaveStateChanged(true);
 	}
 	
+	/**
+	 * This offsets extends the rerender-frame to avoid render artefacts
+	 * while drawing a path. 
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	private static final float invalidateOffset = 50f;
 	
+	/**
+	 * Continues drawing a path. Is called by an ACTION_MOVE event.
+	 * This method draws a cubic bezier-curve to smooth the entered Inut,
+	 * while afterwards the rerender-frame is calculated.
+	 * 
+	 * @param x Continious point x.
+	 * @param y Continious point x
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	public void continueDraw(float x, float y) {
 		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
 	
+		// calculate rerender-frame
 		if(y < lastY){
 			if(x < lastX){
 				postInvalidate(
@@ -198,12 +230,19 @@ public class DrawView extends View implements View.OnTouchListener {
 			}
 		}
 		
-		//path.lineTo(x, y);
+		// store points for next cycle
 		lastX = x;
 		lastY = y;
 	}
 	
+	/**
+	 * This Method ends drawing a new path. The current path is
+	 * getting stored and reseted. Afterwards a complete rerender is called.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
 	public void stopDraw() {
+		// end the path and draw it
 		path.lineTo(lastX, lastY);
 		canvas.drawPath(path, paint);
 		
@@ -211,16 +250,19 @@ public class DrawView extends View implements View.OnTouchListener {
 		pathVector.add(new Path(path));
 		paintVector.add(new Paint(paint));
 		
+		// clear the path
 		path.reset();
 		
+		// call rerender
 		invalidate();
 	}
 	
+	/**
+	 * 
+	 */
 	public void undo(){
 		if (pathVector.isEmpty())
 			return;
-		
-		Log.i("undo called.",pathVector.size() + "");
 		
 		clearNote();
 		
@@ -235,13 +277,21 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 	
 	/**
-	 * Clears the current page and post an invalidate state to force an update.
+	 * Clears the current page and post an invalidate state to 
+	 * force an update.
+	 * 
+	 * @author Sebastian Ullrich
 	 */
 	public void clearNote() {
-		bitmap = Bitmap.createBitmap(
-				Deepnotes.getViewportWidth(), 
-				Deepnotes.getViewportHeight(), 
-				Bitmap.Config.ARGB_4444);
+		if(isNewNote) {
+			bitmap = Bitmap.createBitmap(
+					Deepnotes.getViewportWidth(), 
+					Deepnotes.getViewportHeight(), 
+					Bitmap.Config.ARGB_4444);
+		}else{
+			Log.e("LOADING","NEW NOTE #########");
+			((DrawActivity)getContext()).reloadNotePage(0);
+		}
 
 		canvas = new Canvas(bitmap);
 		postInvalidate();
@@ -270,6 +320,9 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public void loadBitmap(Bitmap weakBitmap) {
 		canvas.drawBitmap(weakBitmap, new Matrix(), paint);
+		// set floag isNewNote to false, because it's loaded
+		Log.e("loading note", "setting isNewNote to false");
+		isNewNote = false;
 	}
 	
 	/**
@@ -352,6 +405,12 @@ public class DrawView extends View implements View.OnTouchListener {
 	private boolean swipeGestureTriggered = false;
 	
 	
+	/**
+	 * This is the default method, called on MotionEvent.
+	 * 
+	 * @author Sebastian Ullrich
+	 * 
+	 */
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		/*
