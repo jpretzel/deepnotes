@@ -30,6 +30,7 @@
     <string name="saving_note">Notiz wird gespeichert...</string>
     <string name="note_deleted">Notiz wurde gelöscht!</string>
     <string name="note_saved">Notiz wurde gespeichert!</string>
+    <string name="date_time_format">dd.MM.yy - HH:mm</string>
 </resources>
 
 
