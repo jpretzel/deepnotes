@@ -199,7 +199,8 @@ public class DrawActivity extends Activity {
 
 		if (notePath.exists()) {
 			String notePathString = notePath.toString();
-			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			//DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			DrawView dw = currentDrawView;
 			
 			File noteFile = new File(notePathString + "/" + index + ".png");
 			if (noteFile.exists()) {
