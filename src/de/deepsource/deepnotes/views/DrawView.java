@@ -379,9 +379,10 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 	
 	/**
+	 * Recycles the DrawView, to make sure it gets
+	 * collected by the GC.
 	 * 
-	 * @param visible
-	 * @author Sebastian Ullrich
+	 * @author Jan Pretzel
 	 */
 	public void recycle() {
 		bitmap.recycle();

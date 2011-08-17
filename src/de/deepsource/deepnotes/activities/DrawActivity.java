@@ -208,6 +208,7 @@ public class DrawActivity extends Activity {
 			
 			File noteFile = new File(notePathString + "/" + index + ".png");
 			if (noteFile.exists()) {
+				// TODO: weakref?
 				Bitmap note = BitmapFactory.decodeFile(
 						notePathString + "/"
 						+ index + ".png");
@@ -537,10 +538,12 @@ public class DrawActivity extends Activity {
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO: SWITCH!!!!
 		if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
 			Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 			currentDrawView.undo();
 		}
+		
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
 			if (saveStateChanged) {
@@ -728,7 +731,7 @@ public class DrawActivity extends Activity {
 			WeakReference<Bitmap> firstPage =  new WeakReference<Bitmap>(drawView.getBitmap());
 
 			// scale factor = 0.5
-			float scale = 0.1f;
+			float scale = 0.5f;
 
 			// create matrix
 			Matrix matirx = new Matrix();

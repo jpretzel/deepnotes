@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
-    <ImageView android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:src="@drawable/icon" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/noteImage" android:scaleType="fitCenter"></ImageView>
-    <TextView android:layout_alignParentLeft="true" android:layout_below="@+id/noteImage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TextView" android:id="@+id/fileName"></TextView>
+  android:layout_width="fill_parent" android:layout_height="match_parent">
+    <ImageView android:src="@drawable/icon" android:layout_width="wrap_content" android:id="@+id/noteImage" android:scaleType="fitCenter" android:layout_gravity="center" android:layout_height="200dp"></ImageView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TextView" android:id="@+id/fileName" android:layout_gravity="center"></TextView>
     
-</RelativeLayout>
+</LinearLayout>
