@@ -156,7 +156,7 @@ public class DrawActivity extends Activity {
 
 		if (notePath.exists()) {
 			File[] files = notePath.listFiles();
-			Bitmap weakBitmap = null;
+			WeakReference<Bitmap> weakBitmap = null;
 
 			for (File file : files) {
 				String name = file.getName();
@@ -172,25 +172,20 @@ public class DrawActivity extends Activity {
 				// don't run false files
 				if (index < 3) {
 					// load the file as Bitmap
-					weakBitmap = BitmapFactory.decodeFile(file
-							.getAbsolutePath());
+					weakBitmap = new WeakReference<Bitmap>(BitmapFactory.decodeFile(file
+							.getAbsolutePath()));
 					
 					DrawView loadView = (DrawView) viewFlipper
 							.getChildAt(index);
 
 					// is the file a background or not?
 					if (name.contains("background")) {
-						loadView.setBackground(weakBitmap);
+						loadView.setBackground(weakBitmap.get());
 					} else {
-						loadView.loadBitmap(weakBitmap);
+						loadView.loadBitmap(weakBitmap.get());
 					}
 				}
 			}
-			
-			/*if (bitmap != null) {
-				bitmap.recycle();
-				bitmap = null;
-			}*/
 		}
 	}
 
@@ -255,12 +250,8 @@ public class DrawActivity extends Activity {
 		// Camera import triggered
 		case (R.id.draw_menu_importfromcamera): {
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-			// String fileName =
-			// getFullyQualifiedFileString(Deepnotes.saveFolder
-			// + Deepnotes.savePhotos, ".jpg");
-			// File file = new File(fileName);
 			pictureUri = Uri.fromFile(new File(Environment
-					.getExternalStorageDirectory() + "/testcam.jpg"));
+					.getExternalStorageDirectory() + "/camera.jpg"));
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
 			intent.putExtra("return-data", true);
 			startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
@@ -405,19 +396,17 @@ public class DrawActivity extends Activity {
 		intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
 
 		File file = new File(Environment.getExternalStorageDirectory()
-				+ "/test.jpg");
+				+ "/crop.jpg");
 		outputUri = Uri.fromFile(file);
 
 		intent.setData(pictureUri);
 		int x = Deepnotes.getViewportWidth();
 		int y = Deepnotes.getViewportHeight();
-		// intent.putExtra("setWallpaper", false);
 		intent.putExtra("outputX", x);
 		intent.putExtra("outputY", y);
 		intent.putExtra("aspectX", x);
 		intent.putExtra("aspectY", y);
 		intent.putExtra("scale", true);
-		// intent.putExtra("noFaceDetection", true);
 		intent.putExtra("return-data", false);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 
@@ -457,17 +446,19 @@ public class DrawActivity extends Activity {
 		/* crop result */
 		case (REQUEST_IMAGE_CROP): {
 			if (resultCode == RESULT_OK) {
-				Bitmap bitmap = null;
+				WeakReference<Bitmap> weakBitmap = null;
 				try {
-					bitmap = MediaStore.Images.Media.getBitmap(
-							getContentResolver(), outputUri);
-					currentDrawView.setBackground(bitmap);
+					weakBitmap = new WeakReference<Bitmap>(MediaStore.Images.Media.getBitmap(
+							getContentResolver(), outputUri));
+					currentDrawView.setBackground(weakBitmap.get());
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
+			
+			new File(outputUri.toString()).delete();
 		}
 		}
 	}
@@ -508,6 +499,7 @@ public class DrawActivity extends Activity {
 			} else {
 				finish();
 			}
+			
 			return true;
 		}
 
@@ -605,11 +597,11 @@ public class DrawActivity extends Activity {
 					toDelete.delete();
 				}
 				
-				// everything is saved, so recycle bitmap
-				if (bitmap != null) {
-					bitmap.recycle();
-					bitmap = null;
-				}
+				// bitmap gets recycled by every IOManager.writeFile(...)
+//				if (bitmap != null) {
+//					bitmap.recycle();
+//					bitmap = null;
+//				}
 			}
 
 			return null;

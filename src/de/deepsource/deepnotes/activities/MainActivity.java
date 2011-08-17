@@ -212,7 +212,6 @@ public class MainActivity extends FragmentActivity {
 			int index = menuInfo.position;
 			
 			IOManager.shareNote(this, notes.get(index).getFileName());
-			Log.e("SHARE", "save rdy");
 		}
 		}
 		
@@ -230,12 +229,13 @@ public class MainActivity extends FragmentActivity {
 	protected void onPause() {
 		super.onPause();
 		
+		// recycle notes to free up memory
 		int count = notes.size();
 		for (int i = 0; i < count; i++) {
 			notes.get(i).recycle();
 		}
 		
-		// recycle notes to free up memory
+		// and get rid of references
 		notes.clear();
 		na.notifyDataSetChanged();
 	}
