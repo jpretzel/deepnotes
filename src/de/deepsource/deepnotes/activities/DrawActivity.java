@@ -472,6 +472,7 @@ public class DrawActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
 			Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+			currentDrawView.undo();
 		}
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
