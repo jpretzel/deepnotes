@@ -112,6 +112,33 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final int NOTE_BACKGROUND_COLOR = Color.rgb(255, 255, 255);
+	
+	/**
+	 * <h1>Deepnotes Pen Width</h1>
+	 * 
+	 * Thick width for pen.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final float PEN_WIDTH_THICK = 15f;
+	
+	/**
+	 * <h1>Deepnotes Pen Width</h1>
+	 * 
+	 * Normal width for pen.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final float PEN_WIDTH_NORMAL = 10f;
+	
+	/**
+	 * <h1>Deepnotes Pen Width</h1>
+	 * 
+	 * Thin width for pen.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final float PEN_WIDTH_THIN = 5f;
 
 	public static int getViewportWidth() {
 		return viewportWidth;
