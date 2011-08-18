@@ -64,6 +64,11 @@ public class DrawView extends View implements View.OnTouchListener {
 	private boolean isNewNote = true;
 	
 	/**
+	 * Page Counter
+	 */
+	private int page = 0;
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param context
@@ -109,7 +114,7 @@ public class DrawView extends View implements View.OnTouchListener {
 		canvas = new Canvas(bitmap);	
 		
 		// paint config
-		paint.setStrokeWidth(10f);
+		paint.setStrokeWidth(Deepnotes.PEN_WIDTH_NORMAL);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setStrokeJoin(Paint.Join.ROUND);
@@ -117,7 +122,8 @@ public class DrawView extends View implements View.OnTouchListener {
 		paint.setDither(true);
 		
 		setOnTouchListener(this);
-		
+		setBackgroundColor(Color.WHITE);
+
 		// TODO: use or don't use?
 		setWillNotDraw(true);
 		setWillNotCacheDrawing(true);
@@ -261,6 +267,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * 
 	 */
 	public void undo(){
+		Log.e("undo", "called");
 		if (pathVector.isEmpty())
 			return;
 		
@@ -283,16 +290,13 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @author Sebastian Ullrich
 	 */
 	public void clearNote() {
-		if(isNewNote) {
-			bitmap = Bitmap.createBitmap(
-					Deepnotes.getViewportWidth(), 
-					Deepnotes.getViewportHeight(), 
-					Bitmap.Config.ARGB_4444);
-		}else{
-			Log.e("LOADING","NEW NOTE #########");
-			((DrawActivity)getContext()).reloadNotePage(0);
-		}
-
+		
+		// clear the hole bitmap
+		bitmap = Bitmap.createBitmap(
+				Deepnotes.getViewportWidth(), 
+				Deepnotes.getViewportHeight(), 
+				Bitmap.Config.ARGB_4444);
+		
 		canvas = new Canvas(bitmap);
 		postInvalidate();
 		
@@ -300,6 +304,12 @@ public class DrawView extends View implements View.OnTouchListener {
 		cleared = true;
 		backgroundModified = false;
 		modified = false;
+		
+		// check if we have to reload a given bmp.
+		if(!isNewNote){
+			Log.e("clear","reloadNotePage");
+			((DrawActivity)getContext()).reloadNotePage(page);
+		}
 	}
 	
 	/**
@@ -318,9 +328,10 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param bmp
 	 * 				current foreground bitmap to set
 	 */
-	public void loadBitmap(Bitmap weakBitmap) {
-		canvas.drawBitmap(weakBitmap, new Matrix(), paint);
-		// set floag isNewNote to false, because it's loaded
+	public void loadBitmap(Bitmap bitmap) {
+		canvas.drawBitmap(bitmap, new Matrix(), paint);
+		
+		// set flog isNewNote to false, because it's loaded
 		Log.e("loading note", "setting isNewNote to false");
 		isNewNote = false;
 	}
@@ -340,6 +351,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public int getPaintColor() {
 		return paint.getColor();
+	}
+	
+	/**
+	 * 
+	 * @param width
+	 */
+	public void setPenWidth(float width) {
+		paint.setStrokeWidth(width);
 	}
 	
 	/**
@@ -374,7 +393,6 @@ public class DrawView extends View implements View.OnTouchListener {
 		if (!modified && !backgroundModified && cleared) {
 			return true;
 		}
-		
 		return false;
 	}
 	
@@ -478,5 +496,19 @@ public class DrawView extends View implements View.OnTouchListener {
 			}
 			break;
 		}
+	}
+	
+	/**
+	 * @return the page
+	 */
+	public int getPage() {
+		return page;
+	}
+
+	/**
+	 * @param page the page to set
+	 */
+	public void setPage(int page) {
+		this.page = page;
 	}
 }

@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/CoreFuncionality">
-        <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item><item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
-        
-        
-    </group>
+    
     <group android:id="@+id/ColorFuncionality">
         <item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor" android:icon="@drawable/ic_menu_edit">
-            <menu>
-                <item android:title="@string/color_black" android:id="@+id/draw_menu_colorblack"></item>
-                <item android:title="@string/color_red" android:id="@+id/draw_menu_colorred"></item>
-                <item android:title="@string/color_yellow" android:id="@+id/draw_menu_coloryellow"></item>
-            </menu>
-        </item>
+		            <menu>
+		                <item android:title="@string/color_black" android:id="@+id/draw_menu_colorblack"></item>
+		                <item android:title="@string/color_red" android:id="@+id/draw_menu_colorred"></item>
+		                <item android:id="@+id/draw_menu_coloryellow" android:title="@string/color_yellow"></item>
+		                <item android:id="@+id/draw_menu_colorcustom" android:title="@string/userdefined"></item>
+		            </menu>
+		        </item>
+            	<item android:title="@string/pen_width" android:id="@+id/draw_menu_changepenwidth" android:icon="@drawable/ic_menu_edit">
+            		<menu>
+		                <item android:title="@string/pen_width_thick" android:id="@+id/draw_menu_penwidththick"></item>
+		                <item android:title="@string/pen_width_normal" android:id="@+id/draw_menu_penwidthnormal"></item>
+		                <item android:title="@string/pen_width_thin" android:id="@+id/draw_menu_penwidththin"></item>
+		            </menu>
+            	</item>
+    </group><group android:id="@+id/CoreFuncionality">
+        <!-- <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item> -->
+        <item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
+        
+        
     </group><group android:id="@+id/UtilityFuncionality">
         <item android:title="@string/import_image" android:id="@+id/draw_menu_importimage" android:icon="@drawable/ic_menu_gallery">
             <menu>
@@ -22,7 +31,7 @@
             </menu>
         </item>
         <item android:id="@+id/draw_menu_share" android:title="@string/share" android:icon="@drawable/ic_menu_share"></item>
-        <item android:id="@+id/draw_menu_delete" android:title="@string/delete" android:icon="@drawable/ic_menu_delete"></item>
+        <!-- <item android:id="@+id/draw_menu_delete" android:title="@string/delete" android:icon="@drawable/ic_menu_delete"></item>  -->
     </group>
     
     

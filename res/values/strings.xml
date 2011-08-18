@@ -20,4 +20,11 @@
     <string name="note_deleted">Note deleted!</string>
     <string name="note_saved">Note saved!</string>
     <string name="date_time_format">MM/dd/yy - h:mm a</string>
+    <string name="undo">undo</string>
+    <string name="userdefined">user-defined</string>
+    <string name="change_pen">change pen</string>
+    <string name="pen_width">pen width</string>
+    <string name="pen_width_thick">thick</string>
+    <string name="pen_width_thin">thin</string>
+    <string name="pen_width_normal">normal</string>
 </resources>

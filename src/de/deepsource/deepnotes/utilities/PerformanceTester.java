@@ -8,7 +8,7 @@ public final class PerformanceTester {
 	private static long startMilliseconds = 0;
 	private static long stopMilliseconds = 0;
 	private static String[] logList = new String[20];
-	private static int logCounter = 0;
+
 	
 	public static void start(){
 		startMilliseconds = System.currentTimeMillis();

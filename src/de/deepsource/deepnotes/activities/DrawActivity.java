@@ -18,6 +18,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.utilities.IOManager;
 import de.deepsource.deepnotes.views.DrawView;
+import de.deepsource.deepnotes.dialogs.ColorPickerDialog;
 
 /**
  * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
@@ -41,7 +43,7 @@ import de.deepsource.deepnotes.views.DrawView;
  * 
  *         This activity enables the draw view and
  */
-public class DrawActivity extends Activity {
+public class DrawActivity extends Activity implements ColorPickerDialog.OnColorChangedListener {
 
 	/**
 	 * Custom request code to identify the <i>image pick from gallery</i>.
@@ -92,16 +94,16 @@ public class DrawActivity extends Activity {
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
-		currentDrawView = initNewDrawView();
+		currentDrawView = initNewDrawView(0);
 
 		// set the default paint color
-		setCurrentPaint(Deepnotes.BLACK);
+		setCurrentPaint(Color.BLACK);
 
 		viewFlipper.addView(currentDrawView);
 
 		// add some more DrawViews,
-		viewFlipper.addView(initNewDrawView());
-		viewFlipper.addView(initNewDrawView());
+		viewFlipper.addView(initNewDrawView(1));
+		viewFlipper.addView(initNewDrawView(2));
 
 		// load note if one was opened
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
@@ -243,11 +245,11 @@ public class DrawActivity extends Activity {
 		switch (item.getItemId()) {
 
 		// New Note triggered
-		case (R.id.draw_menu_newnote): {
+		/*case (R.id.draw_menu_newnote): {
 			currentDrawView.clearNote();
 			saveStateChanged = true;
 			return true;
-		}
+		}*/
 
 		// Save triggered
 		case (R.id.draw_menu_save): {
@@ -256,12 +258,12 @@ public class DrawActivity extends Activity {
 		}
 
 		// delete triggered
-		case (R.id.draw_menu_delete): {
+		/*case (R.id.draw_menu_delete): {
 			IOManager.deleteNote(this.getApplicationContext(), fileName);
 			finish();
 
 			return true;
-		}
+		}*/
 
 		// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
@@ -317,10 +319,35 @@ public class DrawActivity extends Activity {
 
 		// Yellow Color Picked
 		case (R.id.draw_menu_coloryellow): {
-			setCurrentColor(Deepnotes.YELLOW);
+			//setCurrentColor(Deepnotes.YELLOW);
 			return true;
 		}
-
+		
+		// Custom Color Picked
+		case (R.id.draw_menu_colorcustom): {
+			//setCurrentColor(Deepnotes.YELLOW);
+			new ColorPickerDialog(this, this, getCurrentColor()).show();
+			return true;
+		}
+		
+		// Pen Width Thick Picked
+		case (R.id.draw_menu_penwidththick): {
+			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THICK);
+			return true;
+		}
+		
+		// Pen Width Normal Picked
+		case (R.id.draw_menu_penwidthnormal): {
+			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_NORMAL);
+			return true;
+		}
+		
+		// Pen Width Thin Picked
+		case (R.id.draw_menu_penwidththin): {
+			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THIN);
+			return true;
+		}
+		
 		}
 		return false;
 	}
@@ -331,9 +358,9 @@ public class DrawActivity extends Activity {
 	 * @return new DrawView
 	 * @author Sebastian Ullrich
 	 */
-	private DrawView initNewDrawView() {
+	private DrawView initNewDrawView(int page) {
 		DrawView drawView = new DrawView(this);
-		drawView.setBackgroundColor(Color.GRAY);
+		drawView.setPage(page);
 		return drawView;
 	}
 
@@ -822,6 +849,11 @@ public class DrawActivity extends Activity {
 	 */
 	public void setSaveStateChanged(boolean saveStateChanged) {
 		this.saveStateChanged = saveStateChanged;
+	}
+
+	@Override
+	public void colorChanged(int color) {
+		setCurrentColor(color);
 	}
 
 }
