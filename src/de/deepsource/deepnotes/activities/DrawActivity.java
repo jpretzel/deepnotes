@@ -348,6 +348,12 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			return true;
 		}
 		
+		// Pen Width Thin Picked
+		case (R.id.draw_menu_undo): {
+			currentDrawView.undo();
+			return true;
+		}
+		
 		}
 		return false;
 	}
