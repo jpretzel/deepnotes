@@ -27,4 +27,5 @@
     <string name="pen_width_thick">thick</string>
     <string name="pen_width_thin">thin</string>
     <string name="pen_width_normal">normal</string>
+    <string name="color_white">white</string>
 </resources>

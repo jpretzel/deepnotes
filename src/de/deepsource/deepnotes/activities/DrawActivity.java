@@ -252,26 +252,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
 
-		// New Note triggered
-		/*case (R.id.draw_menu_newnote): {
-			currentDrawView.clearNote();
-			saveStateChanged = true;
-			return true;
-		}*/
-
 		// Save triggered
 		case (R.id.draw_menu_save): {
 			saveNote(false);
 			return true;
 		}
-
-		// delete triggered
-		/*case (R.id.draw_menu_delete): {
-			IOManager.deleteNote(this.getApplicationContext(), fileName);
-			finish();
-
-			return true;
-		}*/
 
 		// Gallery import triggered
 		case (R.id.draw_menu_importfromgallery): {
@@ -318,6 +303,12 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			setCurrentColor(Deepnotes.BLACK);
 			return true;
 		}
+		
+		// White Color Picked
+		case (R.id.draw_menu_colorwhite): {
+			setCurrentColor(Color.WHITE);
+			return true;
+		}
 
 		// Red Color Picked
 		case (R.id.draw_menu_colorred): {
@@ -327,13 +318,12 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		// Yellow Color Picked
 		case (R.id.draw_menu_coloryellow): {
-			//setCurrentColor(Deepnotes.YELLOW);
+			setCurrentColor(Deepnotes.YELLOW);
 			return true;
 		}
 		
 		// Custom Color Picked
 		case (R.id.draw_menu_colorcustom): {
-			//setCurrentColor(Deepnotes.YELLOW);
 			new ColorPickerDialog(this, this, getCurrentColor()).show();
 			return true;
 		}
@@ -639,6 +629,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
+		
+		
 		
 		// clear the undo cache of all DrawViews
 		int l = viewFlipper.getChildCount();

@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import de.deepsource.deepnotes.activities.DrawActivity;
 import de.deepsource.deepnotes.application.Deepnotes;
-import de.deepsource.deepnotes.utilities.PerformanceTester;
 
 /**
  * Custom View class that implements all the drawing magic.
@@ -351,7 +350,6 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * 
 	 * @return current picked color.
 	 */
-	@Deprecated
 	public int getPaintColor() {
 		return paint.getColor();
 	}
@@ -360,7 +358,6 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * 
 	 * @param width
 	 */
-	@Deprecated
 	public void setPenWidth(float width) {
 		paint.setStrokeWidth(width);
 	}
