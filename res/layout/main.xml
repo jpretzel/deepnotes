@@ -13,7 +13,7 @@
     	android:columnWidth="90dp"
     	android:verticalSpacing="30dp" 
     	android:horizontalSpacing="30dp" 
-    	android:stretchMode="columnWidth">
+    	android:stretchMode="columnWidth" android:background="@drawable/galaxy_hdpi">
    	</GridView>
 		
 </LinearLayout>
