@@ -27,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;

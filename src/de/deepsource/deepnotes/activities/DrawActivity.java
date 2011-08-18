@@ -616,6 +616,26 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	/**
+	 * If a low memory situation occures, this will free memory
+	 * by clearing the undo cache.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		
+		// clear the undo cache of all DrawViews
+		int l = viewFlipper.getChildCount();
+		for (int i = 0; i < l; i++){
+			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
+			
+			if(dw != null)
+				dw.clearUndoCache();
+		}
+	}
 
 	/**
 	 * An AsyncTask to save the current note, it's backgrounds and a thumbnail.
