@@ -202,13 +202,13 @@ public class DrawView extends View implements View.OnTouchListener {
 		// calculate rerender-frame
 		if(y < lastY){
 			if(x < lastX){
-				postInvalidate(
+				invalidate(
 						(int)(x - invalidateOffset), 
 						(int)(y - invalidateOffset), 
 						(int)(lastX + invalidateOffset), 
 						(int)(lastY + invalidateOffset));
 			}else{
-				postInvalidate(
+				invalidate(
 						(int)(lastX - invalidateOffset), 
 						(int)(y - invalidateOffset), 
 						(int)(x + invalidateOffset), 
@@ -216,13 +216,13 @@ public class DrawView extends View implements View.OnTouchListener {
 			}
 		}else{
 			if(x < lastX){
-				postInvalidate(
+				invalidate(
 						(int)(x - invalidateOffset), 
 						(int)(lastY - invalidateOffset), 
 						(int)(lastX + invalidateOffset), 
 						(int)(y + invalidateOffset));
 			}else{
-				postInvalidate(
+				invalidate(
 						(int)(lastX - invalidateOffset), 
 						(int)(lastY - invalidateOffset), 
 						(int)(x + invalidateOffset), 

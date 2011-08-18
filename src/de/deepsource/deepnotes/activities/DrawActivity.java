@@ -77,6 +77,8 @@ public class DrawActivity extends Activity {
 	private int currentColor = Deepnotes.BLACK;
 
 	protected boolean saveStateChanged = false;
+	
+	private WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);
 
 	/**
 	 * Called when the activity is first created.
@@ -333,7 +335,7 @@ public class DrawActivity extends Activity {
 	 * @author Sebastian Ullrich
 	 */
 	private DrawView initNewDrawView() {
-		DrawView drawView = new DrawView(this);
+		DrawView drawView = new DrawView(drawActivity.get());
 		drawView.setBackgroundColor(Color.GRAY);
 		return drawView;
 	}
@@ -351,7 +353,9 @@ public class DrawActivity extends Activity {
 			fileName = String.valueOf(System.currentTimeMillis());
 		}
 
-		new SaveNote(this, finish).execute();
+		new SaveNote(drawActivity.get(), finish).execute();
+
+		
 	}
 
 	/**
@@ -594,16 +598,16 @@ public class DrawActivity extends Activity {
 	 * 
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
-	private class SaveNote extends AsyncTask<Void, Void, Void> {
+	private static class SaveNote extends AsyncTask<Void, Void, Void> {
 
 		private ProgressDialog dialog;
 		private boolean finish;
-		private Activity activity;
+		private DrawActivity activity;
 
-		public SaveNote(Activity activity, boolean finish) {
+		public SaveNote(DrawActivity activity, boolean finish) {
 			dialog = new ProgressDialog(activity);
-			this. activity = activity;
 			this.finish = finish;
+			this.activity = activity;
 		}
 
 		/**
@@ -616,7 +620,7 @@ public class DrawActivity extends Activity {
 		protected Void doInBackground(Void... params) {
 
 			// save thumbnail
-			String savePath = getFilesDir() + Deepnotes.SAVE_THUMBNAIL;
+			String savePath = activity.getFilesDir() + Deepnotes.SAVE_THUMBNAIL;
 			File file = new File(savePath);
 
 			// Creates the directory named by this abstract pathname,
@@ -624,21 +628,21 @@ public class DrawActivity extends Activity {
 			file.mkdirs();
 
 			Bitmap bitmap = null;
-			DrawView toSave = (DrawView) viewFlipper.getChildAt(0);
+			DrawView toSave = (DrawView) activity.viewFlipper.getChildAt(0);
 
 			if (toSave.isModified() || toSave.isBGModified()) {
 				Log.e("SAVE", "saving thumbnail");
 				bitmap = createThumbnail();
-				IOManager.writeFile(bitmap, savePath + fileName + ".jpg",
+				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
 						Bitmap.CompressFormat.JPEG, 70);
 			}
 
 			// save note pages with separate backgrounds
-			savePath = getFilesDir() + "/" + fileName + "/";
+			savePath = activity.getFilesDir() + "/" + activity.fileName + "/";
 			file = new File(savePath);
 
-			for (int i = 0; i < viewFlipper.getChildCount(); i++) {
-				toSave = (DrawView) viewFlipper.getChildAt(i);
+			for (int i = 0; i < activity.viewFlipper.getChildCount(); i++) {
+				toSave = (DrawView) activity.viewFlipper.getChildAt(i);
 
 				if (toSave.isModified()) {
 					Log.e("SAVE", "saving note " + i);
@@ -685,7 +689,7 @@ public class DrawActivity extends Activity {
 		 */
 		@Override
 		protected void onPreExecute() {
-			dialog.setMessage(getString(R.string.saving_note));
+			dialog.setMessage(activity.getString(R.string.saving_note));
 			dialog.show();
 			super.onPreExecute();
 		}
@@ -705,9 +709,9 @@ public class DrawActivity extends Activity {
 			super.onPostExecute(result);
 			
 			// reset saveStateChanged
-			saveStateChanged = false;
+			activity.saveStateChanged = false;
 
-			Toast toast = Toast.makeText(getApplicationContext(), R.string.note_saved,
+			Toast toast = Toast.makeText(activity.getApplicationContext(), R.string.note_saved,
 					Toast.LENGTH_SHORT);
 			toast.show();
 
@@ -727,7 +731,7 @@ public class DrawActivity extends Activity {
 		 */
 		private Bitmap createThumbnail() {
 			// get first page of the note
-			DrawView drawView = (DrawView) viewFlipper.getChildAt(0);
+			DrawView drawView = (DrawView) activity.viewFlipper.getChildAt(0);
 			WeakReference<Bitmap> firstPage =  new WeakReference<Bitmap>(drawView.getBitmap());
 
 			// scale factor = 0.5
