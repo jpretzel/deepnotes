@@ -30,7 +30,7 @@
     <string name="saving_note">Notiz wird gespeichert...</string>
     <string name="note_deleted">Notiz wurde gelöscht!</string>
     <string name="note_saved">Notiz wurde gespeichert!</string>
-    <string name="date_time_format">dd.MM.yy - HH:mm</string>
+    <string name="date_time_format">dd.MM.yy — HH:mm</string>
     <string name="undo">Rückgängig</string>
     <string name="userdefined">Benutzerdefiniert</string>
     <string name="change_pen">Stift ändern</string>

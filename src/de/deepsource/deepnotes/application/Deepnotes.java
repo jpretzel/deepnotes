@@ -62,7 +62,7 @@ public class Deepnotes extends Application {
 	public static final float SWIPE_DISTANCE_TRIGGER = 0.4f;
 	
 	/**
-	 *<h1>Avoid paint events when entering a swipe gesture.</h1>
+	 * <h1>Avoid paint events when entering a swipe gesture.</h1>
 	 * 
 	 * To avoid paint events that accidently occur when swipe gestures
 	 * entered, this value sets an offset time in ms, the event handler
@@ -143,6 +143,15 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final float PEN_WIDTH_THIN = 5f;
+	
+	/**
+	 * <h1>Deepnotes Single Touch Offset</h1>
+	 * 
+	 * Offset in milliseconds.
+	 * 
+	 * @author Sebastian Ullrich
+	 */
+	public static final long SINGLE_TOUCH_OFFSET = 200;
 
 	public static int getViewportWidth() {
 		return viewportWidth;
