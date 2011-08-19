@@ -1,6 +1,7 @@
 package de.deepsource.deepnotes.activities;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;
@@ -42,7 +42,6 @@ public class MainActivity extends FragmentActivity {
 
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
-	protected final Context context = this;
 	private GridView notesView;
 
 	/** 
@@ -56,9 +55,10 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.main);
         
         notes = new ArrayList<Note>();
-        na = new NotesAdapter(context.getApplicationContext(), R.layout.note_item, R.id.fileName, notes);
+        na = new NotesAdapter(getApplicationContext(), R.layout.note_item, R.id.fileName, notes);
         
         notesView = (GridView) findViewById(R.id.notesView);
+        
         registerForContextMenu(notesView);
         notesView.setAdapter(na);
         
@@ -69,7 +69,7 @@ public class MainActivity extends FragmentActivity {
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
 						
-						final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
+						final Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
 						intent.putExtra(Deepnotes.SAVED_NOTE_NAME, notes.get(position).getFileName());
 
 						startActivity(intent);
@@ -80,8 +80,6 @@ public class MainActivity extends FragmentActivity {
         
         Deepnotes.setViewportWidth(display.getWidth());
         Deepnotes.setViewportHeight(display.getHeight());
-        
-//        loadNotes();
 	}  
 	
 	/**
@@ -96,15 +94,14 @@ public class MainActivity extends FragmentActivity {
 			File[] notePages = notePath.listFiles();
 			
 			// sort this array in reverse order (newest first)
-			// this is needed, because lisFiles() documentation says:
+			// this is needed, because listFiles() documentation says:
 			// "There is no guarantee that the name strings in the resulting 
 			// array will appear in any specific order; they are not, in 
 			// particular, guaranteed to appear in alphabetical order."
 			Arrays.sort(notePages, Collections.reverseOrder());
 			
 			for (File note : notePages) {
-				notes.add(new Note(context.getApplicationContext(), note.getName()));
-				na.notifyDataSetChanged();
+				na.add(new Note(getApplicationContext(), note.getName()));
 			}
 		}
 	}
@@ -118,7 +115,7 @@ public class MainActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
-		MenuInflater inflater = new MenuInflater(context.getApplicationContext());
+		MenuInflater inflater = new MenuInflater(getApplicationContext());
 		inflater.inflate(R.menu.main_menu, menu);
 		
 		return true;
@@ -135,7 +132,7 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
-			final Intent intent = new Intent(context.getApplicationContext(), DrawActivity.class);
+			final Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
 			startActivity(intent);
 			return true;
 		}
@@ -163,7 +160,7 @@ public class MainActivity extends FragmentActivity {
 			// always clear cache, regardless of the resultCode
 			// TODO: find another way to clear cache
 			// this will lead to the share app not loading any image at all
-			IOManager.clearCache();
+			//IOManager.clearCache();
 			break;
 		}
 		}
@@ -179,7 +176,7 @@ public class MainActivity extends FragmentActivity {
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
-		MenuInflater inflater = new MenuInflater(context.getApplicationContext());
+		MenuInflater inflater = new MenuInflater(getApplicationContext());
 		inflater.inflate(R.menu.main_contextmenu, menu);
 		menu.setHeaderTitle(R.string.note);
 	}
@@ -199,7 +196,7 @@ public class MainActivity extends FragmentActivity {
 			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 			int index = menuInfo.position;
 			
-			if (IOManager.deleteNote(context.getApplicationContext(), notes.get(index).getFileName())) {
+			if (IOManager.deleteNote(getApplicationContext(), notes.get(index).getFileName())) {
 				notes.remove(index);
 				na.notifyDataSetChanged();
 			}
@@ -212,7 +209,8 @@ public class MainActivity extends FragmentActivity {
 			menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 			int index = menuInfo.position;
 			
-			IOManager.shareNote(this, notes.get(index).getFileName());
+			WeakReference<MainActivity> weakActivity = new WeakReference<MainActivity>(this);
+			IOManager.shareNote(weakActivity.get(), notes.get(index).getFileName());
 		}
 		}
 		
@@ -237,8 +235,7 @@ public class MainActivity extends FragmentActivity {
 		}
 		
 		// and get rid of references
-		notes.clear();
-		na.notifyDataSetChanged();
+		na.clear();
 	}
 	
 	/**
@@ -280,7 +277,5 @@ public class MainActivity extends FragmentActivity {
 			
 			return noteView;
 		}
-		
 	}
-	
 }

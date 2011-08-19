@@ -575,6 +575,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
 			Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 			currentDrawView.undo();
+			
+			// TODO: remove
+			System.gc();
+			Log.e("INIT DRAW",
+					String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 		}
 		
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -687,6 +692,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
 						Bitmap.CompressFormat.JPEG, 70);
 			}
+			
+			if (bitmap != null) {
+				bitmap.recycle();
+				bitmap = null;
+			}
 
 			// save note pages with separate backgrounds
 			savePath = activity.getFilesDir() + "/" + activity.fileName + "/";
@@ -723,11 +733,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					toDelete.delete();
 				}
 				
-				// bitmap gets recycled by every IOManager.writeFile(...)
-//				if (bitmap != null) {
-//					bitmap.recycle();
-//					bitmap = null;
-//				}
+				// recycle every loop run
+				if (bitmap != null) {
+					bitmap.recycle();
+					bitmap = null;
+				}
 			}
 
 			return null;

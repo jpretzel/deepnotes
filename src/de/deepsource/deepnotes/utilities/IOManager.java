@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -81,6 +82,9 @@ public final class IOManager {
 
 		@Override
 		protected Void doInBackground(String... params) {
+			// check cache before writing new files
+			checkCache();
+			
 			// create temp files
 			String noteName = params[0];
 			File notePath = new File(activity.getFilesDir() + "/" + noteName + "/");
@@ -97,26 +101,34 @@ public final class IOManager {
 					}
 				});
 				
+				Arrays.sort(notePages);
+				
 				Bitmap note = null;
-				Bitmap draw;
-				Canvas canvas;
+				Bitmap draw = null;
+				Canvas canvas = null;
 				
 				int i = 0;
 				for (File notePage : notePages) {
 					// check for background if there is one draw it
 					// else draw a white background
-					String bgPath = notePath + "background_" + notePage.getName();
+					String notePageName = notePage.getName();
+					notePageName = notePageName.substring(0, notePageName.lastIndexOf("."));
+					String bgPath = notePath + "/background_" + notePageName + ".jpg";
+					Log.e("CACHE", bgPath);
 					note = BitmapFactory.decodeFile(notePage.toString());
 					
+					// create those here, so they can be recycled
+					// for every loop run
+					draw = Bitmap.createBitmap(
+							Deepnotes.getViewportWidth(), 
+							Deepnotes.getViewportHeight(), 
+							Bitmap.Config.ARGB_4444);
+					canvas = new Canvas(draw);
+					
 					if (new File(bgPath).exists()) {
-						draw = BitmapFactory.decodeFile(bgPath);
-						canvas = new Canvas(draw);
+						Bitmap temp = BitmapFactory.decodeFile(bgPath);
+						canvas.drawBitmap(temp, 0f, 0f, null);
 					} else {
-						draw = Bitmap.createBitmap(
-								Deepnotes.getViewportWidth(), 
-								Deepnotes.getViewportHeight(), 
-								Bitmap.Config.ARGB_4444);
-						canvas = new Canvas(draw);
 						canvas.drawColor(Color.WHITE);
 					}
 					
@@ -127,7 +139,7 @@ public final class IOManager {
 					if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 						Log.e("WRITE", "cache write");
 						File outPath = new File(Environment.getExternalStorageDirectory()
-								+ "/cache/");
+								+ Deepnotes.SAVE_CACHE);
 						
 						outPath.mkdirs();
 						
@@ -142,23 +154,43 @@ public final class IOManager {
 					} else {
 						Toast.makeText(activity.getApplicationContext(), "External Storage not mounted", Toast.LENGTH_SHORT).show();
 					}
-					
-					// recycle
-					if (note != null) {
-						note.recycle();
-						note = null;
-					}
-					
-					if (draw != null) {
-						draw.recycle();
-						draw = null;
-					}
-					
-					canvas = null;
 				}
+				
+				// recycle
+				if (note != null) {
+					note.recycle();
+					note = null;
+				}
+				
+				if (draw != null) {
+					draw.recycle();
+					draw = null;
+				}
+				
+				canvas = null;
 			}
 			
 			return null;
+		}
+		
+		private void checkCache() {
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				File cachePath = new File(Environment.getExternalStorageDirectory() + Deepnotes.SAVE_CACHE);
+				if (cachePath.exists()) {
+					File[] cacheFiles = cachePath.listFiles();
+					
+					long size = 0;
+					for (File cacheFile : cacheFiles) {
+						size += cacheFile.length();
+						
+						// 2MB 2097152
+						if (size > 2097152) {
+							clearCache();
+							return;
+						}
+					}
+				}
+			}
 		}
 		
 		@Override
@@ -187,7 +219,7 @@ public final class IOManager {
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			Log.e("CLEAR", "cache clear");
-			File cachePath = new File(Environment.getExternalStorageDirectory() + "/cache/");
+			File cachePath = new File(Environment.getExternalStorageDirectory() + Deepnotes.SAVE_CACHE);
 			if (cachePath.exists()) {
 				File[] cachedImages = cachePath.listFiles();
 				
@@ -229,11 +261,6 @@ public final class IOManager {
 					e.printStackTrace();
 				}
 			}
-		}
-
-		if (bitmap != null) {
-			bitmap.recycle();
-			bitmap = null;
 		}
 	}
 }
