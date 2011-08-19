@@ -13,6 +13,7 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -37,7 +38,6 @@ import de.deepsource.deepnotes.utilities.IOManager;
 import de.deepsource.deepnotes.views.DrawView;
 
 /**
- * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
  * @author Jan Pretzel (jan.pretzel@deepsource.de)
  * 
  *         This activity enables the draw view and
@@ -85,10 +85,10 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * 
 	 * @author Jan Pretzel
 	 */
-	private WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);
-
+	private WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);	
+	
 	/**
-	 * Called when the activity is first created.
+	 * Called when the activity is created (on start, on orientation changed).
 	 * 
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
@@ -122,7 +122,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
-
+	
 	/**
 	 * @return the currentPaint
 	 */
@@ -394,7 +394,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 */
 	public void showNextDrawView() {
 		showPageToast(true);
-		
 		viewFlipper.showNext();
 		currentDrawView = (DrawView) viewFlipper.getCurrentView();
 	}
@@ -410,7 +409,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		viewFlipper.showPrevious();
 		currentDrawView = (DrawView) viewFlipper.getCurrentView();
 	}
-
+ 
+	/**
+	 * 
+	 * @param next
+	 */
 	private void showPageToast(boolean next) {
 		int currentPage = viewFlipper.getDisplayedChild() + 1;
 		int size = viewFlipper.getChildCount();
@@ -430,6 +433,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				msg = String.valueOf(currentPage - 1);
 		}
 
+		// TODO: try to update via setText
 		Toast toast = Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT);
 		toast.show();
 	}
@@ -621,7 +625,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	}
 	
 	/**
-	 * If a low memory situation occures, this will free memory
+	 * If a low memory situation occures, this method will free memory
 	 * by clearing the undo cache.
 	 * 
 	 * @author Sebastian Ullrich
@@ -629,8 +633,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		
-		
 		
 		// clear the undo cache of all DrawViews
 		int l = viewFlipper.getChildCount();
@@ -641,7 +643,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				dw.clearUndoCache();
 		}
 	}
-
+	
 	/**
 	 * An AsyncTask to save the current note, it's backgrounds and a thumbnail.
 	 * While working this task will show a ProgressDialog telling the user that

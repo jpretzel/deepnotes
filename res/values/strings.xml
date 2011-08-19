@@ -19,7 +19,7 @@
     <string name="page1button">1</string>
     <string name="note_deleted">Note deleted!</string>
     <string name="note_saved">Note saved!</string>
-    <string name="date_time_format">MM/dd/yy - h:mm a</string>
+    <string name="date_time_format">MM/dd/yy — h:mm a</string>
     <string name="undo">undo</string>
     <string name="userdefined">user-defined</string>
     <string name="change_pen">change pen</string>
