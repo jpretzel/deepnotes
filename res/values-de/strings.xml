@@ -13,7 +13,7 @@
     <string name="color_black">Schwarz</string>
     <string name="color_red">Rot</string>
     <string name="color_yellow">Gelb</string>
-    <string name="import_image">Bild importieren</string>
+    <string name="import_image">Hintergrund importieren</string>
     <string name="import_from_camera">von Kamera</string>
     <string name="import_from_gallery">aus Gallerie</string>
     <string name="remove_note">Notiz entfernen</string>
@@ -39,6 +39,10 @@
     <string name="pen_width_thin">Dünn</string>
     <string name="pen_width_normal">Normal</string>
     <string name="color_white">Weiß</string>
+    <string name="back">Zurück</string>
+    <string name="forward">Vor</string>
+    <string name="credits">Credits</string>
+    <string name="help">Hilfe</string>
 </resources>
 
 

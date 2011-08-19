@@ -335,10 +335,7 @@ public class DrawView extends View implements View.OnTouchListener {
 		isNewNote = false;
 	}
 
-	/**
-	 * 
-	 * @param color
-	 */
+	
 	public void setPaintColor(int color) {
 		paint.setColor(color);
 	}
@@ -352,12 +349,22 @@ public class DrawView extends View implements View.OnTouchListener {
 		return paint.getColor();
 	}
 
-	/**
-	 * 
-	 * @param width
-	 */
+
 	public void setPenWidth(float width) {
 		paint.setStrokeWidth(width);
+	}
+
+	
+	public float getPenWidth(float width) {
+		return paint.getStrokeWidth();
+	}
+	
+	public Paint getPaint(){
+		return paint;
+	}
+	
+	public void setPaint(Paint p){
+		paint = p;
 	}
 
 	/**
@@ -426,32 +433,6 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		/*
-		 * Checking for multiTouch
-		 * 
-		 * To test swipe in emulator (no painting) set: event.getPointerCount()
-		 * == 1
-		 * 
-		 * To test swipe on an physical device set: event.getPointerCount() > 1
-		 */
-		if (event.getPointerCount() == 1)
-			onMultiTouch(event);
-		else
-			onSingleTouch(event);
-		return true;
-	}
-
-	/**
-	 * To ensure that only one pageturn is triggered by a swipe gesture.
-	 */
-	private static long swipeSemaphore = 0;
-
-	/**
-	 * 
-	 * @param event
-	 * @return
-	 */
-	private boolean onSingleTouch(MotionEvent event) {
 		switch (event.getAction()) {
 		case (MotionEvent.ACTION_DOWN):
 			startDraw(event.getX(), event.getY());
@@ -466,33 +447,6 @@ public class DrawView extends View implements View.OnTouchListener {
 			break;
 		}
 		return true;
-	}
-
-	/**
-	 * 
-	 * @param event
-	 */
-	private void onMultiTouch(MotionEvent event) {
-		
-		switch (event.getAction()) {
-			
-		// 2-finger swipe, calculating direction
-		case (MotionEvent.ACTION_MOVE):
-			Log.e("MULTI", "MOVE");
-
-			if(swipeSemaphore != event.getDownTime())
-			if (Math.abs(swipeXdelta - event.getX(0)) > swipeTrigger) {
-				swipeSemaphore = event.getDownTime();
-				if (swipeXdelta < event.getX(0)) {
-					// trigger swipe left
-					((DrawActivity) getContext()).showPreviousDrawView();
-				} else {
-					// trigger wipe right
-					((DrawActivity) getContext()).showNextDrawView();
-				}
-			}
-			break;
-		}
 	}
 
 	/**

@@ -141,10 +141,16 @@ public class MainActivity extends FragmentActivity {
 			return true;
 		}
 		
-		case (R.id.gc): {
-			System.gc();
-			Log.e("CALL GC", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+		case (R.id.main_menu_credits): {
+			
+			break;
 		}
+		
+		case (R.id.main_menu_help): {
+			
+			break;
+		}
+		
 		}
 		
 		return false;

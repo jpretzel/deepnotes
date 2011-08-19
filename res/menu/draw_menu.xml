@@ -2,12 +2,10 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     
-    <group android:id="@+id/ColorFuncionality">
-        <item android:id="@+id/draw_menu_undo" android:title="@string/undo" android:icon="@drawable/ic_menu_revert"></item><item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor" android:icon="@drawable/ic_menu_color">
+    <group android:id="@+id/ColorFuncionality"><item android:title="@string/back" android:id="@+id/draw_menu_back" android:icon="@drawable/ic_menu_back"></item><item android:id="@+id/draw_menu_undo" android:title="@string/undo" android:icon="@drawable/ic_menu_revert"></item><item android:title="@string/forward" android:id="@+id/draw_menu_forward" android:icon="@drawable/ic_menu_forward"></item><item android:title="@string/change_color" android:id="@+id/draw_menu_changecolor" android:icon="@drawable/ic_menu_color">
 		            <menu>
 		                <item android:title="@string/color_black" android:id="@+id/draw_menu_colorblack"></item>
-		                <item android:id="@+id/draw_menu_colorwhite" android:title="@string/color_white"></item><item android:title="@string/color_red" android:id="@+id/draw_menu_colorred"></item>
-		                <item android:id="@+id/draw_menu_coloryellow" android:title="@string/color_yellow"></item>
+		                <item android:id="@+id/draw_menu_colorwhite" android:title="@string/color_white"></item>
 		                <item android:id="@+id/draw_menu_colorcustom" android:title="@string/userdefined"></item>
 		                
 		            </menu>
@@ -19,6 +17,11 @@
 		                <item android:title="@string/pen_width_thin" android:id="@+id/draw_menu_penwidththin"></item>
 		            </menu>
             	</item>
+            	
+            	
+            	
+            	
+            	
             	
     </group><group android:id="@+id/CoreFuncionality">
         <!-- <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item> -->

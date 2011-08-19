@@ -5,7 +5,7 @@
     <string name="remove_note">Remove note</string>
     <string name="send_note">Mail note</string>
     <string name="change_color">Change color</string>
-    <string name="import_image">Import image</string>
+    <string name="import_image">Import background</string>
     <string name="import_from_camera">from camera</string>
     <string name="import_from_gallery">from gallery</string>
     <string name="save_dialog">The note was changed. Do you want to save the changes?</string>
@@ -28,4 +28,8 @@
     <string name="pen_width_thin">thin</string>
     <string name="pen_width_normal">normal</string>
     <string name="color_white">white</string>
+        <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="credits">Credits</string>
+    <string name="help">Help</string>
 </resources>

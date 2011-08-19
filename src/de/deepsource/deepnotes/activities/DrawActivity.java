@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -309,18 +310,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			setCurrentColor(Color.WHITE);
 			return true;
 		}
-
-		// Red Color Picked
-		case (R.id.draw_menu_colorred): {
-			setCurrentColor(Deepnotes.RED);
-			return true;
-		}
-
-		// Yellow Color Picked
-		case (R.id.draw_menu_coloryellow): {
-			setCurrentColor(Deepnotes.YELLOW);
-			return true;
-		}
 		
 		// Custom Color Picked
 		case (R.id.draw_menu_colorcustom): {
@@ -349,6 +338,18 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		// Pen Width Thin Picked
 		case (R.id.draw_menu_undo): {
 			currentDrawView.undo();
+			return true;
+		}
+		
+		// Page Forward
+		case (R.id.draw_menu_forward): {
+			showNextDrawView();
+			return true;
+		}
+
+		// Page Backward
+		case (R.id.draw_menu_back): {
+			showPreviousDrawView();
 			return true;
 		}
 		
@@ -393,9 +394,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @author Sebastian Ullrich
 	 */
 	public void showNextDrawView() {
-		showPageToast(true);
-		viewFlipper.showNext();
-		currentDrawView = (DrawView) viewFlipper.getCurrentView();
+		showPage(PAGE_FORWARD);
 	}
 
 	/**
@@ -404,23 +403,31 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @author Sebastian Ullrich
 	 */
 	public void showPreviousDrawView() {
-		showPageToast(false);
-
-		viewFlipper.showPrevious();
-		currentDrawView = (DrawView) viewFlipper.getCurrentView();
+		showPage(PAGE_BACKWARD);
 	}
- 
-	/**
-	 * 
-	 * @param next
-	 */
-	private void showPageToast(boolean next) {
+	
+	private final static boolean PAGE_FORWARD = true;
+	private final static boolean PAGE_BACKWARD = false;
+	
+	private void showPage(boolean direction){
+		Paint tempPaint = ((DrawView)viewFlipper.getCurrentView()).getPaint();
+		showPageToast(direction);
+		if(direction == PAGE_FORWARD){
+			viewFlipper.showNext();
+		}else{
+			viewFlipper.showPrevious();
+		}
+		currentDrawView = (DrawView) viewFlipper.getCurrentView();
+		currentDrawView.setPaint(tempPaint);
+	}
+
+	private void showPageToast(boolean direction) {
 		int currentPage = viewFlipper.getDisplayedChild() + 1;
 		int size = viewFlipper.getChildCount();
 
 		String msg = new String();
 
-		if (next) {
+		if (direction == PAGE_FORWARD) {
 			// show next page
 			if (currentPage == size)
 				msg = "1";
@@ -575,12 +582,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// TODO: SWITCH!!!!
-		if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-			Log.e("recycle", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-			currentDrawView.undo();
-		}
-		
+		// TODO: switch
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
 			if (saveStateChanged) {

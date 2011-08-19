@@ -3,7 +3,8 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/handle_notes">
         <item android:title="@string/new_note" android:id="@+id/main_menu_addnote" android:icon="@drawable/ic_menu_add"></item>
+        <item android:title="@string/credits" android:id="@+id/main_menu_credits" android:icon="@drawable/ic_menu_info_details"></item>
+        <item android:icon="@drawable/ic_menu_help" android:title="@string/help" android:id="@+id/main_menu_help"></item>
     </group>
-    <item android:id="@+id/gc" android:title="GC"></item>
     
 </menu>
