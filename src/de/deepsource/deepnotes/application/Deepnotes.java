@@ -14,8 +14,12 @@ public class Deepnotes extends Application {
 	
 	/**
 	 * Identifier for the sub folder, where cached files will be saved.
+	 * We cannot use getExternalCacheDir() because it's not supported in
+	 * our minimum version.
 	 * 
 	 * @author Jan Pretzel
+	 * 
+	 *TODO: hide /cache when done with testing -> /.cache
 	 */
 	public static final String SAVE_CACHE = "/deepnotes/cache/";
 	
