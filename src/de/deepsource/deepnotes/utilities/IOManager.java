@@ -34,6 +34,10 @@ import de.deepsource.deepnotes.application.Deepnotes;
  */
 public final class IOManager {
 	public static boolean deleteNote(Context context, String noteName) {
+		if (noteName == null) {
+			return false;
+		}
+		
 		// delete thumbnail
 		File thumbnail = new File(context.getFilesDir()
 				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
@@ -64,8 +68,8 @@ public final class IOManager {
 		return true;
 	}
 	
-	public static void shareNote(Activity context, String noteName) {
-		new WriteShareCache(context).execute(noteName);
+	public static void shareNote(Activity activity, String noteName) {
+		new WriteShareCache(activity).execute(noteName);
 	}
 	
 	private static class WriteShareCache extends AsyncTask<String, Void, Void> {
@@ -128,6 +132,9 @@ public final class IOManager {
 					if (new File(bgPath).exists()) {
 						Bitmap temp = BitmapFactory.decodeFile(bgPath);
 						canvas.drawBitmap(temp, 0f, 0f, null);
+						
+						temp.recycle();
+						temp = null;
 					} else {
 						canvas.drawColor(Color.WHITE);
 					}

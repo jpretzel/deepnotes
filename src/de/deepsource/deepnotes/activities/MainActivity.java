@@ -9,13 +9,11 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 import de.deepsource.deepnotes.models.Note;
@@ -44,6 +43,7 @@ public class MainActivity extends FragmentActivity {
 	private ArrayList<Note> notes;
 	private NotesAdapter na;
 	private GridView notesView;
+	private static final int maxNotes = 50;
 
 	/** 
 	 * Called when the activity is first created. 
@@ -76,11 +76,6 @@ public class MainActivity extends FragmentActivity {
 						startActivity(intent);
 					}
 				});
-        
-        Display display = getWindowManager().getDefaultDisplay();
-        
-        Deepnotes.setViewportWidth(display.getWidth());
-        Deepnotes.setViewportHeight(display.getHeight());
 	}  
 	
 	/**
@@ -133,8 +128,15 @@ public class MainActivity extends FragmentActivity {
 		
 		switch (item.getItemId()) {
 		case (R.id.main_menu_addnote): {
-			final Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
-			startActivity(intent);
+			if (notes.size() < maxNotes) {
+				final Intent intent = new Intent(getApplicationContext(),
+						DrawActivity.class);
+				startActivity(intent);
+			} else {
+				// TODO: localized text
+				Toast.makeText(getApplicationContext(), "To many notes", Toast.LENGTH_SHORT).show();
+			}
+			
 			return true;
 		}
 		
@@ -148,29 +150,16 @@ public class MainActivity extends FragmentActivity {
 			break;
 		}
 		
+		// TODO: delete
+		case (R.id.gc): {
+			System.gc();
+			Log.e("MAIN RESUME", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+			break;
+		}
+		
 		}
 		
 		return false;
-	}
-	
-	/**
-	 * Handle Activity results.
-	 * 
-	 * @author Jan Pretzel
-	 */
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		switch (requestCode) {
-		
-		case (Deepnotes.REQUEST_SHARE_NOTE): {
-			// always clear cache, regardless of the resultCode
-			// TODO: find another way to clear cache
-			// this will lead to the share app not loading any image at all
-			//IOManager.clearCache();
-			break;
-		}
-		}
 	}
 	
 	/**
@@ -228,6 +217,8 @@ public class MainActivity extends FragmentActivity {
 	protected void onResume() {
 		super.onResume();
 		loadNotes();
+		
+		// TODO: delete
 		Log.e("MAIN RESUME", String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 	

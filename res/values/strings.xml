@@ -32,4 +32,5 @@
     <string name="forward">Forward</string>
     <string name="credits">Credits</string>
     <string name="help">Help</string>
+    <string name="clear_page">Clear page</string>
 </resources>

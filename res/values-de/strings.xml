@@ -43,6 +43,7 @@
     <string name="forward">Vor</string>
     <string name="credits">Credits</string>
     <string name="help">Hilfe</string>
+    <string name="clear_page">Seite leeren</string>
 </resources>
 
 

@@ -19,7 +19,7 @@ public class Deepnotes extends Application {
 	 * 
 	 * @author Jan Pretzel
 	 * 
-	 *TODO: hide /cache when done with testing -> /.cache
+	 * TODO: hide /cache when done with testing -> /.cache
 	 */
 	public static final String SAVE_CACHE = "/deepnotes/cache/";
 	

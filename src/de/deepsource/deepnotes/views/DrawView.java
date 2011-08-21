@@ -1,6 +1,6 @@
 package de.deepsource.deepnotes.views;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,11 +9,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import de.deepsource.deepnotes.activities.DrawActivity;
 import de.deepsource.deepnotes.application.Deepnotes;
 
 /**
@@ -54,9 +52,8 @@ public class DrawView extends View implements View.OnTouchListener {
 	private boolean backgroundModified = false;
 
 	/**
-	 * TODO: donno
+	 * Identifies whether the view was cleared or not.
 	 */
-	@Deprecated
 	private boolean cleared = false;
 
 	/**
@@ -67,30 +64,18 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Page Counter
 	 */
-	private int page = 0;
-
+	
 	/**
-	 * Constructor.
+	 * An interface that should handle changes of the DrawView.
 	 * 
-	 * @param context
-	 * @param attrs
-	 * @param defStyle
+	 * @author Jan Pretzel
 	 */
-	public DrawView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		init();
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param context
-	 * @param attrs
-	 */
-	public DrawView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init();
-	}
+	public interface DrawViewListener {
+        void changed();
+        void cleared();
+    }
+	
+	private DrawViewListener dvListener;
 
 	/**
 	 * Constructor.
@@ -98,13 +83,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param context
 	 *            Context.
 	 */
-	public DrawView(Context context) {
+	public DrawView(Context context, DrawViewListener l) {
 		super(context);
+		dvListener = l;
 		init();
 	}
 
-	private Vector<Path> pathVector = new Vector<Path>();
-	private Vector<Paint> paintVector = new Vector<Paint>();
+	private ArrayList<Path> pathList = new ArrayList<Path>();
+	private ArrayList<Paint> paintList = new ArrayList<Paint>();
 
 	/**
 	 * init
@@ -140,7 +126,6 @@ public class DrawView extends View implements View.OnTouchListener {
 	public void setBackground(Bitmap Bitmap) {
 		background = Bitmap;
 		backgroundModified = true;
-		((DrawActivity) getContext()).setSaveStateChanged(true);
 	}
 
 	/**
@@ -184,7 +169,7 @@ public class DrawView extends View implements View.OnTouchListener {
 		// invalidate();
 
 		modified = true;
-		((DrawActivity) getContext()).setSaveStateChanged(true);
+		dvListener.changed();
 	}
 
 	/**
@@ -255,8 +240,8 @@ public class DrawView extends View implements View.OnTouchListener {
 		canvas.drawPath(path, paint);
 
 		// storing undo information
-		pathVector.add(new Path(path));
-		paintVector.add(new Paint(paint));
+		pathList.add(new Path(path));
+		paintList.add(new Paint(paint));
 
 		// clear the path
 		path.reset();
@@ -270,18 +255,18 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public void undo() {
 		Log.e("undo", "called");
-		if (pathVector.isEmpty())
+		if (pathList.isEmpty())
 			return;
 
-		clearNote();
+		clearView(true);
 
-		pathVector.remove(pathVector.size() - 1);
-		paintVector.remove(paintVector.size() - 1);
+		pathList.remove(pathList.size() - 1);
+		paintList.remove(paintList.size() - 1);
 
-		int pvc = pathVector.size();
+		int pvc = pathList.size();
 
 		for (int i = 0; i < pvc; i++) {
-			canvas.drawPath(pathVector.get(i), paintVector.get(i));
+			canvas.drawPath(pathList.get(i), paintList.get(i));
 		}
 	}
 
@@ -289,25 +274,33 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * Clears the current page and post an invalidate state to force an update.
 	 * 
 	 * @author Sebastian Ullrich
+	 * @author Jan Pretzel
 	 */
-	public void clearNote() {
+	public void clearView(boolean undo) {
 
 		// clear the hole bitmap
 		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(),
 				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
 
 		canvas = new Canvas(bitmap);
-		postInvalidate();
+		invalidate();
 
-		// set delete status
-		cleared = true;
-		backgroundModified = false;
-		modified = false;
-
-		// check if we have to reload a given bmp.
-		if (!isNewNote) {
-			Log.e("clear", "reloadNotePage");
-			((DrawActivity) getContext()).reloadNotePage(page);
+		if (!undo) {
+			background = null;
+			clearUndoCache();
+			
+			// set delete status
+			cleared = true;
+			backgroundModified = false;
+			modified = false;
+			
+			dvListener.changed();
+		} else {
+			// check if we have to reload a given bmp.
+			if (!isNewNote) {
+				Log.e("clear", "reloadNotePage");
+				dvListener.cleared();
+			}
 		}
 	}
 
@@ -394,11 +387,8 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * 
 	 * @return whether the note should be deleted or not.
 	 */
-	public boolean deleteStatus() {
-		if (!modified && !backgroundModified && cleared) {
-			return true;
-		}
-		return false;
+	public boolean deleteStatus() {	
+		return !modified && !backgroundModified && cleared;
 	}
 
 	/**
@@ -420,10 +410,6 @@ public class DrawView extends View implements View.OnTouchListener {
 	/******************************************************************************
 	 * TOUCHLISTENER!!!!!!!!!!!!!!!!!
 	 ******************************************************************************/
-
-	private float swipeXdelta = 0f;
-
-	private float swipeTrigger = 100f;
 
 	/**
 	 * This is the default method, called on MotionEvent.
@@ -455,22 +441,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @author Sebastian Ullrich
 	 */
 	public void clearUndoCache() {
-		pathVector.clear();
-		paintVector.clear();
-	}
-
-	/**
-	 * @return the page
-	 */
-	public int getPage() {
-		return page;
-	}
-
-	/**
-	 * @param page
-	 *            the page to set
-	 */
-	public void setPage(int page) {
-		this.page = page;
+		pathList.clear();
+		paintList.clear();
 	}
 }

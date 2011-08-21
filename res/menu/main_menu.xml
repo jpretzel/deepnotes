@@ -6,5 +6,6 @@
         <item android:title="@string/credits" android:id="@+id/main_menu_credits" android:icon="@drawable/ic_menu_info_details"></item>
         <item android:icon="@drawable/ic_menu_help" android:title="@string/help" android:id="@+id/main_menu_help"></item>
     </group>
+    <item android:title="GC" android:id="@+id/gc"></item>
     
 </menu>

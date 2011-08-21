@@ -26,6 +26,8 @@
     </group><group android:id="@+id/CoreFuncionality">
         <!-- <item android:title="@string/new_note" android:id="@+id/draw_menu_newnote" android:icon="@drawable/ic_menu_add"></item> -->
         <item android:id="@+id/draw_menu_save" android:title="@string/save" android:icon="@drawable/ic_menu_save"></item>
+        <item android:title="@string/delete" android:id="@+id/draw_menu_delete" android:icon="@drawable/ic_menu_delete"></item>
+        <item android:id="@+id/draw_menu_clear" android:icon="@drawable/ic_menu_close_clear_cancel" android:title="@string/clear_page"></item>
         
         
     </group><group android:id="@+id/UtilityFuncionality">
