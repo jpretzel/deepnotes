@@ -276,8 +276,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 			intent.setType("image/*");
 			startActivityForResult(
-					// TODO: localized text
-					Intent.createChooser(intent, "Bild auswählen"),
+					Intent.createChooser(intent, getString(R.string.choose_image)),
 					REQUEST_IMAGE_FROM_GALLERY);
 
 			return true;
@@ -462,10 +461,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			else
 				msg = String.valueOf(currentPage - 1);
 		}
-
-		// TODO: try to update via setText
-		Toast toast = Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT);
-		toast.show();
+		
+		Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -846,7 +843,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		// trying to free heap by force
 		Log.i("DrawActivity", "onDestroy() called.");
 		super.onDestroy();
-//		viewFlipper.stopFlipping();
 		
 		// THIS IS IMPORTANT
 		// without this the Activity won't get collected by the GC
@@ -856,11 +852,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
 			dw.recycle();
 		}
-
-//		// TODO: needed?
-//		viewFlipper.removeAllViews();
-//		viewFlipper = null;
-//		currentDrawView = null;
 	}
 
 	/**

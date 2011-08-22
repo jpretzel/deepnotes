@@ -33,4 +33,6 @@
     <string name="credits">Credits</string>
     <string name="help">Help</string>
     <string name="clear_page">Clear page</string>
+    <string name="choose_image">Chose image</string>
+    <string name="max_notes">You have reached the maximum amount of notes.</string>
 </resources>

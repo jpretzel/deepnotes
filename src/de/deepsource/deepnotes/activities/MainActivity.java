@@ -133,8 +133,7 @@ public class MainActivity extends FragmentActivity {
 						DrawActivity.class);
 				startActivity(intent);
 			} else {
-				// TODO: localized text
-				Toast.makeText(getApplicationContext(), "To many notes", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), R.string.max_notes, Toast.LENGTH_SHORT).show();
 			}
 			
 			return true;

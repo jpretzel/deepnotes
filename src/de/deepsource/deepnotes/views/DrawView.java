@@ -112,9 +112,8 @@ public class DrawView extends View implements View.OnTouchListener {
 		setOnTouchListener(this);
 		setBackgroundColor(Color.WHITE);
 
-		// TODO: use or don't use?
 		setWillNotDraw(true);
-		setWillNotCacheDrawing(true);
+//		setWillNotCacheDrawing(true);
 	}
 
 	/**

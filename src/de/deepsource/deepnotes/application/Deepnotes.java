@@ -18,10 +18,8 @@ public class Deepnotes extends Application {
 	 * our minimum version.
 	 * 
 	 * @author Jan Pretzel
-	 * 
-	 * TODO: hide /cache when done with testing -> /.cache
 	 */
-	public static final String SAVE_CACHE = "/deepnotes/cache/";
+	public static final String SAVE_CACHE = "/deepnotes/.cache/";
 	
 	/**
 	 * Identifier for a note's name send with an intent.

@@ -44,6 +44,8 @@
     <string name="credits">Credits</string>
     <string name="help">Hilfe</string>
     <string name="clear_page">Seite leeren</string>
+    <string name="choose_image">Bild auswählen</string>
+    <string name="max_notes">Du hast die maximale Anzahl an Notizen erreicht.</string>
 </resources>
 
 
