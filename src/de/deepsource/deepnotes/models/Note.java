@@ -73,7 +73,6 @@ public class Note {
 	 */
 	public void recycle() {
 		thumbnail.recycle();
-		thumbnail = null;
 	}
 
 	/**

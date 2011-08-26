@@ -128,6 +128,9 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
+		
+		Log.e("INIT DRAW",
+				String.valueOf(Runtime.getRuntime().totalMemory()));
 	}
 	
 	/**
@@ -173,7 +176,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		if (notePath.exists()) {
 			File[] files = notePath.listFiles();
-			WeakReference<Bitmap> weakBitmap = null;
+			Bitmap bitmap = null;
 
 			for (File file : files) {
 				String name = file.getName();
@@ -189,17 +192,16 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				// don't run false files
 				if (index < 3) {
 					// load the file as Bitmap
-					weakBitmap = new WeakReference<Bitmap>(BitmapFactory.decodeFile(file
-							.getAbsolutePath()));
+					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 					
 					DrawView loadView = (DrawView) viewFlipper
 							.getChildAt(index);
 
 					// is the file a background or not?
 					if (name.contains("background")) {
-						loadView.setBackground(weakBitmap.get());
+						loadView.setBackground(bitmap, false);
 					} else {
-						loadView.loadBitmap(weakBitmap.get());
+						loadView.loadBitmap(bitmap);
 					}
 				}
 			}
@@ -215,6 +217,10 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @param index The index of the page that will be reloaded.
 	 */
 	public void reloadNotePage(int index) {
+		if (index < 0 || index > viewFlipper.getChildCount()) {
+			return;
+		}
+		
 		File notePath = new File(getFilesDir(), fileName + "/");
 
 		if (notePath.exists()) {
@@ -223,7 +229,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			
 			File noteFile = new File(notePathString + "/" + index + ".png");
 			if (noteFile.exists()) {
-				// TODO: weakref?
 				Bitmap note = BitmapFactory.decodeFile(
 						notePathString + "/"
 						+ index + ".png");
@@ -266,8 +271,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		
 		// save triggered
 		case (R.id.draw_menu_delete): {
-			IOManager.deleteNote(getApplicationContext(), fileName);
-			finish();
+			if (!IOManager.deleteNote(getApplicationContext(), fileName)) {
+				Toast.makeText(getApplicationContext(), R.string.delete_exception, Toast.LENGTH_SHORT).show();
+			} else {
+				finish();
+			}
 			return true;
 		}
 
@@ -560,11 +568,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		/* crop result */
 		case (REQUEST_IMAGE_CROP): {
 			if (resultCode == RESULT_OK) {
-				WeakReference<Bitmap> weakBitmap = null;
+				Bitmap bitmap = null;
 				try {
-					weakBitmap = new WeakReference<Bitmap>(MediaStore.Images.Media.getBitmap(
-							getContentResolver(), outputUri));
-					currentDrawView.setBackground(weakBitmap.get());
+					bitmap = MediaStore.Images.Media.getBitmap(
+							getContentResolver(), outputUri);
+					currentDrawView.setBackground(bitmap, true);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -693,13 +701,13 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			// including any necessary but nonexistent parent directories.
 			file.mkdirs();
 
-			WeakReference<Bitmap> bitmap = null;
+			Bitmap bitmap = null;
 			DrawView toSave = (DrawView) activity.viewFlipper.getChildAt(0);
 
-			if (toSave.isModified() || toSave.isBGModified()) {
+			if ((toSave.isModified() || toSave.isBGModified()) || toSave.deleteStatus()) {
 				Log.e("SAVE", "saving thumbnail");
-				bitmap = new WeakReference<Bitmap>(createThumbnail());
-				IOManager.writeFile(bitmap.get(), savePath + activity.fileName + ".jpg",
+				bitmap = createThumbnail();
+				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
 						Bitmap.CompressFormat.JPEG, 70);
 			}
 
@@ -716,16 +724,16 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					file.mkdirs();
 
 					// save note
-					bitmap = new WeakReference<Bitmap>(toSave.getBitmap());
-					IOManager.writeFile(bitmap.get(), savePath + i + ".png",
+					bitmap = toSave.getBitmap();
+					IOManager.writeFile(bitmap, savePath + i + ".png",
 							Bitmap.CompressFormat.PNG, 100);
 				}
 
 				if (toSave.isBGModified()) {
 					Log.e("SAVE", "saving background " + i);
 					// save background
-					bitmap = new WeakReference<Bitmap>(toSave.getBackgroundBitmap());
-					IOManager.writeFile(bitmap.get(), savePath + "background_" + i
+					bitmap = toSave.getBackgroundBitmap();
+					IOManager.writeFile(bitmap, savePath + "background_" + i
 							+ ".jpg", Bitmap.CompressFormat.JPEG, 70);
 				}
 
@@ -796,7 +804,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		private Bitmap createThumbnail() {
 			// get first page of the note
 			DrawView drawView = (DrawView) activity.viewFlipper.getChildAt(0);
-			WeakReference<Bitmap> firstPage =  new WeakReference<Bitmap>(drawView.getBitmap());
+			Bitmap firstPage =  drawView.getBitmap();
 
 			// scale factor = 0.5
 			float scale = 0.5f;
@@ -805,26 +813,26 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
 
-			int width = firstPage.get().getWidth();
-			int height = firstPage.get().getHeight();
+			int width = firstPage.getWidth();
+			int height = firstPage.getHeight();
 
 			// create scaled bitmaps
-			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage.get(), 0, 0,
+			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
 					width, height, matirx, true);
 
 			Canvas pageAndBackground;
-			WeakReference<Bitmap> firstBackgroundScaled;
+			Bitmap firstBackgroundScaled;
 
 			if (drawView.isBGModified()) {
 				WeakReference<Bitmap> firstBackground = new WeakReference<Bitmap>(drawView.getBackgroundBitmap());
-				firstBackgroundScaled = new WeakReference<Bitmap>(Bitmap.createBitmap(firstBackground.get(), 0,
-						0, width, height, matirx, true));
-				pageAndBackground = new Canvas(firstBackgroundScaled.get());
+				firstBackgroundScaled = Bitmap.createBitmap(firstBackground.get(), 0,
+						0, width, height, matirx, true);
+				pageAndBackground = new Canvas(firstBackgroundScaled);
 			} else {
-				firstBackgroundScaled = new WeakReference<Bitmap>(Bitmap.createBitmap(
+				firstBackgroundScaled = Bitmap.createBitmap(
 						(int) (width * scale), (int) (height * scale),
-						Bitmap.Config.ARGB_4444));
-				pageAndBackground = new Canvas(firstBackgroundScaled.get());
+						Bitmap.Config.ARGB_4444);
+				pageAndBackground = new Canvas(firstBackgroundScaled);
 				pageAndBackground.drawColor(Color.WHITE);
 			}
 
@@ -834,7 +842,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			// free unused Bitmap
 			firstPageScaled.recycle();
 
-			return firstBackgroundScaled.get();
+			return firstBackgroundScaled;
 		}
 	}
 

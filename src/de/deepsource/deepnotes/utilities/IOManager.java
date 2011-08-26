@@ -37,13 +37,6 @@ public final class IOManager {
 		if (noteName == null) {
 			return false;
 		}
-		
-		// delete thumbnail
-		File thumbnail = new File(context.getFilesDir()
-				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
-		if (!thumbnail.delete()) {
-			return false;
-		}
 
 		// delete note images + folder
 		File notePath = new File(context.getFilesDir() + "/" + noteName + "/");
@@ -61,9 +54,17 @@ public final class IOManager {
 				return false;
 			}
 		}
+
+		// delete thumbnail at the end, because when something went wrong,
+		// the user will still see that something of the note remaines in
+		// memory
+		File thumbnail = new File(context.getFilesDir()
+				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
+		if (!thumbnail.delete()) {
+			return false;
+		}
 		
-		Toast toast = Toast.makeText(context, R.string.note_deleted, Toast.LENGTH_SHORT);
-		toast.show();
+		Toast.makeText(context, R.string.note_deleted, Toast.LENGTH_SHORT).show();
 
 		return true;
 	}

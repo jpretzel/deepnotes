@@ -194,6 +194,8 @@ public class MainActivity extends FragmentActivity {
 			if (IOManager.deleteNote(getApplicationContext(), notes.get(index).getFileName())) {
 				notes.remove(index);
 				na.notifyDataSetChanged();
+			} else {
+				Toast.makeText(getApplicationContext(), R.string.delete_exception, Toast.LENGTH_SHORT).show();
 			}
 			
 			return true;

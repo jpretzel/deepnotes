@@ -44,17 +44,17 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Flag for changes
 	 */
-	private boolean modified = false;
+	private boolean isModified = false;
 
 	/**
 	 * Flag for modified background
 	 */
-	private boolean backgroundModified = false;
+	private boolean isBackgroundModified = false;
 
 	/**
 	 * Identifies whether the view was cleared or not.
 	 */
-	private boolean cleared = false;
+	private boolean isCleared = false;
 
 	/**
 	 * Holds a flag neither the note is new or loaded.
@@ -120,11 +120,15 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * To set the imported image as background;
 	 * 
 	 * @param bmp
-	 *            the background to be set
+	 *            The background to be set.
+	 * 
+	 * @param modified
+	 *            Whether the background was modified (true) or just loaded from
+	 *            memory (false)
 	 */
-	public void setBackground(Bitmap Bitmap) {
+	public void setBackground(Bitmap Bitmap, boolean modified) {
 		background = Bitmap;
-		backgroundModified = true;
+		isBackgroundModified = modified;
 	}
 
 	/**
@@ -167,7 +171,7 @@ public class DrawView extends View implements View.OnTouchListener {
 		lastY = y;
 		// invalidate();
 
-		modified = true;
+		isModified = true;
 		dvListener.changed();
 	}
 
@@ -289,9 +293,9 @@ public class DrawView extends View implements View.OnTouchListener {
 			clearUndoCache();
 			
 			// set delete status
-			cleared = true;
-			backgroundModified = false;
-			modified = false;
+			isCleared = true;
+			isBackgroundModified = false;
+			isModified = false;
 			
 			dvListener.changed();
 		} else {
@@ -368,11 +372,11 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	public boolean isModified() {
-		return modified;
+		return isModified;
 	}
 
 	public boolean isBGModified() {
-		return backgroundModified;
+		return isBackgroundModified;
 	}
 
 	/**
@@ -387,7 +391,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @return whether the note should be deleted or not.
 	 */
 	public boolean deleteStatus() {	
-		return !modified && !backgroundModified && cleared;
+		return !isModified && !isBackgroundModified && isCleared;
 	}
 
 	/**
