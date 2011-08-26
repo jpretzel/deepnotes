@@ -97,9 +97,9 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public void init() {
 		// inti bitmap and canvas
-		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(),
-				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
-		canvas = new Canvas(bitmap);
+//		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(),
+//				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
+//		canvas = new Canvas(bitmap);
 
 		// paint config
 		paint.setStrokeWidth(Deepnotes.PEN_WIDTH_NORMAL);
@@ -119,15 +119,15 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * To set the imported image as background;
 	 * 
-	 * @param bmp
+	 * @param bitmap
 	 *            The background to be set.
 	 * 
 	 * @param modified
 	 *            Whether the background was modified (true) or just loaded from
 	 *            memory (false)
 	 */
-	public void setBackground(Bitmap Bitmap, boolean modified) {
-		background = Bitmap;
+	public void setBackground(Bitmap bitmap, boolean modified) {
+		background = bitmap;
 		isBackgroundModified = modified;
 	}
 
@@ -266,8 +266,16 @@ public class DrawView extends View implements View.OnTouchListener {
 		pathList.remove(pathList.size() - 1);
 		paintList.remove(paintList.size() - 1);
 
+		redraw();
+	}
+	
+	public void redraw() {
+		if (pathList.isEmpty()) {
+			return;
+		}
+		
 		int pvc = pathList.size();
-
+		
 		for (int i = 0; i < pvc; i++) {
 			canvas.drawPath(pathList.get(i), paintList.get(i));
 		}
@@ -326,8 +334,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	public void loadBitmap(Bitmap bitmap) {
 		canvas.drawBitmap(bitmap, new Matrix(), paint);
 
-		// set flog isNewNote to false, because it's loaded
+		// set flag isNewNote to false, because it's loaded
 		Log.e("loading note", "setting isNewNote to false");
+		isNewNote = false;
+	}
+	
+	public void setBitmap(Bitmap bitmap) {
+		this.bitmap = bitmap;
+		canvas = new Canvas(this.bitmap);
 		isNewNote = false;
 	}
 
@@ -378,6 +392,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	public boolean isBGModified() {
 		return isBackgroundModified;
 	}
+	
+	public void setModified(boolean modified) {
+		isModified = modified;
+	}
+	
+	public void setBGModified(boolean bgmodified) {
+		isBackgroundModified = bgmodified;
+	}
 
 	/**
 	 * Checks for the delete status. The note will be marked to be deleted when
@@ -400,11 +422,11 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @author Jan Pretzel
 	 */
 	public void recycle() {
-		bitmap.recycle();
-		bitmap = null;
+		if (bitmap != null) {
+			bitmap.recycle();
+		}
 		if (background != null) {
 			background.recycle();
-			background = null;
 		}
 		canvas = null;
 		paint = null;

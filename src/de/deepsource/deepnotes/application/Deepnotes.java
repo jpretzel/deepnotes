@@ -21,6 +21,8 @@ public class Deepnotes extends Application {
 	 */
 	public static final String SAVE_CACHE = "/deepnotes/.cache/";
 	
+	public static final String SAVE_DRAWING_CACHE = "/deepnotes/drawingCache/";
+	
 	/**
 	 * Identifier for a note's name send with an intent.
 	 * 

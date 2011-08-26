@@ -100,6 +100,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.draw);
 		
+		clearDrawingCache();
+		
 		// get device width and height BEFORE initializing DrawViews
 		Display display = getWindowManager().getDefaultDisplay();
         Deepnotes.setViewportWidth(display.getWidth());
@@ -107,24 +109,22 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+		
+		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
+			Bundle bundle = getIntent().getExtras();
+			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
+		}
 
-		currentDrawView = initNewDrawView();
+		currentDrawView = new DrawView(drawActivity.get(), this);
+		viewFlipper.addView(currentDrawView);
+		loadNotePage(currentDrawView, viewFlipper.getDisplayedChild());
 
 		// set the default paint color
 		setCurrentPaint(Color.BLACK);
 
-		viewFlipper.addView(currentDrawView);
-
 		// add some more DrawViews,
-		viewFlipper.addView(initNewDrawView());
-		viewFlipper.addView(initNewDrawView());
-
-		// load note if one was opened
-		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
-			Bundle bundle = getIntent().getExtras();
-			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
-			loadNotePages();
-		}
+		viewFlipper.addView(new DrawView(drawActivity.get(), this));
+		viewFlipper.addView(new DrawView(drawActivity.get(), this));
 
 		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
@@ -163,49 +163,61 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		this.currentColor = currentColor;
 		currentDrawView.setPaintColor(currentColor);
 	}
-
-	/**
-	 * Loads an opened note with all it's saved pages and Backgrounds. This will
-	 * only be called, when a saved note was opened and not when a new note 
-	 * was just created.
-	 * 
-	 * @author Jan Pretzel
-	 */
-	public void loadNotePages() {
+	
+	protected void loadNotePage(DrawView drawView, int position) {
 		File notePath = new File(getFilesDir(), fileName + "/");
+		boolean loaded = false;
+		
+		// load saved page if there is one
+		if (fileName != null && notePath.exists()) {
+			String notePathString = notePath.toString() + "/" + position
+					+ ".png";
+			Bitmap note = null;
 
-		if (notePath.exists()) {
-			File[] files = notePath.listFiles();
-			Bitmap bitmap = null;
-
-			for (File file : files) {
-				String name = file.getName();
-				int index = 0;
-				try {
-					index = Integer.parseInt(String.valueOf(name.charAt(name
-							.lastIndexOf('.') - 1)));
-				} catch (NumberFormatException e) {
-					// don't run false files
-					continue;
-				}
-
-				// don't run false files
-				if (index < 3) {
-					// load the file as Bitmap
-					bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-					
-					DrawView loadView = (DrawView) viewFlipper
-							.getChildAt(index);
-
-					// is the file a background or not?
-					if (name.contains("background")) {
-						loadView.setBackground(bitmap, false);
-					} else {
-						loadView.loadBitmap(bitmap);
-					}
-				}
+			File noteFile = new File(notePathString);
+			if (noteFile.exists()) {
+				note = BitmapFactory.decodeFile(notePathString);
+				drawView.setBitmap(note.copy(Bitmap.Config.ARGB_4444, true));
+				loaded = true;
 			}
 		}
+		
+		// set background if one exists
+		// first check cached files
+		boolean modified = false;
+		File file = new File(getCacheDir() + "/" + position + ".jpg");;
+		String path = null;
+		Bitmap bitmap = null;
+		
+		if (file.exists()) {
+			path = file.getPath();
+			Log.e("LOAD", path);
+			modified = true;
+		} else {
+			file = new File(notePath.toString() + "/background_"
+					+ position + ".jpg");
+			
+			if (file.exists()) {
+				path = file.getPath();
+			}
+		}
+		
+		if (path != null) {
+			bitmap = BitmapFactory.decodeFile(path);
+			drawView.setBackground(
+					bitmap.copy(Bitmap.Config.ARGB_4444, true), modified);
+		}
+		
+		if (loaded) {
+			drawView.redraw();
+			return;
+		}
+		
+		// else the page is empty
+		drawView.setBitmap(Bitmap.createBitmap(Deepnotes.getViewportWidth(),
+				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444));
+		drawView.redraw();
+		
 	}
 	
 	/**
@@ -381,23 +393,17 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		// Clear Page
 		case (R.id.draw_menu_clear): {
 			currentDrawView.clearView(false);
+			
+			// delete cached background if there is one
+			File file = new File(getCacheDir() + "/" + viewFlipper.getDisplayedChild() + ".jpg");
+			if (file.exists()) {
+				file.delete();
+			}
 			return true;
 		}
 		
 		}
 		return false;
-	}
-
-	/**
-	 * Initiates a new DrawView
-	 * 
-	 * @return new DrawView
-	 * @author Sebastian Ullrich
-	 */
-	private DrawView initNewDrawView() {
-		DrawView drawView = new DrawView(drawActivity.get(), this);
-
-		return drawView;
 	}
 
 	/**
@@ -439,16 +445,25 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	private final static boolean PAGE_FORWARD = true;
 	private final static boolean PAGE_BACKWARD = false;
 	
-	private void showPage(boolean direction){
+	private void showPage(boolean direction) {
 		Paint tempPaint = ((DrawView)viewFlipper.getCurrentView()).getPaint();
 		showPageToast(direction);
-		if(direction == PAGE_FORWARD){
+		
+		saveDrawingCache();
+		currentDrawView.recycle();
+		
+		if (direction == PAGE_FORWARD) {
 			viewFlipper.showNext();
-		}else{
+		} else {
 			viewFlipper.showPrevious();
 		}
+		
 		currentDrawView = (DrawView) viewFlipper.getCurrentView();
+		loadNotePage(currentDrawView, viewFlipper.getDisplayedChild());
 		currentDrawView.setPaint(tempPaint);
+		
+		Log.e("INIT DRAW",
+				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
 	private void showPageToast(boolean direction) {
@@ -643,23 +658,24 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		return super.onKeyDown(keyCode, event);
 	}
 	
-	/**
-	 * If a low memory situation occures, this method will free memory
-	 * by clearing the undo cache.
-	 * 
-	 * @author Sebastian Ullrich
-	 */
-	@Override
-	public void onLowMemory() {
-		super.onLowMemory();
+	private void clearDrawingCache() {
+		File[] files = getCacheDir().listFiles();
 		
-		// clear the undo cache of all DrawViews
-		int l = viewFlipper.getChildCount();
-		for (int i = 0; i < l; i++){
-			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
+		for (File file : files) {
+			file.delete();
+		}
+	}
+	
+	private void saveDrawingCache() {
+		if (currentDrawView.isBGModified()) {
+			String cachePath = getCacheDir().toString();
+			File file = new File(cachePath);
+			file.mkdirs();
 			
-			if(dw != null)
-				dw.clearUndoCache();
+			cachePath += "/" + viewFlipper.getDisplayedChild() + ".jpg";
+			file = new File(cachePath);
+			Bitmap bitmap = currentDrawView.getBackgroundBitmap();
+			IOManager.writeFile(bitmap, cachePath, Bitmap.CompressFormat.JPEG, 70);
 		}
 	}
 	
@@ -703,6 +719,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 			Bitmap bitmap = null;
 			DrawView toSave = (DrawView) activity.viewFlipper.getChildAt(0);
+			activity.loadNotePage(toSave, 0);
 
 			if ((toSave.isModified() || toSave.isBGModified()) || toSave.deleteStatus()) {
 				Log.e("SAVE", "saving thumbnail");
@@ -710,6 +727,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
 						Bitmap.CompressFormat.JPEG, 70);
 			}
+			
+			toSave.recycle();
 
 			// save note pages with separate backgrounds
 			savePath = activity.getFilesDir() + "/" + activity.fileName + "/";
@@ -717,6 +736,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 			for (int i = 0; i < activity.viewFlipper.getChildCount(); i++) {
 				toSave = (DrawView) activity.viewFlipper.getChildAt(i);
+				activity.loadNotePage(toSave, i);
 
 				if (toSave.isModified()) {
 					Log.e("SAVE", "saving note " + i);
@@ -727,6 +747,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					bitmap = toSave.getBitmap();
 					IOManager.writeFile(bitmap, savePath + i + ".png",
 							Bitmap.CompressFormat.PNG, 100);
+					
+					toSave.setModified(false);
 				}
 
 				if (toSave.isBGModified()) {
@@ -735,16 +757,22 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					bitmap = toSave.getBackgroundBitmap();
 					IOManager.writeFile(bitmap, savePath + "background_" + i
 							+ ".jpg", Bitmap.CompressFormat.JPEG, 70);
+					
+					toSave.setBGModified(false);
 				}
 
 				// check for delete status
 				if (toSave.deleteStatus()) {
 					File toDelete = new File(savePath + i + ".png");
 					toDelete.delete();
+					toSave.setModified(false);
 
 					toDelete = new File(savePath + "background_" + i + ".jpg");
 					toDelete.delete();
+					toSave.setBGModified(false);
 				}
+				
+				toSave.recycle();
 			}
 
 			return null;
@@ -824,8 +852,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			Bitmap firstBackgroundScaled;
 
 			if (drawView.isBGModified()) {
-				WeakReference<Bitmap> firstBackground = new WeakReference<Bitmap>(drawView.getBackgroundBitmap());
-				firstBackgroundScaled = Bitmap.createBitmap(firstBackground.get(), 0,
+				Bitmap firstBackground = drawView.getBackgroundBitmap();
+				firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
 						0, width, height, matirx, true);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 			} else {
@@ -848,9 +876,10 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 	@Override
 	protected void onDestroy() {
-		// trying to free heap by force
 		Log.i("DrawActivity", "onDestroy() called.");
 		super.onDestroy();
+		
+		clearDrawingCache();
 		
 		// THIS IS IMPORTANT
 		// without this the Activity won't get collected by the GC
