@@ -42,17 +42,12 @@ public class MainActivity extends FragmentActivity {
      /**
 	 * TODO.
 	 */
-	private ArrayList<Note> notes;
+	private List<Note> notes;
 
 	/**
 	 * TODO.
 	 */
-	private NotesAdapter na;
-
-	/**
-	 * TODO.
-	 */
-	private GridView notesView;
+	private NotesAdapter notesAdapter;
 
 	/**
 	 * TODO.
@@ -72,13 +67,13 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.main);
 
         notes = new ArrayList<Note>();
-        na = new NotesAdapter(getApplicationContext(),
+        notesAdapter = new NotesAdapter(getApplicationContext(),
         		R.layout.note_item, R.id.fileName, notes);
 
-        notesView = (GridView) findViewById(R.id.notesView);
+        final GridView notesView = (GridView) findViewById(R.id.notesView);
 
         registerForContextMenu(notesView);
-        notesView.setAdapter(na);
+        notesView.setAdapter(notesAdapter);
 
         notesView.setOnItemClickListener(
         		new OnItemClickListener() {
@@ -88,7 +83,7 @@ public class MainActivity extends FragmentActivity {
 							final AdapterView<?> parent,
 							final View view,
 							final int position,
-							final long id) {
+							final long identification) {
 
 						final Intent intent = new Intent(
 								getApplicationContext(),
@@ -108,10 +103,10 @@ public class MainActivity extends FragmentActivity {
 	 * @author Jan Pretzel
 	 */
 	public final void loadNotes() {
-		File notePath = new File(getFilesDir() + Deepnotes.SAVE_THUMBNAIL);
+		final File notePath = new File(getFilesDir() + Deepnotes.SAVE_THUMBNAIL);
 
 		if (notePath.exists()) {
-			File[] notePages = notePath.listFiles();
+			final File[] notePages = notePath.listFiles();
 
 			// sort this array in reverse order (newest first)
 			// this is needed, because listFiles() documentation says:
@@ -121,7 +116,7 @@ public class MainActivity extends FragmentActivity {
 			Arrays.sort(notePages, Collections.reverseOrder());
 
 			for (File note : notePages) {
-				na.add(new Note(getApplicationContext(), note.getName()));
+				notesAdapter.add(new Note(getApplicationContext(), note.getName()));
 			}
 		}
 	}
@@ -139,7 +134,7 @@ public class MainActivity extends FragmentActivity {
 	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		MenuInflater inflater = new MenuInflater(getApplicationContext());
+		final MenuInflater inflater = new MenuInflater(getApplicationContext());
 		inflater.inflate(R.menu.main_menu, menu);
 
 		return true;
@@ -158,8 +153,10 @@ public class MainActivity extends FragmentActivity {
 	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
 
+		boolean handled = false;
+
 		switch (item.getItemId()) {
-		case (R.id.main_menu_addnote):
+		case R.id.main_menu_addnote:
 			if (notes.size() < MAX_NOTES) {
 				final Intent intent = new Intent(getApplicationContext(),
 						DrawActivity.class);
@@ -171,20 +168,23 @@ public class MainActivity extends FragmentActivity {
 						Toast.LENGTH_SHORT).show();
 			}
 
-			return true;
+			handled = true;
+			break;
 
 
-		case (R.id.main_menu_credits):
-			return true;
+		case R.id.main_menu_credits:
+			handled = true;
+			break;
 
-		case (R.id.main_menu_help):
-			return true;
+		case R.id.main_menu_help:
+			handled = true;
+			break;
 
 		default:
 			break;
 		}
 
-		return false;
+		return handled;
 	}
 
 	/**
@@ -192,18 +192,18 @@ public class MainActivity extends FragmentActivity {
 	 *
 	 * @param menu TODO
 	 *
-	 * @param v TODO
+	 * @param view TODO
 	 *
 	 * @param menuInfo TODO
 	 *
 	 * @author Jan Pretzel
 	 */
 	@Override
-	public final void onCreateContextMenu(final ContextMenu menu, final View v,
+	public final void onCreateContextMenu(final ContextMenu menu, final View view,
 			final ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
+		super.onCreateContextMenu(menu, view, menuInfo);
 
-		MenuInflater inflater = new MenuInflater(getApplicationContext());
+		final MenuInflater inflater = new MenuInflater(getApplicationContext());
 		inflater.inflate(R.menu.main_contextmenu, menu);
 		menu.setHeaderTitle(R.string.note);
 	}
@@ -221,15 +221,17 @@ public class MainActivity extends FragmentActivity {
 	public final boolean onContextItemSelected(final MenuItem item) {
 		super.onContextItemSelected(item);
 
+		boolean handled = false;
+
 		AdapterView.AdapterContextMenuInfo menuInfo;
 		menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		int index = menuInfo.position;
+		final int index = menuInfo.position;
 
 		switch (item.getItemId()) {
-		case (R.id.main_contextmenu_removenote):
+		case R.id.main_contextmenu_removenote:
 			if (IOManager.deleteNote(getApplicationContext(), notes.get(index).getFileName())) {
 				notes.remove(index);
-				na.notifyDataSetChanged();
+				notesAdapter.notifyDataSetChanged();
 			} else {
 				Toast.makeText(
 						getApplicationContext(),
@@ -237,18 +239,20 @@ public class MainActivity extends FragmentActivity {
 						Toast.LENGTH_SHORT).show();
 			}
 
-			return true;
+			handled = true;
+			break;
 
-		case (R.id.main_contextmenu_sendnote):
-			WeakReference<MainActivity> weakActivity = new WeakReference<MainActivity>(this);
+		case R.id.main_contextmenu_sendnote:
+			final WeakReference<MainActivity> weakActivity = new WeakReference<MainActivity>(this);
 			IOManager.shareNote(weakActivity.get(), notes.get(index).getFileName());
-			return true;
+			handled = true;
+			break;
 
 		default:
 			break;
 		}
 
-		return false;
+		return handled;
 	}
 
 	@Override
@@ -262,13 +266,13 @@ public class MainActivity extends FragmentActivity {
 		super.onPause();
 
 		// recycle notes to free up memory
-		int count = notes.size();
+		final int count = notes.size();
 		for (int i = 0; i < count; i++) {
 			notes.get(i).recycle();
 		}
 
 		// and get rid of references
-		na.clear();
+		notesAdapter.clear();
 	}
 
 	/**
@@ -287,12 +291,12 @@ public class MainActivity extends FragmentActivity {
 		 *
 		 * @param context TODO
 		 * @param resource TODO
-		 * @param textViewResourceId TODO
+		 * @param textViewResId TODO
 		 * @param objects TODO
 		 */
 		public NotesAdapter(final Context context, final int resource,
-				final int textViewResourceId, final List<Note> objects) {
-			super(context, resource, textViewResourceId, objects);
+				final int textViewResId, final List<Note> objects) {
+			super(context, resource, textViewResId, objects);
 			this.resource = resource;
 		}
 
@@ -301,19 +305,19 @@ public class MainActivity extends FragmentActivity {
 			super.getView(position, convertView, parent);
 
 			LinearLayout noteView;
-			Note note = getItem(position);
+			final Note note = getItem(position);
 
 			if (convertView == null) {
 				noteView = new LinearLayout(getContext());
-				String inflater = Context.LAYOUT_INFLATER_SERVICE;
-				LayoutInflater li = (LayoutInflater) getContext().getSystemService(inflater);
-				li.inflate(resource, noteView, true);
+				final String inflater = Context.LAYOUT_INFLATER_SERVICE;
+				final LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(inflater);
+				layoutInflater.inflate(resource, noteView, true);
 			} else {
 				noteView = (LinearLayout) convertView;
 			}
 
-			TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
-			ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
+			final TextView fileName = (TextView) noteView.findViewById(R.id.fileName);
+			final ImageView noteImage = (ImageView) noteView.findViewById(R.id.noteImage);
 
 			fileName.setText(note.getCreated());
 			noteImage.setImageBitmap(note.getThumbnail());

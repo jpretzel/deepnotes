@@ -51,21 +51,21 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 *
 	 * @author Sebastian Ullrich
 	 */
-	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
+	private static final int REQUEST_GALLERY = 0x00000001;
 
 	/**
 	 * Custom request code to identify the <i>camera image capture</i>.
 	 *
 	 * @author Jan Pretzel
 	 */
-	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
+	private static final int REQUEST_CAMERA = 0x00000010;
 
 	/**
 	 * Custom request code to identify the <i>image crop</i>.
 	 *
 	 * @author Sebastian Ullrich
 	 */
-	private static final int REQUEST_IMAGE_CROP = 0x00000100;
+	private static final int REQUEST_CROP = 0x00000100;
 
 	/**
 	 * TODO.
@@ -118,7 +118,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 *
 	 * @author Jan Pretzel
 	 */
-	private final WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);
+	private final WeakReference<DrawActivity> weakThis = new WeakReference<DrawActivity>(this);
 
 	/**
 	 * Called when the activity is created (on start, on orientation changed).
@@ -136,7 +136,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		clearDrawingCache();
 
 		// get device width and height BEFORE initializing DrawViews
-		Display display = getWindowManager().getDefaultDisplay();
+		final Display display = getWindowManager().getDefaultDisplay();
         Deepnotes.setViewportWidth(display.getWidth());
         Deepnotes.setViewportHeight(display.getHeight());
 
@@ -144,11 +144,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
-			Bundle bundle = getIntent().getExtras();
+			final Bundle bundle = getIntent().getExtras();
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
 		}
 
-		currentDrawView = new DrawView(drawActivity.get(), this);
+		currentDrawView = new DrawView(weakThis.get(), this);
 		viewFlipper.addView(currentDrawView);
 		loadNotePage(currentDrawView, viewFlipper.getDisplayedChild());
 
@@ -156,8 +156,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		setCurrentPaint(Color.BLACK);
 
 		// add some more DrawViews,
-		viewFlipper.addView(new DrawView(drawActivity.get(), this));
-		viewFlipper.addView(new DrawView(drawActivity.get(), this));
+		viewFlipper.addView(new DrawView(weakThis.get(), this));
+		viewFlipper.addView(new DrawView(weakThis.get(), this));
 	}
 
 	/**
@@ -200,16 +200,16 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @author Jan Pretzel
 	 */
 	protected final void loadNotePage(final DrawView drawView, final int position) {
-		File notePath = new File(getFilesDir(), fileName + "/");
+		final File notePath = new File(getFilesDir(), fileName + "/");
 		boolean loaded = false;
 
 		// load saved page if there is one
 		if (fileName != null && notePath.exists()) {
-			String notePathString = notePath.toString() + "/" + position
-					+ ".png";
+			final String notePathString = notePath.toString() + "/" + position
+					+ Deepnotes.PNG_SUFFIX;
 			Bitmap note = null;
 
-			File noteFile = new File(notePathString);
+			final File noteFile = new File(notePathString);
 			if (noteFile.exists()) {
 				note = BitmapFactory.decodeFile(notePathString);
 				drawView.setBitmap(note.copy(Bitmap.Config.ARGB_8888, true));
@@ -220,7 +220,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		// set background if one exists
 		// first check cached files
 		boolean modified = false;
-		File file = new File(getCacheDir() + "/" + position + ".jpg");
+		File file = new File(getCacheDir() + "/" + position + Deepnotes.JPG_SUFFIX);
 		String path = null;
 		Bitmap bitmap = null;
 
@@ -229,7 +229,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			modified = true;
 		} else {
 			file = new File(notePath.toString() + "/background_"
-					+ position + ".jpg");
+					+ position + Deepnotes.JPG_SUFFIX);
 
 			if (file.exists()) {
 				path = file.getPath();
@@ -266,18 +266,18 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			return;
 		}
 
-		File notePath = new File(getFilesDir(), fileName + "/");
+		final File notePath = new File(getFilesDir(), fileName + "/");
 
 		if (notePath.exists()) {
-			String notePathString = notePath.toString();
-			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
+			final String notePathString = notePath.toString();
+			final DrawView reloadView = (DrawView) viewFlipper.getChildAt(index);
 
-			File noteFile = new File(notePathString + "/" + index + ".png");
+			final File noteFile = new File(notePathString + "/" + index + Deepnotes.PNG_SUFFIX);
 			if (noteFile.exists()) {
-				Bitmap note = BitmapFactory.decodeFile(
+				final Bitmap note = BitmapFactory.decodeFile(
 						notePathString + "/"
-						+ index + ".png");
-				dw.loadBitmap(note);
+						+ index + Deepnotes.PNG_SUFFIX);
+				reloadView.loadBitmap(note);
 			}
 		}
 	}
@@ -295,34 +295,27 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
-		MenuInflater inflater = new MenuInflater(this.getApplicationContext());
+		final MenuInflater inflater = new MenuInflater(this.getApplicationContext());
 		inflater.inflate(R.menu.draw_menu, menu);
 
 		return true;
 	}
 
-	/**
-	 * Customizing the menu.
-	 *
-	 * @param item TODO
-	 *
-	 * @return TODO
-	 *
-	 * @author Jan Pretzel
-	 * @author Sebastian Ullrich
-	 */
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
+		boolean handled = false;
+
 		switch (item.getItemId()) {
 
 		// Save triggered
-		case (R.id.draw_menu_save):
+		case R.id.draw_menu_save:
 			saveNote(false, false);
-			return true;
+			handled = true;
+			break;
 
 		// Delete triggered
-		case (R.id.draw_menu_delete):
+		case R.id.draw_menu_delete:
 			// is there a note to delete?
 			if (fileName != null) {
 				if (!IOManager.deleteNote(getApplicationContext(), fileName)) {
@@ -332,114 +325,124 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				}
 			}
 			finish();
-			return true;
+			handled = true;
+			break;
 
 		// Gallery import triggered
-		case (R.id.draw_menu_importfromgallery):
-			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		case R.id.draw_menu_importfromgallery:
+			final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 			intent.setType("image/*");
 			startActivityForResult(
 					Intent.createChooser(intent, getString(R.string.choose_image)),
-					REQUEST_IMAGE_FROM_GALLERY);
-			return true;
+					REQUEST_GALLERY);
+			handled = true;
+			break;
 
 		// Camera import triggered
-		case (R.id.draw_menu_importfromcamera):
+		case R.id.draw_menu_importfromcamera:
 			if (Environment.getExternalStorageState().equals(
 					Environment.MEDIA_MOUNTED)) {
-				Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+				final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-				File file = new File(
+				final File file = new File(
 						Environment.getExternalStorageDirectory()
 						+ Deepnotes.SAVE_CACHE);
-				if (!file.mkdirs()) {
-					Log.e("deepnotes", "failed to create folder(s)");
-				}
+				file.mkdirs();
 
 				pictureUri = Uri.fromFile(new File(file, "/camera.jpg"));
-				i.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-				i.putExtra("return-data", true);
-				startActivityForResult(i, REQUEST_IMAGE_FROM_CAMERA);
+				cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+				cameraIntent.putExtra("return-data", true);
+				startActivityForResult(cameraIntent, REQUEST_CAMERA);
 			} else {
 				Toast.makeText(this.getApplicationContext(),
 						"External Storage not mounted", Toast.LENGTH_SHORT).show();
 			}
-			return true;
+			handled = true;
+			break;
 
 		// share triggered
-		case (R.id.draw_menu_share):
+		case R.id.draw_menu_share:
 			if (saveStateChanged) {
 				saveNote(false, true);
-
-				return true;
+			} else {
+				IOManager.shareNote(weakThis.get(), fileName);
 			}
-
-			IOManager.shareNote(drawActivity.get(), fileName);
-			return true;
+			handled = true;
+			break;
 
 		// Black Color Picked
-		case (R.id.draw_menu_colorblack):
+		case R.id.draw_menu_colorblack:
 			setCurrentColor(Deepnotes.BLACK);
-			return true;
+			handled = true;
+			break;
 
 		// White Color Picked
-		case (R.id.draw_menu_colorwhite):
+		case R.id.draw_menu_colorwhite:
 			setCurrentColor(Color.WHITE);
-			return true;
+			handled = true;
+			break;
 
 		// Custom Color Picked
-		case (R.id.draw_menu_colorcustom):
+		case R.id.draw_menu_colorcustom:
 			new ColorPickerDialog(this, this, getCurrentColor()).show();
-			return true;
+			handled = true;
+			break;
 
 		// Pen Width Thick Picked
-		case (R.id.draw_menu_penwidththick):
+		case R.id.draw_menu_penwidththick:
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THICK);
-			return true;
+			handled = true;
+			break;
 
 		// Pen Width Normal Picked
-		case (R.id.draw_menu_penwidthnormal):
+		case R.id.draw_menu_penwidthnormal:
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_NORMAL);
-			return true;
+			handled = true;
+			break;
 
 		// Pen Width Thin Picked
-		case (R.id.draw_menu_penwidththin):
+		case R.id.draw_menu_penwidththin:
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THIN);
-			return true;
+			handled = true;
+			break;
 
 		// Pen Width Thin Picked
-		case (R.id.draw_menu_undo):
+		case R.id.draw_menu_undo:
 			currentDrawView.undo();
-			return true;
+			handled = true;
+			break;
 
 		// Page Forward
-		case (R.id.draw_menu_forward):
+		case R.id.draw_menu_forward:
 			showNextDrawView();
-			return true;
+			handled = true;
+			break;
 
 		// Page Backward
-		case (R.id.draw_menu_back):
+		case R.id.draw_menu_back:
 			showPreviousDrawView();
-			return true;
+			handled = true;
+			break;
 
 		// Clear Page
-		case (R.id.draw_menu_clear):
+		case R.id.draw_menu_clear:
 			currentDrawView.clearView(false);
 
 			// delete cached background if there is one
-			File file = new File(getCacheDir() + "/" + viewFlipper.getDisplayedChild() + ".jpg");
+			final File file = new File(getCacheDir() + "/" + viewFlipper.getDisplayedChild() + Deepnotes.JPG_SUFFIX);
 			if (file.exists()) {
 				if (!file.delete()) {
-					Log.e("deepnotes", "failed to delete file");
+					Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 				}
 			}
-			return true;
+			handled = true;
+			break;
 
 		default:
 			break;
 		}
 
-		return false;
+		return handled;
 	}
 
 	/**
@@ -457,7 +460,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			fileName = String.valueOf(System.currentTimeMillis());
 		}
 
-		new SaveNote(drawActivity.get(), finish, share).execute();
+		new SaveNote(weakThis.get(), finish, share).execute();
 
 
 	}
@@ -495,7 +498,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @param direction TODO
 	 */
 	private void showPage(final boolean direction) {
-		Paint tempPaint = ((DrawView) viewFlipper.getCurrentView()).getPaint();
+		final Paint tempPaint = ((DrawView) viewFlipper.getCurrentView()).getPaint();
 		showPageToast(direction);
 
 		saveDrawingCache();
@@ -517,8 +520,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @param direction TODO
 	 */
 	private void showPageToast(final boolean direction) {
-		int currentPage = viewFlipper.getDisplayedChild() + 1;
-		int size = viewFlipper.getChildCount();
+		final int currentPage = viewFlipper.getDisplayedChild() + 1;
+		final int size = viewFlipper.getChildCount();
 
 		String msg;
 
@@ -550,9 +553,9 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		final Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
 
-		List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
+		final List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
 
-		if (resolveInfo.size() == 0) {
+		if (resolveInfo.isEmpty()) {
 			Toast.makeText(this.getApplicationContext(),
 					"No crop application found.", Toast.LENGTH_SHORT).show();
 
@@ -563,7 +566,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		// force the intent to take crop activity (won't
 		// work from camera activity without this!)
-		ResolveInfo res = resolveInfo.get(0);
+		final ResolveInfo res = resolveInfo.get(0);
 		intent.setComponent(new ComponentName(
 				res.activityInfo.packageName,
 				res.activityInfo.name));
@@ -573,25 +576,23 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			File file = new File(Environment.getExternalStorageDirectory()
 					+ Deepnotes.SAVE_CACHE);
 
-			if (!file.mkdirs()) {
-				Log.e("deepnotes", "failed to create folder(s)");
-			}
+			file.mkdirs();
 			file = new File(file, "crop.jpg");
 
 			outputUri = Uri.fromFile(file);
 
 			intent.setData(pictureUri);
-			int x = Deepnotes.getViewportWidth();
-			int y = Deepnotes.getViewportHeight();
-			intent.putExtra("outputX", x);
-			intent.putExtra("outputY", y);
-			intent.putExtra("aspectX", x);
-			intent.putExtra("aspectY", y);
+			final int width = Deepnotes.getViewportWidth();
+			final int height = Deepnotes.getViewportHeight();
+			intent.putExtra("outputX", width);
+			intent.putExtra("outputY", height);
+			intent.putExtra("aspectX", width);
+			intent.putExtra("aspectY", height);
 			intent.putExtra("scale", true);
 			intent.putExtra("return-data", false);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
 
-			startActivityForResult(intent, REQUEST_IMAGE_CROP);
+			startActivityForResult(intent, REQUEST_CROP);
 		} else {
 			Toast.makeText(this.getApplicationContext(),
 					"External Storage not mounted", Toast.LENGTH_SHORT).show();
@@ -617,7 +618,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		switch (requestCode) {
 		/* Import from gallery result */
-		case (REQUEST_IMAGE_FROM_GALLERY):
+		case REQUEST_GALLERY:
 			if (resultCode == RESULT_OK) {
 				pictureUri = data.getData();
 				cropImage();
@@ -626,7 +627,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			}
 
 		/* Import from camera result */
-		case (REQUEST_IMAGE_FROM_CAMERA):
+		case REQUEST_CAMERA:
 			if (resultCode == RESULT_OK) {
 				cropImage();
 
@@ -634,7 +635,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			}
 
 		/* crop result */
-		case (REQUEST_IMAGE_CROP):
+		case REQUEST_CROP:
 			if (resultCode == RESULT_OK) {
 				Bitmap bitmap = null;
 				try {
@@ -642,9 +643,9 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 							getContentResolver(), outputUri);
 					currentDrawView.setBackground(bitmap, true);
 				} catch (FileNotFoundException e) {
-					e.printStackTrace();
+					Log.e(Deepnotes.APP_NAME, "failed to get image.");
 				} catch (IOException e) {
-					e.printStackTrace();
+					Log.e(Deepnotes.APP_NAME, "failed to get image.");
 				}
 
 				saveStateChanged = true;
@@ -655,17 +656,17 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			// and needs to be deleted
 			if (outputUri != null) {
 				if (!new File(outputUri.getPath()).delete()) {
-					Log.e("deepnotes", "failed to delete file");
+					Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 				}
 			}
 
 			// if we came from the camera activity we need
 			// to delete pictureUri too
 			if (pictureUri != null) {
-				String cameraImg = pictureUri.getPath();
+				final String cameraImg = pictureUri.getPath();
 				if (cameraImg.contains("camera.jpg")) {
 					if (!new File(cameraImg).delete()) {
-						Log.e("deepnotes", "failed to delete file");
+						Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 					}
 				}
 			}
@@ -694,7 +695,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			/* check for changes */
 			if (saveStateChanged) {
 				/* Creating the save dialog. */
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setMessage(R.string.save_dialog)
 						.setCancelable(true)
 						.setPositiveButton(R.string.yes,
@@ -702,7 +703,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 									@Override
 									public void onClick(
 											final DialogInterface dialog,
-											final int id) {
+											final int identification) {
 										// call the save procedure.
 										saveNote(true, false);
 									}
@@ -712,7 +713,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 									@Override
 									public void onClick(
 											final DialogInterface dialog,
-											final int id) {
+											final int identification) {
 										finish();
 									}
 								});
@@ -731,11 +732,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * TODO .
 	 */
 	private void clearDrawingCache() {
-		File[] files = getCacheDir().listFiles();
+		final File[] files = getCacheDir().listFiles();
 
 		for (File file : files) {
 			if (!file.delete()) {
-				Log.e("deepnotes", "failed to delete file");
+				Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 			}
 		}
 	}
@@ -746,16 +747,13 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	private void saveDrawingCache() {
 		if (currentDrawView.isBGModified()) {
 			String cachePath = getCacheDir().toString();
-			File file = new File(cachePath);
-			if (!file.mkdirs()) {
-				Log.e("deepnotes", "failed to create folder(s)");
-			}
+			final File file = new File(cachePath);
+			file.mkdirs();
 
-			cachePath += "/" + viewFlipper.getDisplayedChild() + ".jpg";
-			Bitmap bitmap = currentDrawView.getBackgroundBitmap();
+			cachePath += "/" + viewFlipper.getDisplayedChild() + Deepnotes.JPG_SUFFIX;
+			final Bitmap bitmap = currentDrawView.getBackgroundBitmap();
 
-			final int quality = 70;
-			IOManager.writeFile(bitmap, cachePath, Bitmap.CompressFormat.JPEG, quality);
+			IOManager.writeFile(bitmap, cachePath, Bitmap.CompressFormat.JPEG, Deepnotes.JPG_QUALITY);
 		}
 	}
 
@@ -794,7 +792,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		 * @param finish TODO
 		 * @param share TODO
 		 */
-		public SaveNote(DrawActivity activity, final boolean finish, final boolean share) {
+		public SaveNote(final DrawActivity activity, final boolean finish, final boolean share) {
+			super();
 			dialog = new ProgressDialog(activity);
 			this.finish = finish;
 			this.share = share;
@@ -820,9 +819,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 			// Creates the directory named by this abstract pathname,
 			// including any necessary but nonexistent parent directories.
-			if (!file.mkdirs()) {
-				Log.e("deepnotes", "failed to create folder(s)");
-			}
+			file.mkdirs();
+
 
 			Bitmap bitmap = null;
 			DrawView toSave = (DrawView) activity.viewFlipper.getChildAt(0);
@@ -831,9 +829,8 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			if ((toSave.isModified() || toSave.isBGModified()) || toSave.deleteStatus()) {
 				bitmap = createThumbnail();
 
-				final int quality = 70;
-				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
-						Bitmap.CompressFormat.JPEG, quality);
+				IOManager.writeFile(bitmap, savePath + activity.fileName + Deepnotes.JPG_SUFFIX,
+						Bitmap.CompressFormat.JPEG, Deepnotes.JPG_QUALITY);
 			}
 
 			// save note pages with separate backgrounds
@@ -846,16 +843,13 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 				if (toSave.isModified()) {
 					// first saved note page will create a sub folder
-					if (!file.mkdirs()) {
-						Log.e("deepnotes", "failed to create folder(s)");
-					}
+					file.mkdirs();
 
 					// save note
 					bitmap = toSave.getBitmap();
 
-					final int quality = 100;
-					IOManager.writeFile(bitmap, savePath + i + ".png",
-							Bitmap.CompressFormat.PNG, quality);
+					IOManager.writeFile(bitmap, savePath + i + Deepnotes.PNG_SUFFIX,
+							Bitmap.CompressFormat.PNG, Deepnotes.PNG_QUALITY);
 
 					toSave.setModified(false);
 				}
@@ -864,24 +858,24 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					// save background
 					bitmap = toSave.getBackgroundBitmap();
 
-					final int quality = 70;
 					IOManager.writeFile(bitmap, savePath + "background_" + i
-							+ ".jpg", Bitmap.CompressFormat.JPEG, quality);
+							+ Deepnotes.JPG_SUFFIX, Bitmap.CompressFormat.JPEG, Deepnotes.JPG_QUALITY);
 
 					toSave.setBGModified(false);
 				}
 
+				File toDelete = null;
 				// check for delete status
 				if (toSave.deleteStatus()) {
-					File toDelete = new File(savePath + i + ".png");
+					toDelete = new File(savePath + i + Deepnotes.PNG_SUFFIX);
 					if (!toDelete.delete()) {
-						Log.e("deepnotes", "failed to delete file");
+						Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 					}
 					toSave.setModified(false);
 
-					toDelete = new File(savePath + "background_" + i + ".jpg");
+					toDelete = new File(savePath + "background_" + i + Deepnotes.JPG_SUFFIX);
 					if (!toDelete.delete()) {
-						Log.e("deepnotes", "failed to delete file");
+						Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 					}
 					toSave.setBGModified(false);
 				}
@@ -921,7 +915,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			// reset saveStateChanged
 			activity.saveStateChanged = false;
 
-			Toast toast = Toast.makeText(activity.getApplicationContext(), R.string.note_saved,
+			final Toast toast = Toast.makeText(activity.getApplicationContext(), R.string.note_saved,
 					Toast.LENGTH_SHORT);
 			toast.show();
 
@@ -945,36 +939,36 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		 */
 		private Bitmap createThumbnail() {
 			// get first page of the note
-			DrawView drawView = (DrawView) activity.viewFlipper.getChildAt(0);
-			Bitmap firstPage =  drawView.getBitmap();
+			final DrawView drawView = (DrawView) activity.viewFlipper.getChildAt(0);
+			final Bitmap firstPage =  drawView.getBitmap();
 
 			// scale factor = 0.5
 			final float scale = 0.5f;
 
 			// create matrix
-			Matrix matirx = new Matrix();
+			final Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
 
 			final int width = firstPage.getWidth();
 			final int height = firstPage.getHeight();
 
 			// create scaled bitmaps
-			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
+			final Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
 					width, height, matirx, true);
 
 			Canvas pageAndBackground;
-			Bitmap firstBackgroundScaled;
+			Bitmap firstBGScaled;
 
 			if (drawView.isBGModified()) {
-				Bitmap firstBackground = drawView.getBackgroundBitmap();
-				firstBackgroundScaled = Bitmap.createBitmap(firstBackground, 0,
+				final Bitmap firstBackground = drawView.getBackgroundBitmap();
+				firstBGScaled = Bitmap.createBitmap(firstBackground, 0,
 						0, width, height, matirx, true);
-				pageAndBackground = new Canvas(firstBackgroundScaled);
+				pageAndBackground = new Canvas(firstBGScaled);
 			} else {
-				firstBackgroundScaled = Bitmap.createBitmap(
+				firstBGScaled = Bitmap.createBitmap(
 						(int) (width * scale), (int) (height * scale),
 						Bitmap.Config.ARGB_8888);
-				pageAndBackground = new Canvas(firstBackgroundScaled);
+				pageAndBackground = new Canvas(firstBGScaled);
 				pageAndBackground.drawColor(Color.WHITE);
 			}
 
@@ -984,7 +978,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			// free unused Bitmap
 			firstPageScaled.recycle();
 
-			return firstBackgroundScaled;
+			return firstBGScaled;
 		}
 	}
 
@@ -1000,10 +994,10 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		// THIS IS IMPORTANT
 		// without this the Activity won't get collected by the GC
 		// and we then leak a lot of memory
-		int count = viewFlipper.getChildCount();
+		final int count = viewFlipper.getChildCount();
 		for (int i = 0; i < count; i++) {
-			DrawView dw = (DrawView) viewFlipper.getChildAt(i);
-			dw.recycle();
+			final DrawView clearView = (DrawView) viewFlipper.getChildAt(i);
+			clearView.recycle();
 		}
 	}
 

@@ -11,6 +11,11 @@ import android.graphics.Color;
 public class Deepnotes extends Application {
 
 	/**
+	 * Identifier for the application name.
+	 */
+	public static final String APP_NAME = "deepnotes";
+
+	/**
 	 * Identifier for the sub folder, where thumbnails will be saved.
 	 *
 	 * @author Jan Pretzel
@@ -34,11 +39,36 @@ public class Deepnotes extends Application {
 	public static final String SAVED_NOTE_NAME = "savedNoteName";
 
 	/**
+	 * Identifier for an error message when a file could not be created.
+	 */
+	public static final String ERROR_FILE = "failed to delete file";
+
+	/**
 	 * Identifier for a request code, to share a note.
 	 *
 	 * @author Jan Pretzel
 	 */
-	public static final int REQUEST_SHARE_NOTE = 0x00000002;
+	public static final int REQUEST_SHARE = 0x00000002;
+
+	/**
+	 * Identifier for the quality used for jpgs.
+	 */
+	public static final int JPG_QUALITY = 70;
+
+	/**
+	 * Identifier for the jpg suffix.
+	 */
+	public static final String JPG_SUFFIX = ".jpg";
+
+	/**
+	 * Identifier for the quality used for pngs.
+	 */
+	public static final int PNG_QUALITY = 100;
+
+	/**
+	 * Identifier for the png suffix.
+	 */
+	public static final String PNG_SUFFIX = ".png";
 
 	/**
 	 *
@@ -54,29 +84,6 @@ public class Deepnotes extends Application {
 	 * TODO .
 	 */
 	public static final int NOTEPAGE_COUNT = 3;
-
-	/**
-	 * <h1>Distance moved to trigger an swipe event.</h1>
-	 *
-	 * Sets the min. distance in percent swiped on surface,
-	 * to trigger an swipe event.
-	 * Value must be < 1.0f.
-	 *
-	 * @author Sebastian Ullrich
-	 * @value 1.0f;
-	 */
-	public static final float SWIPE_DISTANCE_TRIGGER = 0.4f;
-
-	/**
-	 * <h1>Avoid paint events when entering a swipe gesture.</h1>
-	 *
-	 * To avoid paint events that accidently occur when swipe gestures
-	 * entered, this value sets an offset time in ms, the event handler
-	 * waits for executing rather a paint event or an swipe gesture.
-	 *
-	 * @author Sebastian Ullrich
-	 */
-	public static final long PAINT_TIME_OFFSET = 200;
 
 	/**
 	 * <h1>Deepnotes Default Color Black</h1>
@@ -121,7 +128,7 @@ public class Deepnotes extends Application {
 	 *
 	 * @author Sebastian Ullrich
 	 */
-	public static final int NOTE_BACKGROUND_COLOR = Color.rgb(255, 255, 255);
+	public static final int NOTE_BG_COLOR = Color.rgb(255, 255, 255);
 
 	/**
 	 * <h1>Deepnotes Pen Width</h1>
@@ -149,15 +156,6 @@ public class Deepnotes extends Application {
 	 * @author Sebastian Ullrich
 	 */
 	public static final float PEN_WIDTH_THIN = 5f;
-
-	/**
-	 * <h1>Deepnotes Single Touch Offset</h1>
-	 *
-	 * Offset in milliseconds.
-	 *
-	 * @author Sebastian Ullrich
-	 */
-	public static final long SINGLE_TOUCH_OFFSET = 200;
 
 	/**
 	 * TODO .

@@ -1,6 +1,7 @@
 package de.deepsource.deepnotes.views;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -44,12 +45,12 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Flag for changes.
 	 */
-	private boolean isModified = false;
+	private boolean modified = false;
 
 	/**
 	 * Flag for modified background.
 	 */
-	private boolean isBackgroundModified = false;
+	private boolean bgModified = false;
 
 	/**
 	 * Identifies whether the view was cleared or not.
@@ -90,26 +91,26 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param l TODO
+	 * @param listener TODO
 	 *
 	 * @param context
 	 *            Context.
 	 */
-	public DrawView(final Context context, final DrawViewListener l) {
+	public DrawView(final Context context, final DrawViewListener listener) {
 		super(context);
-		dvListener = l;
+		dvListener = listener;
 		init();
 	}
 
 	/**
 	 * TODO .
 	 */
-	private final ArrayList<Path> pathList = new ArrayList<Path>();
+	private final List<Path> pathList = new ArrayList<Path>();
 
 	/**
 	 * TODO .
 	 */
-	private final ArrayList<Paint> paintList = new ArrayList<Paint>();
+	private final List<Paint> paintList = new ArrayList<Paint>();
 
 	/**
 	 * TODO .
@@ -142,7 +143,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public final void setBackground(final Bitmap bitmap, final boolean modified) {
 		background = bitmap;
-		isBackgroundModified = modified;
+		bgModified = modified;
 	}
 
 	@Override
@@ -187,7 +188,7 @@ public class DrawView extends View implements View.OnTouchListener {
 		lastX = x;
 		lastY = y;
 
-		isModified = true;
+		modified = true;
 		dvListener.changed();
 	}
 
@@ -294,7 +295,7 @@ public class DrawView extends View implements View.OnTouchListener {
 			return;
 		}
 
-		int pvc = pathList.size();
+		final int pvc = pathList.size();
 
 		for (int i = 0; i < pvc; i++) {
 			canvas.drawPath(pathList.get(i), paintList.get(i));
@@ -318,22 +319,23 @@ public class DrawView extends View implements View.OnTouchListener {
 		canvas = new Canvas(bitmap);
 		invalidate();
 
-		if (!undo) {
-			background = null;
-			clearUndoCache();
-
-			// set delete status
-			isCleared = true;
-			isBackgroundModified = false;
-			isModified = false;
-
-			dvListener.changed();
-		} else {
+		if (undo) {
 			// check if we have to reload a given bmp.
 			if (!isNewNote) {
 				Log.e("clear", "reloadNotePage");
 				dvListener.cleared();
 			}
+
+		} else {
+			background = null;
+			clearUndoCache();
+
+			// set delete status
+			isCleared = true;
+			bgModified = false;
+			modified = false;
+
+			dvListener.changed();
 		}
 	}
 
@@ -420,10 +422,10 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * TODO .
 	 *
-	 * @param p TODO
+	 * @param paint TODO
 	 */
-	public final void setPaint(final Paint p) {
-		paint = p;
+	public final void setPaint(final Paint paint) {
+		this.paint = paint;
 	}
 
 	/**
@@ -441,7 +443,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @return TODO
 	 */
 	public final boolean isModified() {
-		return isModified;
+		return modified;
 	}
 
 	/**
@@ -450,7 +452,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @return TODO
 	 */
 	public final boolean isBGModified() {
-		return isBackgroundModified;
+		return bgModified;
 	}
 
 	/**
@@ -459,7 +461,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param modified TODO
 	 */
 	public final void setModified(final boolean modified) {
-		isModified = modified;
+		this.modified = modified;
 	}
 
 	/**
@@ -468,7 +470,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param bgmodified TODO
 	 */
 	public final void setBGModified(final boolean bgmodified) {
-		isBackgroundModified = bgmodified;
+		bgModified = bgmodified;
 	}
 
 	/**
@@ -483,7 +485,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @return whether the note should be deleted or not.
 	 */
 	public final boolean deleteStatus() {
-		return !isModified && !isBackgroundModified && isCleared;
+		return !modified && !bgModified && isCleared;
 	}
 
 	/**
@@ -498,22 +500,20 @@ public class DrawView extends View implements View.OnTouchListener {
 		if (background != null) {
 			background.recycle();
 		}
-		canvas = null;
-		paint = null;
 	}
 
 	@Override
-	public final boolean onTouch(final View v, final MotionEvent event) {
+	public final boolean onTouch(final View view, final MotionEvent event) {
 		switch (event.getAction()) {
-		case (MotionEvent.ACTION_DOWN):
+		case MotionEvent.ACTION_DOWN:
 			startDraw(event.getX(), event.getY());
 			break;
 
-		case (MotionEvent.ACTION_MOVE):
+		case MotionEvent.ACTION_MOVE:
 			continueDraw(event.getX(), event.getY());
 			break;
 
-		case (MotionEvent.ACTION_UP):
+		case MotionEvent.ACTION_UP:
 			stopDraw();
 			break;
 

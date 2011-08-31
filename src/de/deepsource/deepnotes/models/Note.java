@@ -57,11 +57,11 @@ public class Note {
 			fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 		}
 
-		Date dateCreated = new Date(Long.parseLong(fileName));
-		SimpleDateFormat sdf = new SimpleDateFormat(context.getString(R.string.date_time_format));
+		final Date dateCreated = new Date(Long.parseLong(fileName));
+		final SimpleDateFormat sdf = new SimpleDateFormat(context.getString(R.string.date_time_format));
 		created = sdf.format(dateCreated);
 
-		File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".jpg");
+		final File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".jpg");
 		if (imageFile.exists()) {
 			thumbnail = BitmapFactory.decodeFile(imageFile.toString());
 		}

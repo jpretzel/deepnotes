@@ -45,42 +45,50 @@ public final class IOManager {
 	 * @return TODO
 	 */
 	public static boolean deleteNote(final Context context, final String noteName) {
-		if (noteName == null || context == null) {
-			return false;
+		if (noteName == null) {
+			Log.e(Deepnotes.APP_NAME, "noteName must not be null");
+			throw new IllegalArgumentException();
 		}
 
+		if (context == null) {
+			Log.e(Deepnotes.APP_NAME, "context must not be null");
+			throw new IllegalArgumentException();
+		}
+
+		boolean deleted = true;
+
 		// delete note images + folder
-		File notePath = new File(context.getFilesDir() + "/" + noteName + "/");
+		final File notePath = new File(context.getFilesDir() + "/" + noteName + "/");
 		if (notePath.exists()) {
 			// first delete files, because folder must be empty to be deleted
-			File[] noteFiles = notePath.listFiles();
+			final File[] noteFiles = notePath.listFiles();
 
 			for (File file : noteFiles) {
 				if (!file.delete()) {
-					Log.e("deepnotes", "failed to delete file");
-					return false;
+					Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
+					deleted = false;
 				}
 			}
 
 			if (!notePath.delete()) {
-				Log.e("deepnotes", "failed to delete file");
-				return false;
+				Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
+				deleted = false;
 			}
 		}
 
 		// delete thumbnail at the end, because when something went wrong,
 		// the user will still see that something of the note remaines in
 		// memory
-		File thumbnail = new File(context.getFilesDir()
+		final File thumbnail = new File(context.getFilesDir()
 				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
 		if (!thumbnail.delete()) {
-			Log.e("deepnotes", "failed to delete file");
-			return false;
+			Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
+			deleted = false;
 		}
 
 		Toast.makeText(context, R.string.note_deleted, Toast.LENGTH_SHORT).show();
 
-		return true;
+		return deleted;
 	}
 
 	/**
@@ -91,12 +99,12 @@ public final class IOManager {
 	 */
 	public static void shareNote(final Activity activity, final String noteName) {
 		if (activity == null) {
-			Log.e("deepnotes", "activity must not be null");
+			Log.e(Deepnotes.APP_NAME, "activity must not be null");
 			throw new IllegalArgumentException();
 		}
 
 		if (noteName == null) {
-			Log.e("deepnotes", "noteName must not be null");
+			Log.e(Deepnotes.APP_NAME, "noteName must not be null");
 			throw new IllegalArgumentException();
 		}
 
@@ -131,6 +139,7 @@ public final class IOManager {
 		 * @param activity TODO.
 		 */
 		public WriteShareCache(final Activity activity) {
+			super();
 			dialog = new ProgressDialog(activity);
 			this.activity = activity;
 			uris = new ArrayList<Uri>();
@@ -149,11 +158,11 @@ public final class IOManager {
 			checkCache();
 
 			// create temp files
-			String noteName = params[0];
-			File notePath = new File(activity.getFilesDir() + "/" + noteName + "/");
+			final String noteName = params[0];
+			final File notePath = new File(activity.getFilesDir() + "/" + noteName + "/");
 
 			if (notePath.exists()) {
-				File[] notePages = notePath.listFiles(new FileFilter() {
+				final File[] notePages = notePath.listFiles(new FileFilter() {
 
 					@Override
 					public boolean accept(final File pathname) {
@@ -170,13 +179,13 @@ public final class IOManager {
 				Bitmap draw = null;
 				Canvas canvas = null;
 
-				int i = 0;
+				int count = 0;
 				for (File notePage : notePages) {
 					// check for background if there is one draw it
 					// else draw a white background
 					String notePageName = notePage.getName();
-					notePageName = notePageName.substring(0, notePageName.lastIndexOf("."));
-					String bgPath = notePath + "/background_" + notePageName + ".jpg";
+					notePageName = notePageName.substring(0, notePageName.lastIndexOf('.'));
+					final String bgPath = notePath + "/background_" + notePageName + ".jpg";
 					note = BitmapFactory.decodeFile(notePage.toString());
 
 					// create those here, so they can be recycled
@@ -188,11 +197,10 @@ public final class IOManager {
 					canvas = new Canvas(draw);
 
 					if (new File(bgPath).exists()) {
-						Bitmap temp = BitmapFactory.decodeFile(bgPath);
+						final Bitmap temp = BitmapFactory.decodeFile(bgPath);
 						canvas.drawBitmap(temp, 0f, 0f, null);
 
 						temp.recycle();
-						temp = null;
 					} else {
 						canvas.drawColor(Color.WHITE);
 					}
@@ -206,15 +214,14 @@ public final class IOManager {
 						File outPath = new File(Environment.getExternalStorageDirectory()
 								+ Deepnotes.SAVE_CACHE);
 
-						if (!outPath.mkdirs()) {
-							Log.e("deepnotes", "failed to create folder(s)");
-						}
+						outPath.mkdirs();
 
-						String outFile = outPath.toString()
-								+ "/" + noteName + "_" + i++ + ".jpg";
+						final String outFile = outPath.toString()
+								+ "/" + noteName + "_"
+								+ count++ + Deepnotes.JPG_SUFFIX;
 
-						final int quality = 70;
-						writeFile(draw, outFile, Bitmap.CompressFormat.JPEG, quality);
+						writeFile(draw, outFile,
+								Bitmap.CompressFormat.JPEG, Deepnotes.JPG_QUALITY);
 
 						outPath = new File(outFile);
 						if (outPath.exists()) {
@@ -231,15 +238,11 @@ public final class IOManager {
 				// recycle
 				if (note != null) {
 					note.recycle();
-					note = null;
 				}
 
 				if (draw != null) {
 					draw.recycle();
-					draw = null;
 				}
-
-				canvas = null;
 			}
 
 			return null;
@@ -250,11 +253,11 @@ public final class IOManager {
 		 */
 		private void checkCache() {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-				File cachePath = new File(
+				final File cachePath = new File(
 						Environment.getExternalStorageDirectory()
 						+ Deepnotes.SAVE_CACHE);
 				if (cachePath.exists()) {
-					File[] cacheFiles = cachePath.listFiles();
+					final File[] cacheFiles = cachePath.listFiles();
 
 					long size = 0;
 					for (File cacheFile : cacheFiles) {
@@ -289,7 +292,7 @@ public final class IOManager {
 			final Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			intent.setType("image/*");
 			intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-			activity.startActivityForResult(intent, Deepnotes.REQUEST_SHARE_NOTE);
+			activity.startActivityForResult(intent, Deepnotes.REQUEST_SHARE);
 		}
 
 	}
@@ -299,20 +302,20 @@ public final class IOManager {
 	 */
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			File cachePath = new File(
+			final File cachePath = new File(
 					Environment.getExternalStorageDirectory()
 					+ Deepnotes.SAVE_CACHE);
 			if (cachePath.exists()) {
-				File[] cachedImages = cachePath.listFiles();
+				final File[] cachedImages = cachePath.listFiles();
 
 				for (File cachedImage : cachedImages) {
 					if (!cachedImage.delete()) {
-						Log.e("deepnotes", "failed to delete file");
+						Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 					}
 				}
 
 				if (!cachePath.delete()) {
-					Log.e("deepnotes", "failed to delete file");
+					Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 				}
 			}
 		}
@@ -338,13 +341,13 @@ public final class IOManager {
 			fos = new FileOutputStream(file);
 			bitmap.compress(format, quality, fos);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			Log.e(Deepnotes.APP_NAME, "failed to write file.");
 		} finally {
 			if (fos != null) {
 				try {
 					fos.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					Log.e(Deepnotes.APP_NAME, "failed to write file.");
 				}
 			}
 		}
