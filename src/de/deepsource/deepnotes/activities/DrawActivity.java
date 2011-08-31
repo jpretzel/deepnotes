@@ -41,67 +41,100 @@ import de.deepsource.deepnotes.views.DrawView.DrawViewListener;
 
 /**
  * @author Jan Pretzel (jan.pretzel@deepsource.de)
- * 
+ *
  *         This activity enables the draw view and
  */
 public class DrawActivity extends Activity implements ColorPickerDialog.OnColorChangedListener, DrawViewListener {
 
 	/**
 	 * Custom request code to identify the <i>image pick from gallery</i>.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_FROM_GALLERY = 0x00000001;
 
 	/**
 	 * Custom request code to identify the <i>camera image capture</i>.
-	 * 
+	 *
 	 * @author Jan Pretzel
 	 */
 	private static final int REQUEST_IMAGE_FROM_CAMERA = 0x00000010;
 
 	/**
 	 * Custom request code to identify the <i>image crop</i>.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_IMAGE_CROP = 0x00000100;
 
+	/**
+	 * TODO.
+	 */
 	private Uri pictureUri;
+
+	/**
+	 * TODO.
+	 */
 	private Uri outputUri;
+
+	/**
+	 * TODO.
+	 */
 	private DrawView currentDrawView;
+
+	/**
+	 * TODO.
+	 */
 	protected ViewFlipper viewFlipper;
+
+	/**
+	 * TODO.
+	 */
 	protected String fileName;
 
+	/**
+	 * TODO.
+	 */
 	protected Integer notePosition;
+
+	/**
+	 * TODO.
+	 */
 	private int currentPaint;
 
-	/* current picked color */
+	/**
+	 * TODO.
+	 */
 	private int currentColor = Deepnotes.BLACK;
 
+	/**
+	 * TODO.
+	 */
 	protected boolean saveStateChanged = false;
-	
+
 	/**
 	 * Only use this WeakReference when you need the Activity itself as context.
 	 * Otherwise chances are great chance the Activity's context is getting leaked!
-	 * 
+	 *
 	 * @author Jan Pretzel
 	 */
-	private WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);	
-	
+	private final WeakReference<DrawActivity> drawActivity = new WeakReference<DrawActivity>(this);
+
 	/**
 	 * Called when the activity is created (on start, on orientation changed).
-	 * 
+	 *
+	 * @param savedInstanceState TODO
+	 *
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public final void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.draw);
-		
+
 		clearDrawingCache();
-		
+
 		// get device width and height BEFORE initializing DrawViews
 		Display display = getWindowManager().getDefaultDisplay();
         Deepnotes.setViewportWidth(display.getWidth());
@@ -109,7 +142,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		// Setting up the View Flipper, adding Animations.
 		viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-		
+
 		if (getIntent().hasExtra(Deepnotes.SAVED_NOTE_NAME)) {
 			Bundle bundle = getIntent().getExtras();
 			fileName = bundle.getString(Deepnotes.SAVED_NOTE_NAME);
@@ -128,15 +161,15 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
-		
+
 		Log.e("INIT DRAW",
 				String.valueOf(Runtime.getRuntime().totalMemory()));
 	}
-	
+
 	/**
 	 * @return the currentPaint
 	 */
-	public int getCurrentPaint() {
+	public final int getCurrentPaint() {
 		return currentPaint;
 	}
 
@@ -144,14 +177,14 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @param currentPaint
 	 *            the currentPaint to set
 	 */
-	public void setCurrentPaint(int currentPaint) {
+	public final void setCurrentPaint(final int currentPaint) {
 		this.currentPaint = currentPaint;
 	}
 
 	/**
 	 * @return the currentColor
 	 */
-	public int getCurrentColor() {
+	public final int getCurrentColor() {
 		return currentColor;
 	}
 
@@ -159,15 +192,23 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	 * @param currentColor
 	 *            the currentColor to set
 	 */
-	public void setCurrentColor(int currentColor) {
+	public final void setCurrentColor(final int currentColor) {
 		this.currentColor = currentColor;
 		currentDrawView.setPaintColor(currentColor);
 	}
-	
-	protected void loadNotePage(DrawView drawView, int position) {
+
+	/**
+	 * TODO .
+	 *
+	 * @param drawView TODO
+	 * @param position TODO
+	 *
+	 * @author Jan Pretzel
+	 */
+	protected final void loadNotePage(final DrawView drawView, final int position) {
 		File notePath = new File(getFilesDir(), fileName + "/");
 		boolean loaded = false;
-		
+
 		// load saved page if there is one
 		if (fileName != null && notePath.exists()) {
 			String notePathString = notePath.toString() + "/" + position
@@ -177,18 +218,18 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			File noteFile = new File(notePathString);
 			if (noteFile.exists()) {
 				note = BitmapFactory.decodeFile(notePathString);
-				drawView.setBitmap(note.copy(Bitmap.Config.ARGB_4444, true));
+				drawView.setBitmap(note.copy(Bitmap.Config.ARGB_8888, true));
 				loaded = true;
 			}
 		}
-		
+
 		// set background if one exists
 		// first check cached files
 		boolean modified = false;
-		File file = new File(getCacheDir() + "/" + position + ".jpg");;
+		File file = new File(getCacheDir() + "/" + position + ".jpg");
 		String path = null;
 		Bitmap bitmap = null;
-		
+
 		if (file.exists()) {
 			path = file.getPath();
 			Log.e("LOAD", path);
@@ -196,49 +237,48 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		} else {
 			file = new File(notePath.toString() + "/background_"
 					+ position + ".jpg");
-			
+
 			if (file.exists()) {
 				path = file.getPath();
 			}
 		}
-		
+
 		if (path != null) {
 			bitmap = BitmapFactory.decodeFile(path);
 			drawView.setBackground(
-					bitmap.copy(Bitmap.Config.ARGB_4444, true), modified);
+					bitmap.copy(Bitmap.Config.ARGB_8888, true), modified);
 		}
-		
+
 		if (loaded) {
 			drawView.redraw();
 			return;
 		}
-		
+
 		// else the page is empty
 		drawView.setBitmap(Bitmap.createBitmap(Deepnotes.getViewportWidth(),
-				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444));
+				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_8888));
 		drawView.redraw();
-		
 	}
-	
+
 	/**
 	 * Reloads a given note page of the note.
 	 * The background will not be reloaded!
-	 * 
+	 *
 	 * @author Jan Pretzel
-	 * 
+	 *
 	 * @param index The index of the page that will be reloaded.
 	 */
-	public void reloadNotePage(int index) {
+	public final void reloadNotePage(final int index) {
 		if (index < 0 || index > viewFlipper.getChildCount()) {
 			return;
 		}
-		
+
 		File notePath = new File(getFilesDir(), fileName + "/");
 
 		if (notePath.exists()) {
 			String notePathString = notePath.toString();
 			DrawView dw = (DrawView) viewFlipper.getChildAt(index);
-			
+
 			File noteFile = new File(notePathString + "/" + index + ".png");
 			if (noteFile.exists()) {
 				Bitmap note = BitmapFactory.decodeFile(
@@ -251,11 +291,15 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 	/**
 	 * Adding the menu.
-	 * 
+	 *
+	 * @param menu TODO
+	 *
+	 * @return TODO
+	 *
 	 * @author Sebastian Ullrich
 	 */
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
 		MenuInflater inflater = new MenuInflater(this.getApplicationContext());
@@ -266,150 +310,147 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 	/**
 	 * Customizing the menu.
-	 * 
+	 *
+	 * @param item TODO
+	 *
+	 * @return TODO
+	 *
 	 * @author Jan Pretzel
 	 * @author Sebastian Ullrich
 	 */
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
 		switch (item.getItemId()) {
 
 		// Save triggered
-		case (R.id.draw_menu_save): {
+		case (R.id.draw_menu_save):
 			saveNote(false, false);
 			return true;
-		}
-		
-		// save triggered
-		case (R.id.draw_menu_delete): {
-			if (!IOManager.deleteNote(getApplicationContext(), fileName)) {
-				Toast.makeText(getApplicationContext(), R.string.delete_exception, Toast.LENGTH_SHORT).show();
-			} else {
-				finish();
+
+		// Delete triggered
+		case (R.id.draw_menu_delete):
+			// is there a note to delete?
+			if (fileName != null) {
+				if (!IOManager.deleteNote(getApplicationContext(), fileName)) {
+					Toast.makeText(getApplicationContext(),
+							R.string.delete_exception, Toast.LENGTH_SHORT)
+							.show();
+				}
 			}
+			finish();
 			return true;
-		}
 
 		// Gallery import triggered
-		case (R.id.draw_menu_importfromgallery): {
+		case (R.id.draw_menu_importfromgallery):
 			Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 			intent.setType("image/*");
 			startActivityForResult(
 					Intent.createChooser(intent, getString(R.string.choose_image)),
 					REQUEST_IMAGE_FROM_GALLERY);
-
 			return true;
-		}
 
 		// Camera import triggered
-		case (R.id.draw_menu_importfromcamera): {
+		case (R.id.draw_menu_importfromcamera):
 			if (Environment.getExternalStorageState().equals(
 					Environment.MEDIA_MOUNTED)) {
-				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				
-				File file = new File(Environment.getExternalStorageDirectory() + Deepnotes.SAVE_CACHE);
+				Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+				File file = new File(
+						Environment.getExternalStorageDirectory()
+						+ Deepnotes.SAVE_CACHE);
 				file.mkdirs();
-				
+
 				pictureUri = Uri.fromFile(new File(file, "/camera.jpg"));
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
-				intent.putExtra("return-data", true);
-				startActivityForResult(intent, REQUEST_IMAGE_FROM_CAMERA);
+				i.putExtra(MediaStore.EXTRA_OUTPUT, pictureUri);
+				i.putExtra("return-data", true);
+				startActivityForResult(i, REQUEST_IMAGE_FROM_CAMERA);
 			} else {
 				Toast.makeText(this.getApplicationContext(),
 						"External Storage not mounted", Toast.LENGTH_SHORT).show();
 			}
-
 			return true;
-		}
 
 		// share triggered
-		case (R.id.draw_menu_share): {
+		case (R.id.draw_menu_share):
 			if (saveStateChanged) {
 				saveNote(false, true);
-				
+
 				return true;
 			}
-			
+
 			IOManager.shareNote(drawActivity.get(), fileName);
-			
 			return true;
-		}
 
 		// Black Color Picked
-		case (R.id.draw_menu_colorblack): {
+		case (R.id.draw_menu_colorblack):
 			setCurrentColor(Deepnotes.BLACK);
 			return true;
-		}
-		
+
 		// White Color Picked
-		case (R.id.draw_menu_colorwhite): {
+		case (R.id.draw_menu_colorwhite):
 			setCurrentColor(Color.WHITE);
 			return true;
-		}
-		
+
 		// Custom Color Picked
-		case (R.id.draw_menu_colorcustom): {
+		case (R.id.draw_menu_colorcustom):
 			new ColorPickerDialog(this, this, getCurrentColor()).show();
 			return true;
-		}
-		
+
 		// Pen Width Thick Picked
-		case (R.id.draw_menu_penwidththick): {
+		case (R.id.draw_menu_penwidththick):
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THICK);
 			return true;
-		}
-		
+
 		// Pen Width Normal Picked
-		case (R.id.draw_menu_penwidthnormal): {
+		case (R.id.draw_menu_penwidthnormal):
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_NORMAL);
 			return true;
-		}
-		
+
 		// Pen Width Thin Picked
-		case (R.id.draw_menu_penwidththin): {
+		case (R.id.draw_menu_penwidththin):
 			currentDrawView.setPenWidth(Deepnotes.PEN_WIDTH_THIN);
 			return true;
-		}
-		
+
 		// Pen Width Thin Picked
-		case (R.id.draw_menu_undo): {
+		case (R.id.draw_menu_undo):
 			currentDrawView.undo();
 			return true;
-		}
-		
+
 		// Page Forward
-		case (R.id.draw_menu_forward): {
+		case (R.id.draw_menu_forward):
 			showNextDrawView();
 			return true;
-		}
 
 		// Page Backward
-		case (R.id.draw_menu_back): {
+		case (R.id.draw_menu_back):
 			showPreviousDrawView();
 			return true;
-		}
-		
+
 		// Clear Page
-		case (R.id.draw_menu_clear): {
+		case (R.id.draw_menu_clear):
 			currentDrawView.clearView(false);
-			
+
 			// delete cached background if there is one
 			File file = new File(getCacheDir() + "/" + viewFlipper.getDisplayedChild() + ".jpg");
 			if (file.exists()) {
 				file.delete();
 			}
 			return true;
+
+		default:
+			break;
 		}
-		
-		}
+
 		return false;
 	}
 
 	/**
-	 * 
+	 * TODO .
+	 * @param finish TODO
+	 * @param share TODO
 	 */
-	private void saveNote(boolean finish, boolean share) {
+	private void saveNote(final boolean finish, final boolean share) {
 		if (!saveStateChanged) {
 			return;
 		}
@@ -421,52 +462,67 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		new SaveNote(drawActivity.get(), finish, share).execute();
 
-		
+
 	}
 
 	/**
 	 * Shows the next DrawView by triggering an animated page turn.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void showNextDrawView() {
+	public final void showNextDrawView() {
 		showPage(PAGE_FORWARD);
 	}
 
 	/**
 	 * Shows the previous DrawView by triggering an animated page turn.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void showPreviousDrawView() {
+	public final void showPreviousDrawView() {
 		showPage(PAGE_BACKWARD);
 	}
-	
-	private final static boolean PAGE_FORWARD = true;
-	private final static boolean PAGE_BACKWARD = false;
-	
-	private void showPage(boolean direction) {
-		Paint tempPaint = ((DrawView)viewFlipper.getCurrentView()).getPaint();
+
+	/**
+	 * TODO .
+	 */
+	private static final boolean PAGE_FORWARD = true;
+
+	/**
+	 * TODO .
+	 */
+	private static final boolean PAGE_BACKWARD = false;
+
+	/**
+	 *  TODO .
+	 * @param direction TODO
+	 */
+	private void showPage(final boolean direction) {
+		Paint tempPaint = ((DrawView) viewFlipper.getCurrentView()).getPaint();
 		showPageToast(direction);
-		
+
 		saveDrawingCache();
 		currentDrawView.recycle();
-		
+
 		if (direction == PAGE_FORWARD) {
 			viewFlipper.showNext();
 		} else {
 			viewFlipper.showPrevious();
 		}
-		
+
 		currentDrawView = (DrawView) viewFlipper.getCurrentView();
 		loadNotePage(currentDrawView, viewFlipper.getDisplayedChild());
 		currentDrawView.setPaint(tempPaint);
-		
+
 		Log.e("INIT DRAW",
 				String.valueOf(android.os.Debug.getNativeHeapAllocatedSize()));
 	}
 
-	private void showPageToast(boolean direction) {
+	/**
+	 * TODO.
+	 * @param direction TODO
+	 */
+	private void showPageToast(final boolean direction) {
 		int currentPage = viewFlipper.getDisplayedChild() + 1;
 		int size = viewFlipper.getChildCount();
 
@@ -474,38 +530,36 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		if (direction == PAGE_FORWARD) {
 			// show next page
-			if (currentPage == size)
+			if (currentPage == size) {
 				msg = "1";
-			else
+			} else {
 				msg = String.valueOf(currentPage + 1);
+			}
 		} else {
-			if (currentPage == 1)
+			if (currentPage == 1) {
 				msg = String.valueOf(size);
-			else
+			} else {
 				msg = String.valueOf(currentPage - 1);
+			}
 		}
-		
+
 		Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 	}
 
 	/**
 	 * This method intents image cropping.
-	 * 
+	 *
 	 * @author Jan Pretzel
 	 * @author Sebastian Ullrich
-	 * 
-	 * @param data
-	 *            Uri of imageresource
-	 * 
 	 */
 	private void cropImage() {
 		final Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
-		
+
 		List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
-		
+
 		Log.e("CROP", String.valueOf(resolveInfo.size()));
-		
+
 		if (resolveInfo.size() == 0) {
 			Toast.makeText(this.getApplicationContext(),
 					"No crop application found.", Toast.LENGTH_SHORT).show();
@@ -514,22 +568,22 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 			return;
 		}
-		
-		// force the intent to take crop activity (won't 
+
+		// force the intent to take crop activity (won't
 		// work from camera activity without this!)
 		ResolveInfo res = resolveInfo.get(0);
 		intent.setComponent(new ComponentName(
-				res.activityInfo.packageName, 
+				res.activityInfo.packageName,
 				res.activityInfo.name));
 
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 			File file = new File(Environment.getExternalStorageDirectory()
 					+ Deepnotes.SAVE_CACHE);
-			
+
 			file.mkdirs();
 			file = new File(file, "crop.jpg");
-			
+
 			outputUri = Uri.fromFile(file);
 
 			intent.setData(pictureUri);
@@ -552,36 +606,41 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 	/**
 	 * Called whenever an Intent from this activity is finished.
-	 * 
+	 *
+	 * @param requestCode TODO
+	 *
+	 * @param resultCode TODO
+	 *
+	 * @param data TODO
+	 *
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public final void onActivityResult(final int requestCode,
+			final int resultCode, final Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		switch (requestCode) {
 		/* Import from gallery result */
-		case (REQUEST_IMAGE_FROM_GALLERY): {
+		case (REQUEST_IMAGE_FROM_GALLERY):
 			if (resultCode == RESULT_OK) {
 				pictureUri = data.getData();
 				cropImage();
 
 				break;
 			}
-		}
 
 		/* Import from camera result */
-		case (REQUEST_IMAGE_FROM_CAMERA): {
+		case (REQUEST_IMAGE_FROM_CAMERA):
 			if (resultCode == RESULT_OK) {
 				cropImage();
 
 				break;
 			}
-		}
 
 		/* crop result */
-		case (REQUEST_IMAGE_CROP): {
+		case (REQUEST_IMAGE_CROP):
 			if (resultCode == RESULT_OK) {
 				Bitmap bitmap = null;
 				try {
@@ -593,17 +652,17 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 				saveStateChanged = true;
 			}
-			
+
 			// delete temporary created files
-			// the file behind outputUri is always created 
+			// the file behind outputUri is always created
 			// and needs to be deleted
 			if (outputUri != null) {
 				new File(outputUri.getPath()).delete();
 			}
-			
+
 			// if we came from the camera activity we need
 			// to delete pictureUri too
 			if (pictureUri != null) {
@@ -612,19 +671,27 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					new File(cameraImg).delete();
 				}
 			}
-			
+
 			break;
-		}
+
+		default:
+			break;
 		}
 	}
 
 	/**
 	 * Customizing the key listener.
-	 * 
+	 *
+	 * @param keyCode TODO
+	 *
+	 * @param event TODO
+	 *
+	 * @return TODO
+	 *
 	 * @author Sebastian Ullrich
 	 */
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	public final boolean onKeyDown(final int keyCode, final KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* check for changes */
 			if (saveStateChanged) {
@@ -634,16 +701,20 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 						.setCancelable(true)
 						.setPositiveButton(R.string.yes,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									@Override
+									public void onClick(
+											final DialogInterface dialog,
+											final int id) {
 										// call the save procedure.
 										saveNote(true, false);
 									}
 								})
 						.setNegativeButton(R.string.no,
 								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
+									@Override
+									public void onClick(
+											final DialogInterface dialog,
+											final int id) {
 										finish();
 									}
 								});
@@ -651,49 +722,78 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			} else {
 				finish();
 			}
-			
+
 			return true;
 		}
 
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
+	/**
+	 * TODO .
+	 */
 	private void clearDrawingCache() {
 		File[] files = getCacheDir().listFiles();
-		
+
 		for (File file : files) {
 			file.delete();
 		}
 	}
-	
+
+	/**
+	 * TODO .
+	 */
 	private void saveDrawingCache() {
 		if (currentDrawView.isBGModified()) {
 			String cachePath = getCacheDir().toString();
 			File file = new File(cachePath);
 			file.mkdirs();
-			
+
 			cachePath += "/" + viewFlipper.getDisplayedChild() + ".jpg";
 			file = new File(cachePath);
 			Bitmap bitmap = currentDrawView.getBackgroundBitmap();
-			IOManager.writeFile(bitmap, cachePath, Bitmap.CompressFormat.JPEG, 70);
+
+			final int quality = 70;
+			IOManager.writeFile(bitmap, cachePath, Bitmap.CompressFormat.JPEG, quality);
 		}
 	}
-	
+
 	/**
 	 * An AsyncTask to save the current note, it's backgrounds and a thumbnail.
 	 * While working this task will show a ProgressDialog telling the user that
 	 * it is saving at the moment.
-	 * 
+	 *
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
 	private static class SaveNote extends AsyncTask<Void, Void, Void> {
 
-		private ProgressDialog dialog;
-		private boolean finish;
-		private boolean share;
-		private DrawActivity activity;
+		/**
+		 * TODO .
+		 */
+		private final ProgressDialog dialog;
 
-		public SaveNote(DrawActivity activity, boolean finish, boolean share) {
+		/**
+		 * TODO .
+		 */
+		private final boolean finish;
+
+		/**
+		 * TODO .
+		 */
+		private final boolean share;
+
+		/**
+		 * TODO .
+		 */
+		private final DrawActivity activity;
+
+		/**
+		 * TODO .
+		 * @param activity TODO
+		 * @param finish TODO
+		 * @param share TODO
+		 */
+		public SaveNote(DrawActivity activity, final boolean finish, final boolean share) {
 			dialog = new ProgressDialog(activity);
 			this.finish = finish;
 			this.share = share;
@@ -703,11 +803,15 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		/**
 		 * The main part of the AsyncTask. Here The note and all it's associated
 		 * parts will be saved to the file system.
-		 * 
+		 *
+		 * @param params TODO
+		 *
+		 * @return TODO
+		 *
 		 * @author Jan Pretzel
 		 */
 		@Override
-		protected Void doInBackground(Void... params) {
+		protected Void doInBackground(final Void... params) {
 
 			// save thumbnail
 			String savePath = activity.getFilesDir() + Deepnotes.SAVE_THUMBNAIL;
@@ -724,11 +828,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			if ((toSave.isModified() || toSave.isBGModified()) || toSave.deleteStatus()) {
 				Log.e("SAVE", "saving thumbnail");
 				bitmap = createThumbnail();
+
+				final int quality = 70;
 				IOManager.writeFile(bitmap, savePath + activity.fileName + ".jpg",
-						Bitmap.CompressFormat.JPEG, 70);
+						Bitmap.CompressFormat.JPEG, quality);
 			}
-			
-			toSave.recycle();
 
 			// save note pages with separate backgrounds
 			savePath = activity.getFilesDir() + "/" + activity.fileName + "/";
@@ -745,9 +849,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 					// save note
 					bitmap = toSave.getBitmap();
+
+					final int quality = 100;
 					IOManager.writeFile(bitmap, savePath + i + ".png",
-							Bitmap.CompressFormat.PNG, 100);
-					
+							Bitmap.CompressFormat.PNG, quality);
+
 					toSave.setModified(false);
 				}
 
@@ -755,9 +861,11 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					Log.e("SAVE", "saving background " + i);
 					// save background
 					bitmap = toSave.getBackgroundBitmap();
+
+					final int quality = 70;
 					IOManager.writeFile(bitmap, savePath + "background_" + i
-							+ ".jpg", Bitmap.CompressFormat.JPEG, 70);
-					
+							+ ".jpg", Bitmap.CompressFormat.JPEG, quality);
+
 					toSave.setBGModified(false);
 				}
 
@@ -771,8 +879,6 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 					toDelete.delete();
 					toSave.setBGModified(false);
 				}
-				
-				toSave.recycle();
 			}
 
 			return null;
@@ -780,7 +886,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 
 		/**
 		 * Before execution starts, the ProgressDialog will be shown.
-		 * 
+		 *
 		 * @author Jan Pretzel
 		 */
 		@Override
@@ -793,24 +899,26 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		/**
 		 * After execution ends, the ProgressDialog will be dismissed. Also we
 		 * finish the activity and tell MainActivity what to do.
-		 * 
+		 *
+		 * @param result TODO
+		 *
 		 * @author Jan Pretzel
 		 */
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(final Void result) {
 			if (dialog.isShowing()) {
 				dialog.dismiss();
 			}
 
 			super.onPostExecute(result);
-			
+
 			// reset saveStateChanged
 			activity.saveStateChanged = false;
 
 			Toast toast = Toast.makeText(activity.getApplicationContext(), R.string.note_saved,
 					Toast.LENGTH_SHORT);
 			toast.show();
-			
+
 			if (share) {
 				IOManager.shareNote(activity, activity.fileName);
 			}
@@ -824,9 +932,9 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		/**
 		 * Calculates a thumbnail representing the note. The first page of the
 		 * note (empty or not) will be scaled by 0.5.
-		 * 
+		 *
 		 * @author Jan Pretzel
-		 * 
+		 *
 		 * @return The thumbnail as Bitmap.
 		 */
 		private Bitmap createThumbnail() {
@@ -835,14 +943,14 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			Bitmap firstPage =  drawView.getBitmap();
 
 			// scale factor = 0.5
-			float scale = 0.5f;
+			final float scale = 0.5f;
 
 			// create matrix
 			Matrix matirx = new Matrix();
 			matirx.postScale(scale, scale);
 
-			int width = firstPage.getWidth();
-			int height = firstPage.getHeight();
+			final int width = firstPage.getWidth();
+			final int height = firstPage.getHeight();
 
 			// create scaled bitmaps
 			Bitmap firstPageScaled = Bitmap.createBitmap(firstPage, 0, 0,
@@ -859,7 +967,7 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 			} else {
 				firstBackgroundScaled = Bitmap.createBitmap(
 						(int) (width * scale), (int) (height * scale),
-						Bitmap.Config.ARGB_4444);
+						Bitmap.Config.ARGB_8888);
 				pageAndBackground = new Canvas(firstBackgroundScaled);
 				pageAndBackground.drawColor(Color.WHITE);
 			}
@@ -874,13 +982,16 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 		}
 	}
 
+	/**
+	 * TODO .
+	 */
 	@Override
-	protected void onDestroy() {
+	protected final void onDestroy() {
 		Log.i("DrawActivity", "onDestroy() called.");
 		super.onDestroy();
-		
+
 		clearDrawingCache();
-		
+
 		// THIS IS IMPORTANT
 		// without this the Activity won't get collected by the GC
 		// and we then leak a lot of memory
@@ -892,25 +1003,38 @@ public class DrawActivity extends Activity implements ColorPickerDialog.OnColorC
 	}
 
 	/**
+	 * TODO .
+	 *
 	 * @param saveStateChanged
 	 *            the saveStateChanged to set
 	 */
-	public void setSaveStateChanged(boolean saveStateChanged) {
+	public final void setSaveStateChanged(final boolean saveStateChanged) {
 		this.saveStateChanged = saveStateChanged;
 	}
 
+	/**
+	 * TODO .
+	 *
+	 * @param color TODO
+	 */
 	@Override
-	public void colorChanged(int color) {
+	public final void colorChanged(final int color) {
 		setCurrentColor(color);
 	}
 
+	/**
+	 * TODO .
+	 */
 	@Override
-	public void changed() {
+	public final void changed() {
 		saveStateChanged = true;
 	}
 
+	/**
+	 * TODO .
+	 */
 	@Override
-	public void cleared() {
+	public final void cleared() {
 		reloadNotePage(viewFlipper.getDisplayedChild());
 	}
 

@@ -16,7 +16,7 @@ import de.deepsource.deepnotes.application.Deepnotes;
 
 /**
  * Custom View class that implements all the drawing magic.
- * 
+ *
  * @author Sebastian Ullrich
  */
 public class DrawView extends View implements View.OnTouchListener {
@@ -37,17 +37,17 @@ public class DrawView extends View implements View.OnTouchListener {
 	private Canvas canvas;
 
 	/**
-	 * The painter object
+	 * The painter object.
 	 */
 	protected Paint paint = new Paint();
 
 	/**
-	 * Flag for changes
+	 * Flag for changes.
 	 */
 	private boolean isModified = false;
 
 	/**
-	 * Flag for modified background
+	 * Flag for modified background.
 	 */
 	private boolean isBackgroundModified = false;
 
@@ -64,43 +64,57 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Page Counter
 	 */
-	
+
 	/**
 	 * An interface that should handle changes of the DrawView.
-	 * 
+	 *
 	 * @author Jan Pretzel
 	 */
 	public interface DrawViewListener {
+		/**
+		 * TODO .
+		 */
         void changed();
+
+        /**
+         * TODO .
+         */
         void cleared();
     }
-	
-	private DrawViewListener dvListener;
+
+	/**
+	 * TODO .
+	 */
+	private final DrawViewListener dvListener;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
+	 * @param l TODO
+	 *
 	 * @param context
 	 *            Context.
 	 */
-	public DrawView(Context context, DrawViewListener l) {
+	public DrawView(final Context context, final DrawViewListener l) {
 		super(context);
 		dvListener = l;
 		init();
 	}
 
-	private ArrayList<Path> pathList = new ArrayList<Path>();
-	private ArrayList<Paint> paintList = new ArrayList<Paint>();
+	/**
+	 * TODO .
+	 */
+	private final ArrayList<Path> pathList = new ArrayList<Path>();
 
 	/**
-	 * init
+	 * TODO .
 	 */
-	public void init() {
-		// inti bitmap and canvas
-//		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(),
-//				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
-//		canvas = new Canvas(bitmap);
+	private final ArrayList<Paint> paintList = new ArrayList<Paint>();
 
+	/**
+	 * TODO .
+	 */
+	public final void init() {
 		// paint config
 		paint.setStrokeWidth(Deepnotes.PEN_WIDTH_NORMAL);
 		paint.setStyle(Paint.Style.STROKE);
@@ -117,59 +131,61 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * To set the imported image as background;
-	 * 
+	 * To set the imported image as background.
+	 *
 	 * @param bitmap
 	 *            The background to be set.
-	 * 
+	 *
 	 * @param modified
 	 *            Whether the background was modified (true) or just loaded from
 	 *            memory (false)
 	 */
-	public void setBackground(Bitmap bitmap, boolean modified) {
+	public final void setBackground(final Bitmap bitmap, final boolean modified) {
 		background = bitmap;
 		isBackgroundModified = modified;
 	}
 
-	/**
-	 * This method redraws the hole surface of this view.
-	 * 
-	 * @author Sebastian Ullrich
-	 */
 	@Override
-	public void onDraw(Canvas canvas) {
+	public final void onDraw(final Canvas canvas) {
 
 		// fill the bitmap with default background color
 		canvas.drawColor(Color.WHITE);
 
 		// check if there is a background set
-		if (background != null)
+		if (background != null) {
 			canvas.drawBitmap(background, 0f, 0f, paint);
+		}
 
 		canvas.drawBitmap(bitmap, 0f, 0f, paint);
 		canvas.drawPath(path, paint);
 
 	}
 
-	private Path path = new Path();
+	/**
+	 * TODO .
+	 */
+	private final Path path = new Path();
+
+	/**
+	 * TODO .
+	 */
 	private float lastX, lastY;
 
 	/**
 	 * This Method starts drawing on a new path.
-	 * 
+	 *
 	 * @param x
 	 *            Initial startpoint x.
 	 * @param y
 	 *            Initial startpoint y.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void startDraw(float x, float y) {
+	public final void startDraw(final float x, final float y) {
 		path.reset();
 		path.moveTo(x, y);
 		lastX = x;
 		lastY = y;
-		// invalidate();
 
 		isModified = true;
 		dvListener.changed();
@@ -178,51 +194,51 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * This offsets extends the rerender-frame to avoid render artefacts while
 	 * drawing a path.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	private static final float invalidateOffset = 50f;
+	private static final float INVALIDATE_OFFSET = 50f;
 
 	/**
 	 * Continues drawing a path. Is called by an ACTION_MOVE event. This method
 	 * draws a cubic bezier-curve to smooth the entered Inut, while afterwards
 	 * the rerender-frame is calculated.
-	 * 
+	 *
 	 * @param x
 	 *            Continious point x.
 	 * @param y
 	 *            Continious point x
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void continueDraw(float x, float y) {
+	public final void continueDraw(final float x, final float y) {
 		// Bezier Smoothing
 		path.quadTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
 
 		// calculate rerender-frame
 		if (y < lastY) {
 			if (x < lastX) {
-				invalidate((int) (x - invalidateOffset),
-						(int) (y - invalidateOffset),
-						(int) (lastX + invalidateOffset),
-						(int) (lastY + invalidateOffset));
+				invalidate((int) (x - INVALIDATE_OFFSET),
+						(int) (y - INVALIDATE_OFFSET),
+						(int) (lastX + INVALIDATE_OFFSET),
+						(int) (lastY + INVALIDATE_OFFSET));
 			} else {
-				invalidate((int) (lastX - invalidateOffset),
-						(int) (y - invalidateOffset),
-						(int) (x + invalidateOffset),
-						(int) (lastY + invalidateOffset));
+				invalidate((int) (lastX - INVALIDATE_OFFSET),
+						(int) (y - INVALIDATE_OFFSET),
+						(int) (x + INVALIDATE_OFFSET),
+						(int) (lastY + INVALIDATE_OFFSET));
 			}
 		} else {
 			if (x < lastX) {
-				invalidate((int) (x - invalidateOffset),
-						(int) (lastY - invalidateOffset),
-						(int) (lastX + invalidateOffset),
-						(int) (y + invalidateOffset));
+				invalidate((int) (x - INVALIDATE_OFFSET),
+						(int) (lastY - INVALIDATE_OFFSET),
+						(int) (lastX + INVALIDATE_OFFSET),
+						(int) (y + INVALIDATE_OFFSET));
 			} else {
-				invalidate((int) (lastX - invalidateOffset),
-						(int) (lastY - invalidateOffset),
-						(int) (x + invalidateOffset),
-						(int) (y + invalidateOffset));
+				invalidate((int) (lastX - INVALIDATE_OFFSET),
+						(int) (lastY - INVALIDATE_OFFSET),
+						(int) (x + INVALIDATE_OFFSET),
+						(int) (y + INVALIDATE_OFFSET));
 			}
 		}
 
@@ -234,10 +250,10 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * This Method ends drawing a new path. The current path is getting stored
 	 * and reseted. Afterwards a complete rerender is called.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void stopDraw() {
+	public final void stopDraw() {
 		// end the path and draw it
 		path.lineTo(lastX, lastY);
 		canvas.drawPath(path, paint);
@@ -254,12 +270,13 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * 
+	 *
 	 */
-	public void undo() {
+	public final void undo() {
 		Log.e("undo", "called");
-		if (pathList.isEmpty())
+		if (pathList.isEmpty()) {
 			return;
+		}
 
 		clearView(true);
 
@@ -268,14 +285,17 @@ public class DrawView extends View implements View.OnTouchListener {
 
 		redraw();
 	}
-	
-	public void redraw() {
+
+	/**
+	 * TODO .
+	 */
+	public final void redraw() {
 		if (pathList.isEmpty()) {
 			return;
 		}
-		
+
 		int pvc = pathList.size();
-		
+
 		for (int i = 0; i < pvc; i++) {
 			canvas.drawPath(pathList.get(i), paintList.get(i));
 		}
@@ -283,15 +303,17 @@ public class DrawView extends View implements View.OnTouchListener {
 
 	/**
 	 * Clears the current page and post an invalidate state to force an update.
-	 * 
+	 *
+	 * @param undo TODO
+	 *
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
-	public void clearView(boolean undo) {
+	public final void clearView(final boolean undo) {
 
 		// clear the hole bitmap
 		bitmap = Bitmap.createBitmap(Deepnotes.getViewportWidth(),
-				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_4444);
+				Deepnotes.getViewportHeight(), Bitmap.Config.ARGB_8888);
 
 		canvas = new Canvas(bitmap);
 		invalidate();
@@ -299,12 +321,12 @@ public class DrawView extends View implements View.OnTouchListener {
 		if (!undo) {
 			background = null;
 			clearUndoCache();
-			
+
 			// set delete status
 			isCleared = true;
 			isBackgroundModified = false;
 			isModified = false;
-			
+
 			dvListener.changed();
 		} else {
 			// check if we have to reload a given bmp.
@@ -316,88 +338,136 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * Retuns the current (foreground) bitmap
-	 * 
-	 * @param Bitmap
-	 *            current foreground bitmap
+	 * Retuns the current (foreground) bitmap.
+	 *
+	 * @return TODO
 	 */
-	public Bitmap getBitmap() {
+	public final Bitmap getBitmap() {
 		return bitmap;
 	}
 
 	/**
-	 * Sets the current (foreground) bitmap
-	 * 
-	 * @param bmp
+	 * Sets the current (foreground) bitmap.
+	 *
+	 * @param bitmap
 	 *            current foreground bitmap to set
 	 */
-	public void loadBitmap(Bitmap bitmap) {
+	public final void loadBitmap(final Bitmap bitmap) {
 		canvas.drawBitmap(bitmap, new Matrix(), paint);
 
 		// set flag isNewNote to false, because it's loaded
 		Log.e("loading note", "setting isNewNote to false");
 		isNewNote = false;
 	}
-	
-	public void setBitmap(Bitmap bitmap) {
+
+	/**
+	 * TODO .
+	 *
+	 * @param bitmap TODO
+	 */
+	public final void setBitmap(final Bitmap bitmap) {
 		this.bitmap = bitmap;
 		canvas = new Canvas(this.bitmap);
 		isNewNote = false;
 	}
 
-	
-	public void setPaintColor(int color) {
+	/**
+	 * TODO .
+	 *
+	 * @param color TODO
+	 */
+	public final void setPaintColor(final int color) {
 		paint.setColor(color);
 	}
 
 	/**
 	 * Returns the current picked color.
-	 * 
+	 *
 	 * @return current picked color.
 	 */
-	public int getPaintColor() {
+	public final int getPaintColor() {
 		return paint.getColor();
 	}
 
-
-	public void setPenWidth(float width) {
+	/**
+	 * TODO .
+	 *
+	 * @param width TODO
+	 */
+	public final void setPenWidth(final float width) {
 		paint.setStrokeWidth(width);
 	}
 
-	
-	public float getPenWidth(float width) {
+	/**
+	 * TODO .
+	 *
+	 * @param width TODO
+	 * @return TODO
+	 */
+	public final float getPenWidth(final float width) {
 		return paint.getStrokeWidth();
 	}
-	
-	public Paint getPaint(){
+
+	/**
+	 * TODO .
+	 *
+	 * @return TODO
+	 */
+	public final Paint getPaint() {
 		return paint;
 	}
-	
-	public void setPaint(Paint p){
+
+	/**
+	 * TODO .
+	 *
+	 * @param p TODO
+	 */
+	public final void setPaint(final Paint p) {
 		paint = p;
 	}
 
 	/**
-	 * 
-	 * @return
+	 * TODO .
+	 *
+	 * @return TODO
 	 */
-	public Bitmap getBackgroundBitmap() {
+	public final Bitmap getBackgroundBitmap() {
 		return background;
 	}
 
-	public boolean isModified() {
+	/**
+	 * TODO .
+	 *
+	 * @return TODO
+	 */
+	public final boolean isModified() {
 		return isModified;
 	}
 
-	public boolean isBGModified() {
+	/**
+	 * TODO .
+	 *
+	 * @return TODO
+	 */
+	public final boolean isBGModified() {
 		return isBackgroundModified;
 	}
-	
-	public void setModified(boolean modified) {
+
+	/**
+	 * TODO .
+	 *
+	 * @param modified TODO
+	 */
+	public final void setModified(final boolean modified) {
 		isModified = modified;
 	}
-	
-	public void setBGModified(boolean bgmodified) {
+
+	/**
+	 * TODO .
+	 *
+	 * @param bgmodified TODO
+	 */
+	public final void setBGModified(final boolean bgmodified) {
 		isBackgroundModified = bgmodified;
 	}
 
@@ -407,21 +477,21 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * status is only reached by clearing the note and not doing anything after
 	 * that. With the help of this method we prevent setting extra statuses on
 	 * drawing actions and background changes.
-	 * 
+	 *
 	 * @author Jan Pretzel
-	 * 
+	 *
 	 * @return whether the note should be deleted or not.
 	 */
-	public boolean deleteStatus() {	
+	public final boolean deleteStatus() {
 		return !isModified && !isBackgroundModified && isCleared;
 	}
 
 	/**
 	 * Recycles the DrawView, to make sure it gets collected by the GC.
-	 * 
+	 *
 	 * @author Jan Pretzel
 	 */
-	public void recycle() {
+	public final void recycle() {
 		if (bitmap != null) {
 			bitmap.recycle();
 		}
@@ -432,18 +502,8 @@ public class DrawView extends View implements View.OnTouchListener {
 		paint = null;
 	}
 
-	/******************************************************************************
-	 * TOUCHLISTENER!!!!!!!!!!!!!!!!!
-	 ******************************************************************************/
-
-	/**
-	 * This is the default method, called on MotionEvent.
-	 * 
-	 * @author Sebastian Ullrich
-	 * 
-	 */
 	@Override
-	public boolean onTouch(View v, MotionEvent event) {
+	public final boolean onTouch(final View v, final MotionEvent event) {
 		switch (event.getAction()) {
 		case (MotionEvent.ACTION_DOWN):
 			startDraw(event.getX(), event.getY());
@@ -456,16 +516,19 @@ public class DrawView extends View implements View.OnTouchListener {
 		case (MotionEvent.ACTION_UP):
 			stopDraw();
 			break;
+
+		default:
+			break;
 		}
 		return true;
 	}
 
 	/**
 	 * This will clear the undo cache.
-	 * 
+	 *
 	 * @author Sebastian Ullrich
 	 */
-	public void clearUndoCache() {
+	public final void clearUndoCache() {
 		pathList.clear();
 		paintList.clear();
 	}
