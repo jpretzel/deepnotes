@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -180,14 +179,6 @@ public class MainActivity extends FragmentActivity {
 
 		case (R.id.main_menu_help):
 			return true;
-
-			// TODO: delete
-		case (R.id.gc):
-			System.gc();
-			Log.e("MAIN RESUME", String.valueOf(android.os.Debug
-					.getNativeHeapAllocatedSize()));
-			break;
-
 
 		default:
 			break;

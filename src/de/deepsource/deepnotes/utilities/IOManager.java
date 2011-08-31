@@ -45,7 +45,7 @@ public final class IOManager {
 	 * @return TODO
 	 */
 	public static boolean deleteNote(final Context context, final String noteName) {
-		if (noteName == null) {
+		if (noteName == null || context == null) {
 			return false;
 		}
 
@@ -57,11 +57,13 @@ public final class IOManager {
 
 			for (File file : noteFiles) {
 				if (!file.delete()) {
+					Log.e("deepnotes", "failed to delete file");
 					return false;
 				}
 			}
 
 			if (!notePath.delete()) {
+				Log.e("deepnotes", "failed to delete file");
 				return false;
 			}
 		}
@@ -72,6 +74,7 @@ public final class IOManager {
 		File thumbnail = new File(context.getFilesDir()
 				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
 		if (!thumbnail.delete()) {
+			Log.e("deepnotes", "failed to delete file");
 			return false;
 		}
 
@@ -87,6 +90,16 @@ public final class IOManager {
 	 * @param noteName TODO
 	 */
 	public static void shareNote(final Activity activity, final String noteName) {
+		if (activity == null) {
+			Log.e("deepnotes", "activity must not be null");
+			throw new IllegalArgumentException();
+		}
+
+		if (noteName == null) {
+			Log.e("deepnotes", "noteName must not be null");
+			throw new IllegalArgumentException();
+		}
+
 		new WriteShareCache(activity).execute(noteName);
 	}
 
@@ -164,7 +177,6 @@ public final class IOManager {
 					String notePageName = notePage.getName();
 					notePageName = notePageName.substring(0, notePageName.lastIndexOf("."));
 					String bgPath = notePath + "/background_" + notePageName + ".jpg";
-					Log.e("CACHE", bgPath);
 					note = BitmapFactory.decodeFile(notePage.toString());
 
 					// create those here, so they can be recycled
@@ -191,11 +203,12 @@ public final class IOManager {
 					// cannot access internal storage of another application
 					if (Environment.getExternalStorageState().equals(
 							Environment.MEDIA_MOUNTED)) {
-						Log.e("WRITE", "cache write");
 						File outPath = new File(Environment.getExternalStorageDirectory()
 								+ Deepnotes.SAVE_CACHE);
 
-						outPath.mkdirs();
+						if (!outPath.mkdirs()) {
+							Log.e("deepnotes", "failed to create folder(s)");
+						}
 
 						String outFile = outPath.toString()
 								+ "/" + noteName + "_" + i++ + ".jpg";
@@ -286,7 +299,6 @@ public final class IOManager {
 	 */
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			Log.e("CLEAR", "cache clear");
 			File cachePath = new File(
 					Environment.getExternalStorageDirectory()
 					+ Deepnotes.SAVE_CACHE);
@@ -294,10 +306,14 @@ public final class IOManager {
 				File[] cachedImages = cachePath.listFiles();
 
 				for (File cachedImage : cachedImages) {
-					cachedImage.delete();
+					if (!cachedImage.delete()) {
+						Log.e("deepnotes", "failed to delete file");
+					}
 				}
 
-				cachePath.delete();
+				if (!cachePath.delete()) {
+					Log.e("deepnotes", "failed to delete file");
+				}
 			}
 		}
 	}
