@@ -61,7 +61,9 @@ public class Note {
 		final SimpleDateFormat sdf = new SimpleDateFormat(context.getString(R.string.date_time_format));
 		created = sdf.format(dateCreated);
 
-		final File imageFile = new File(context.getFilesDir() + Deepnotes.SAVE_THUMBNAIL + fileName + ".jpg");
+		final File imageFile = new File(
+				context.getFilesDir()
+				+ Deepnotes.SAVE_THUMBNAIL + fileName + Deepnotes.JPG_SUFFIX);
 		if (imageFile.exists()) {
 			thumbnail = BitmapFactory.decodeFile(imageFile.toString());
 		}

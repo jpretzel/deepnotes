@@ -25,9 +25,9 @@ import de.deepsource.deepnotes.R;
 import de.deepsource.deepnotes.application.Deepnotes;
 
 /**
- * @author Jan Pretzel (jan.pretzel@deepsource.de)
+ * This utility class handles the storage of the produced data.
  *
- *         This utility class handles the storage of the produced data.
+ * @author Jan Pretzel (jan.pretzel@deepsource.de)
  */
 public final class IOManager {
 
@@ -39,10 +39,15 @@ public final class IOManager {
 	}
 
 	/**
-	 * TODO .
-	 * @param context TODO
-	 * @param noteName TODO
-	 * @return TODO
+	 * Deletes all files belonging to a specific note.
+	 *
+	 * @param context
+	 *            The Context in which the method is called.
+	 * @param noteName
+	 *            The name of the note.
+	 *
+	 * @return Returns true if there where no problems deleting all the notes
+	 *         files, else returns false.
 	 */
 	public static boolean deleteNote(final Context context, final String noteName) {
 		if (noteName == null) {
@@ -80,7 +85,7 @@ public final class IOManager {
 		// the user will still see that something of the note remaines in
 		// memory
 		final File thumbnail = new File(context.getFilesDir()
-				+ Deepnotes.SAVE_THUMBNAIL + noteName + ".jpg");
+				+ Deepnotes.SAVE_THUMBNAIL + noteName + Deepnotes.JPG_SUFFIX);
 		if (!thumbnail.delete()) {
 			Log.e(Deepnotes.APP_NAME, Deepnotes.ERROR_FILE);
 			deleted = false;
@@ -92,10 +97,13 @@ public final class IOManager {
 	}
 
 	/**
-	 * TODO .
+	 * Initiates the cache saving, that is needed for sharing a note.
+	 * To do so an @see {@link WriteShareCache} Object is created.
 	 *
-	 * @param activity TODO
-	 * @param noteName TODO
+	 * @param activity
+	 *            The Activity, that called the method.
+	 * @param noteName
+	 *            The name of the note that should be shared.
 	 */
 	public static void shareNote(final Activity activity, final String noteName) {
 		if (activity == null) {
@@ -112,46 +120,39 @@ public final class IOManager {
 	}
 
 	/**
-	 * TODO .
+	 * Writes the cache, that is needed for sharing a note.
 	 *
 	 * @author Jan Pretzel
 	 */
 	private static class WriteShareCache extends AsyncTask<String, Void, Void> {
 
 		/**
-		 * TODO .
+		 * The ProgressDialog, that will be shown while writing the cache.
 		 */
 		private final ProgressDialog dialog;
 
 		/**
-		 * TODO .
+		 * The Activity, that initiated the cache saving.
 		 */
 		private final Activity activity;
 
 		/**
-		 * TODO .
+		 * Stores the Uri-objects for the cached files, and will be given to the Intent.
 		 */
 		private final ArrayList<Uri> uris;
 
 		/**
-		 * TODO .
+		 * Constructor.
 		 *
-		 * @param activity TODO.
+		 * @param initiater The Activity, that initiated the cache saving.
 		 */
-		public WriteShareCache(final Activity activity) {
+		public WriteShareCache(final Activity initiater) {
 			super();
-			dialog = new ProgressDialog(activity);
-			this.activity = activity;
+			dialog = new ProgressDialog(initiater);
+			this.activity = initiater;
 			uris = new ArrayList<Uri>();
 		}
 
-		/**
-		 * TODO .
-		 *
-		 * @param params TODO
-		 *
-		 * @return TODO
-		 */
 		@Override
 		protected Void doInBackground(final String... params) {
 			// check cache before writing new files
@@ -185,7 +186,10 @@ public final class IOManager {
 					// else draw a white background
 					String notePageName = notePage.getName();
 					notePageName = notePageName.substring(0, notePageName.lastIndexOf('.'));
-					final String bgPath = notePath + "/background_" + notePageName + ".jpg";
+					final String bgPath = notePath
+							+ "/background_"
+							+ notePageName
+							+ Deepnotes.JPG_SUFFIX;
 					note = BitmapFactory.decodeFile(notePage.toString());
 
 					// create those here, so they can be recycled
@@ -249,7 +253,9 @@ public final class IOManager {
 		}
 
 		/**
-		 * TODO .
+		 * Checks if the cache folder has stored more than 2MB, if that's the
+		 * case it will call @see {@link IOManager#clearCache()} to clear the
+		 * cache.
 		 */
 		private void checkCache() {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -276,6 +282,7 @@ public final class IOManager {
 
 		@Override
 		protected void onPreExecute() {
+			// TODO localized text
 			dialog.setMessage("prepare yourself");
 			dialog.show();
 			super.onPreExecute();
@@ -298,7 +305,7 @@ public final class IOManager {
 	}
 
 	/**
-	 * TODO .
+	 * Clears the external cache.
 	 */
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {

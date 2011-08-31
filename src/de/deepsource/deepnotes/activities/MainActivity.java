@@ -39,28 +39,21 @@ import de.deepsource.deepnotes.utilities.IOManager;
  */
 public class MainActivity extends FragmentActivity {
 
-     /**
-	 * TODO.
+    /**
+	 * Contains all Note objects for the stored notes.
 	 */
 	private List<Note> notes;
 
 	/**
-	 * TODO.
+	 * The Bridge between the GridView and the data (notes).
 	 */
 	private NotesAdapter notesAdapter;
 
 	/**
-	 * TODO.
+	 * The maximum number of notes that can be created.
 	 */
 	private static final int MAX_NOTES = 50;
 
-	/**
-	 * Called when the activity is first created.
-	 *
-	 * @param savedInstanceState TODO
-	 *
-	 * @author Jan Pretzel
-	 */
 	@Override
     public final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,15 +114,6 @@ public class MainActivity extends FragmentActivity {
 		}
 	}
 
-	/**
-	 * Adding the menu.
-	 *
-	 * @param menu TODO.
-	 *
-	 * @return TODO.
-	 *
-	 * @author Jan Pretzel
-	 */
 	@Override
 	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -140,15 +124,6 @@ public class MainActivity extends FragmentActivity {
 		return true;
 	}
 
-	/**
-	 * Handle menu actions.
-	 *
-	 * @param item TODO.
-	 *
-	 * @return TODO.
-	 *
-	 * @author Jan Pretzel
-	 */
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -187,17 +162,6 @@ public class MainActivity extends FragmentActivity {
 		return handled;
 	}
 
-	/**
-	 * Adding context menu.
-	 *
-	 * @param menu TODO
-	 *
-	 * @param view TODO
-	 *
-	 * @param menuInfo TODO
-	 *
-	 * @author Jan Pretzel
-	 */
 	@Override
 	public final void onCreateContextMenu(final ContextMenu menu, final View view,
 			final ContextMenuInfo menuInfo) {
@@ -208,15 +172,6 @@ public class MainActivity extends FragmentActivity {
 		menu.setHeaderTitle(R.string.note);
 	}
 
-	/**
-	 * Handle context menu actions.
-	 *
-	 * @param item TODO
-	 *
-	 * @return TODO
-	 *
-	 * @author Jan Pretzel
-	 */
 	@Override
 	public final boolean onContextItemSelected(final MenuItem item) {
 		super.onContextItemSelected(item);
@@ -283,21 +238,22 @@ public class MainActivity extends FragmentActivity {
 	private static class NotesAdapter extends ArrayAdapter<Note> {
 
 		/**
-		 * TODO.
+		 * The resource id of the layout to be used.
 		 */
-		private final int resource;
+		private final int layoutRes;
 
 		/**
+		 * Constructor.
 		 *
-		 * @param context TODO
-		 * @param resource TODO
-		 * @param textViewResId TODO
-		 * @param objects TODO
+		 * @param context The Context in which the class is created.
+		 * @param resource The resource id of the layout to be used.
+		 * @param textViewResId The resource id of the TextView to be used.
+		 * @param objects The data being used to feed the AdapterView.
 		 */
 		public NotesAdapter(final Context context, final int resource,
 				final int textViewResId, final List<Note> objects) {
 			super(context, resource, textViewResId, objects);
-			this.resource = resource;
+			this.layoutRes = resource;
 		}
 
 		@Override
@@ -310,8 +266,9 @@ public class MainActivity extends FragmentActivity {
 			if (convertView == null) {
 				noteView = new LinearLayout(getContext());
 				final String inflater = Context.LAYOUT_INFLATER_SERVICE;
-				final LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(inflater);
-				layoutInflater.inflate(resource, noteView, true);
+				final LayoutInflater layoutInflater = (LayoutInflater) getContext().
+						getSystemService(inflater);
+				layoutInflater.inflate(layoutRes, noteView, true);
 			} else {
 				noteView = (LinearLayout) convertView;
 			}
