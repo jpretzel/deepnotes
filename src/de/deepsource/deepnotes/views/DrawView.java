@@ -30,7 +30,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * The background bitmap to set images on.
 	 */
-	private Bitmap background;
+	private Bitmap backgroundBitmap;
 
 	/**
 	 * The parent canvas.
@@ -73,28 +73,30 @@ public class DrawView extends View implements View.OnTouchListener {
 	 */
 	public interface DrawViewListener {
 		/**
-		 * TODO .
+		 * Needs to be called when something changed, that can be saved by the @see
+		 * {@link DrawActivity}.
 		 */
-        void changed();
+		void changed();
 
-        /**
-         * TODO .
-         */
-        void cleared();
+		/**
+		 * Needs to be called when an user input was undone so that the @see
+		 * {@link DrawActivity} can initiate reloading.
+		 */
+		void undone();
     }
 
 	/**
-	 * TODO .
+	 * Will listen for changes and undone user inputs.
 	 */
 	private final DrawViewListener dvListener;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param listener TODO
+	 * @param listener Will listen for changes and undone user inputs.
 	 *
 	 * @param context
-	 *            Context.
+	 *            The Context in which the DrawView was created.
 	 */
 	public DrawView(final Context context, final DrawViewListener listener) {
 		super(context);
@@ -113,7 +115,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	private final List<Paint> paintList = new ArrayList<Paint>();
 
 	/**
-	 * TODO .
+	 * Initializes the DrawView.
 	 */
 	public final void init() {
 		// paint config
@@ -128,37 +130,21 @@ public class DrawView extends View implements View.OnTouchListener {
 		setBackgroundColor(Color.WHITE);
 
 		setWillNotDraw(true);
-//		setWillNotCacheDrawing(true);
-	}
-
-	/**
-	 * To set the imported image as background.
-	 *
-	 * @param bitmap
-	 *            The background to be set.
-	 *
-	 * @param modified
-	 *            Whether the background was modified (true) or just loaded from
-	 *            memory (false)
-	 */
-	public final void setBackground(final Bitmap bitmap, final boolean modified) {
-		background = bitmap;
-		bgModified = modified;
 	}
 
 	@Override
-	public final void onDraw(final Canvas canvas) {
+	public final void onDraw(final Canvas drawCanvas) {
 
 		// fill the bitmap with default background color
-		canvas.drawColor(Color.WHITE);
+		drawCanvas.drawColor(Color.WHITE);
 
 		// check if there is a background set
-		if (background != null) {
-			canvas.drawBitmap(background, 0f, 0f, paint);
+		if (backgroundBitmap != null) {
+			drawCanvas.drawBitmap(backgroundBitmap, 0f, 0f, paint);
 		}
 
-		canvas.drawBitmap(bitmap, 0f, 0f, paint);
-		canvas.drawPath(path, paint);
+		drawCanvas.drawBitmap(bitmap, 0f, 0f, paint);
+		drawCanvas.drawPath(path, paint);
 
 	}
 
@@ -271,7 +257,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 *
+	 * Undoes an user input.
 	 */
 	public final void undo() {
 		Log.e("undo", "called");
@@ -288,7 +274,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * TODO .
+	 * Redraws the saved Paths.
 	 */
 	public final void redraw() {
 		if (pathList.isEmpty()) {
@@ -305,7 +291,9 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Clears the current page and post an invalidate state to force an update.
 	 *
-	 * @param undo TODO
+	 * @param undo
+	 *            Identifies whether the method was called from @see
+	 *            {@link DrawView#undo()} or not.
 	 *
 	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
@@ -323,11 +311,11 @@ public class DrawView extends View implements View.OnTouchListener {
 			// check if we have to reload a given bmp.
 			if (!isNewNote) {
 				Log.e("clear", "reloadNotePage");
-				dvListener.cleared();
+				dvListener.undone();
 			}
 
 		} else {
-			background = null;
+			backgroundBitmap = null;
 			clearUndoCache();
 
 			// set delete status
@@ -340,22 +328,24 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * Retuns the current (foreground) bitmap.
+	 * Getter for @see {@link DrawView#bitmap}.
 	 *
-	 * @return TODO
+	 * @return @see {@link DrawView#bitmap}.
 	 */
 	public final Bitmap getBitmap() {
 		return bitmap;
 	}
 
 	/**
-	 * Sets the current (foreground) bitmap.
+	 * Loads @see {@link DrawView#bitmap}.
 	 *
-	 * @param bitmap
-	 *            current foreground bitmap to set
+	 * TODO unterschied zum setter beschreiben?
+	 *
+	 * @param newBitmap
+	 *            current foreground bitmap to set.
 	 */
-	public final void loadBitmap(final Bitmap bitmap) {
-		canvas.drawBitmap(bitmap, new Matrix(), paint);
+	public final void loadBitmap(final Bitmap newBitmap) {
+		canvas.drawBitmap(newBitmap, new Matrix(), paint);
 
 		// set flag isNewNote to false, because it's loaded
 		Log.e("loading note", "setting isNewNote to false");
@@ -363,113 +353,128 @@ public class DrawView extends View implements View.OnTouchListener {
 	}
 
 	/**
-	 * TODO .
+	 * Setter for {@link DrawView#bitmap}.
 	 *
-	 * @param bitmap TODO
+	 * @param newBitmap The new {@link DrawView#bitmap}.
 	 */
-	public final void setBitmap(final Bitmap bitmap) {
-		this.bitmap = bitmap;
+	public final void setBitmap(final Bitmap newBitmap) {
+		this.bitmap = newBitmap;
 		canvas = new Canvas(this.bitmap);
 		isNewNote = false;
 	}
 
 	/**
-	 * TODO .
+	 * Sets the color of @see {@link DrawView#paint}.
 	 *
-	 * @param color TODO
+	 * @param color The new color.
 	 */
 	public final void setPaintColor(final int color) {
 		paint.setColor(color);
 	}
 
 	/**
-	 * Returns the current picked color.
+	 * Gets the current color of @see {@link DrawView#paint}.
 	 *
-	 * @return current picked color.
+	 * @return The current color of @see {@link DrawView#paint}.
 	 */
 	public final int getPaintColor() {
 		return paint.getColor();
 	}
 
 	/**
-	 * TODO .
+	 * Sets the stroke width of @see {@link DrawView#paint}.
 	 *
-	 * @param width TODO
+	 * @param width The new stroke width.
 	 */
 	public final void setPenWidth(final float width) {
 		paint.setStrokeWidth(width);
 	}
 
 	/**
-	 * TODO .
+	 * Gets the current stroke width of @see {@link DrawView#paint}.
 	 *
-	 * @param width TODO
-	 * @return TODO
+	 * @return The current stroke width of @see {@link DrawView#paint}.
 	 */
-	public final float getPenWidth(final float width) {
+	public final float getPenWidth() {
 		return paint.getStrokeWidth();
 	}
 
 	/**
-	 * TODO .
+	 * Getter for @see {@link DrawView#paint}.
 	 *
-	 * @return TODO
+	 * @return @see {@link DrawView#paint}.
 	 */
 	public final Paint getPaint() {
 		return paint;
 	}
 
 	/**
-	 * TODO .
+	 * Setter for @see {@link DrawView#paint}.
 	 *
-	 * @param paint TODO
+	 * @param newPaint The new @see {@link DrawView#paint}.
 	 */
-	public final void setPaint(final Paint paint) {
-		this.paint = paint;
+	public final void setPaint(final Paint newPaint) {
+		this.paint = newPaint;
 	}
 
 	/**
-	 * TODO .
+	 * Getter for @see {@link DrawView#backgroundBitmap}.
 	 *
-	 * @return TODO
+	 * @return @see {@link DrawView#backgroundBitmap}.
 	 */
 	public final Bitmap getBackgroundBitmap() {
-		return background;
+		return backgroundBitmap;
 	}
 
 	/**
-	 * TODO .
+	 * Sets a given Bitmap as background.
 	 *
-	 * @return TODO
+	 * @param bgBitmap
+	 *            The background to be set.
+	 *
+	 * @param newModified
+	 *            Whether the background was modified (true) or just loaded from
+	 *            memory (false)
+	 */
+	public final void setBackgroundBitmap(final Bitmap bgBitmap, final boolean newModified) {
+		backgroundBitmap = bgBitmap;
+		bgModified = newModified;
+	}
+
+	/**
+	 * Tells if the foreground of the note the DrawView presents was modified or
+	 * not.
+	 *
+	 * @return Whether the foreground was modified or not.
 	 */
 	public final boolean isModified() {
 		return modified;
 	}
 
 	/**
-	 * TODO .
+	 * Tells if the background of the note the DrawView presents was modified or not.
 	 *
-	 * @return TODO
+	 * @return Whether the background was modified or not.
 	 */
-	public final boolean isBGModified() {
+	public final boolean isBgModified() {
 		return bgModified;
 	}
 
 	/**
-	 * TODO .
+	 * Setter @see {@link DrawView#modified}.
 	 *
-	 * @param modified TODO
+	 * @param newModified The new @see {@link DrawView#modified}.
 	 */
-	public final void setModified(final boolean modified) {
-		this.modified = modified;
+	public final void setModified(final boolean newModified) {
+		this.modified = newModified;
 	}
 
 	/**
-	 * TODO .
+	 * Setter @see {@link DrawView#bgModified}.
 	 *
-	 * @param bgmodified TODO
+	 * @param bgmodified The new @see {@link DrawView#bgModified}.
 	 */
-	public final void setBGModified(final boolean bgmodified) {
+	public final void setBgModified(final boolean bgmodified) {
 		bgModified = bgmodified;
 	}
 
@@ -497,8 +502,8 @@ public class DrawView extends View implements View.OnTouchListener {
 		if (bitmap != null) {
 			bitmap.recycle();
 		}
-		if (background != null) {
-			background.recycle();
+		if (backgroundBitmap != null) {
+			backgroundBitmap.recycle();
 		}
 	}
 

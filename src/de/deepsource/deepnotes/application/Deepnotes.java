@@ -4,9 +4,11 @@ import android.app.Application;
 import android.graphics.Color;
 
 /**
- * TODO .
+ * Deepnotes Application implementation is used for global variables and
+ * constants.
  *
  * @author Jan Pretzel
+ * @author Sebastian Ullrich
  */
 public class Deepnotes extends Application {
 
@@ -71,17 +73,17 @@ public class Deepnotes extends Application {
 	public static final String PNG_SUFFIX = ".png";
 
 	/**
-	 *
+	 * The width of the device.
 	 */
 	private static int viewportWidth;
 
 	/**
-	 *
+	 * The height of the device.
 	 */
 	private static int viewportHeight;
 
 	/**
-	 * TODO .
+	 * Identifier for the number of pages per note.
 	 */
 	public static final int NOTEPAGE_COUNT = 3;
 
@@ -158,36 +160,36 @@ public class Deepnotes extends Application {
 	public static final float PEN_WIDTH_THIN = 5f;
 
 	/**
-	 * TODO .
+	 * Getter for @see {@link Deepnotes#viewportWidth}.
 	 *
-	 * @return TODO
+	 * @return {@link Deepnotes#viewportWidth}.
 	 */
 	public static int getViewportWidth() {
 		return viewportWidth;
 	}
 
 	/**
-	 * TODO .
+	 * Setter for {@link Deepnotes#viewportWidth}.
 	 *
-	 * @param newViewportWidth TODO
+	 * @param newViewportWidth The new width for the device.
 	 */
 	public static void setViewportWidth(final int newViewportWidth) {
 		viewportWidth = newViewportWidth;
 	}
 
 	/**
-	 * TODO .
+	 * Getter for @see {@link Deepnotes#viewportHeight}.
 	 *
-	 * @return TODO
+	 * @return {@link Deepnotes#viewportHeight}.
 	 */
 	public static int getViewportHeight() {
 		return viewportHeight;
 	}
 
 	/**
-	 * TODO .
+	 * Setter for {@link Deepnotes#viewportHeight}.
 	 *
-	 * @param newViewportHeight TODO
+	 * @param newViewportHeight The new height for the device.
 	 */
 	public static void setViewportHeight(final int newViewportHeight) {
 		viewportHeight = newViewportHeight;
