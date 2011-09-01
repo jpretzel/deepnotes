@@ -41,16 +41,22 @@ public class MainActivity extends FragmentActivity {
 
     /**
 	 * Contains all Note objects for the stored notes.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private List<Note> notes;
 
 	/**
 	 * The Bridge between the GridView and the data (notes).
+	 *
+	 * @author Jan Pretzel
 	 */
 	private NotesAdapter notesAdapter;
 
 	/**
 	 * The maximum number of notes that can be created.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private static final int MAX_NOTES = 50;
 
@@ -143,11 +149,6 @@ public class MainActivity extends FragmentActivity {
 						Toast.LENGTH_SHORT).show();
 			}
 
-			handled = true;
-			break;
-
-
-		case R.id.main_menu_credits:
 			handled = true;
 			break;
 
@@ -249,6 +250,8 @@ public class MainActivity extends FragmentActivity {
 		 * @param resource The resource id of the layout to be used.
 		 * @param textViewResId The resource id of the TextView to be used.
 		 * @param objects The data being used to feed the AdapterView.
+		 *
+		 * @author Jan Pretzel
 		 */
 		public NotesAdapter(final Context context, final int resource,
 				final int textViewResId, final List<Note> objects) {

@@ -33,6 +33,8 @@ public final class IOManager {
 
 	/**
 	 * Utility classes should not have public or default constructor.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private IOManager() {
 		// empty
@@ -48,6 +50,8 @@ public final class IOManager {
 	 *
 	 * @return Returns true if there where no problems deleting all the notes
 	 *         files, else returns false.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static boolean deleteNote(final Context context, final String noteName) {
 		if (noteName == null) {
@@ -104,6 +108,8 @@ public final class IOManager {
 	 *            The Activity, that called the method.
 	 * @param noteName
 	 *            The name of the note that should be shared.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static void shareNote(final Activity activity, final String noteName) {
 		if (activity == null) {
@@ -122,22 +128,28 @@ public final class IOManager {
 	/**
 	 * Writes the cache, that is needed for sharing a note.
 	 *
-	 * @author Jan Pretzel
+	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
 	private static class WriteShareCache extends AsyncTask<String, Void, Void> {
 
 		/**
 		 * The ProgressDialog, that will be shown while writing the cache.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final ProgressDialog dialog;
 
 		/**
 		 * The Activity, that initiated the cache saving.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final Activity activity;
 
 		/**
 		 * Stores the Uri-objects for the cached files, and will be given to the Intent.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final ArrayList<Uri> uris;
 
@@ -145,6 +157,8 @@ public final class IOManager {
 		 * Constructor.
 		 *
 		 * @param initiater The Activity, that initiated the cache saving.
+		 *
+		 * @author Jan Pretzel
 		 */
 		public WriteShareCache(final Activity initiater) {
 			super();
@@ -256,6 +270,8 @@ public final class IOManager {
 		 * Checks if the cache folder has stored more than 2MB, if that's the
 		 * case it will call @see {@link IOManager#clearCache()} to clear the
 		 * cache.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private void checkCache() {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -306,6 +322,8 @@ public final class IOManager {
 
 	/**
 	 * Clears the external cache.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -339,6 +357,8 @@ public final class IOManager {
 	 *            The format the file will have.
 	 * @param quality
 	 *            The quality the image will have.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static void writeFile(final Bitmap bitmap, final String file,
 			final Bitmap.CompressFormat format, final int quality) {

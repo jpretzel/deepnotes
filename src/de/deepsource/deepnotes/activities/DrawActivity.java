@@ -72,47 +72,57 @@ public class DrawActivity extends Activity implements
 
 	/**
 	 * When importing an image, the path of the original will be saved here.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private transient Uri pictureUri;
 
 	/**
 	 * When importing and image, the cropped image will be saved here.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private transient Uri outputUri;
 
 	/**
 	 * The currently displayed @see {@link DrawView}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	private transient DrawView currentDrawView;
 
 	/**
 	 * This @see {@link ViewGroup} holds the @see {@link DrawView}-objects.
+	 *
+	 * @author Jan Pretzel
 	 */
 	protected transient ViewFlipper viewFlipper;
 
 	/**
 	 * The name of the note used in the file system.
+	 *
+	 * @author Jan Pretzel
 	 */
 	protected transient String fileName;
 
 	/**
 	 * Holds the current color and pen-width.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private int currentPaint;
 
 	/**
 	 * Sets the startup color to standard Black.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private int currentColor = Deepnotes.BLACK;
 
 	/**
 	 * Identifies whether the note must be saved because it changed or not.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	protected boolean saveStateChanged = false;
 
@@ -236,12 +246,12 @@ public class DrawActivity extends Activity implements
 	 * Reloads a given note page of the note. The background will not be
 	 * reloaded!
 	 *
-	 * @author Jan Pretzel
-	 *
 	 * @param index
 	 *            The index of the page that will be reloaded.
+	 *
+	 * @author Jan Pretzel
 	 */
-	private final void reloadNotePage(final int index) {
+	private void reloadNotePage(final int index) {
 		if (index < 0 || index > viewFlipper.getChildCount()) {
 			return;
 		}
@@ -266,7 +276,7 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Adding the custom menu.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	@Override
 	public final boolean onCreateOptionsMenu(final Menu menu) {
@@ -282,7 +292,8 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Catch events on menu items.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
+	 * @author Jan Pretzel
 	 */
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
@@ -440,6 +451,8 @@ public class DrawActivity extends Activity implements
 	 * @param share
 	 *            Tells @see {@link SaveNote} whether to share the note after
 	 *            saving or not.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private void saveNote(final boolean finish, final boolean share) {
 		if (!saveStateChanged) {
@@ -459,7 +472,7 @@ public class DrawActivity extends Activity implements
 	 * Shows the next @see {@link DrawView} by triggering an animated page turn.
 	 * Modify this method for adding animations etc.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void showNextDrawView() {
 		showPage(PAGE_FORWARD);
@@ -469,7 +482,7 @@ public class DrawActivity extends Activity implements
 	 * Shows the previous @see {@link DrawView} by triggering an animated page
 	 * turn. Modify this method for adding animations etc.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void showPreviousDrawView() {
 		showPage(PAGE_BACKWARD);
@@ -478,14 +491,14 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Identifier for at page forward flip.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private static final boolean PAGE_FORWARD = true;
 
 	/**
 	 * Identifier for at page backward flip.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private static final boolean PAGE_BACKWARD = false;
 
@@ -499,7 +512,7 @@ public class DrawActivity extends Activity implements
 	 *            {@link DrawActivity#PAGE_FORWARD} or @see
 	 *            {@link DrawActivity#PAGE_BACKWARD}
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
 	private void showPage(final boolean direction) {
@@ -528,6 +541,8 @@ public class DrawActivity extends Activity implements
 	 *            The page flip direction. Expects @see
 	 *            {@link DrawActivity#PAGE_FORWARD} or @see
 	 *            {@link DrawActivity#PAGE_BACKWARD}
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	private void showPageToast(final boolean direction) {
 		final int currentPage = viewFlipper.getDisplayedChild() + 1;
@@ -617,7 +632,7 @@ public class DrawActivity extends Activity implements
 		super.onActivityResult(requestCode, resultCode, data);
 
 		switch (requestCode) {
-		/* Import from gallery result */
+		// Import from gallery result
 		case REQUEST_GALLERY:
 			if (resultCode == RESULT_OK) {
 				pictureUri = data.getData();
@@ -626,7 +641,7 @@ public class DrawActivity extends Activity implements
 				break;
 			}
 
-			/* Import from camera result */
+		// Import from camera result
 		case REQUEST_CAMERA:
 			if (resultCode == RESULT_OK) {
 				cropImage();
@@ -634,7 +649,7 @@ public class DrawActivity extends Activity implements
 				break;
 			}
 
-			/* crop result */
+		// crop result
 		case REQUEST_CROP:
 			if (resultCode == RESULT_OK) {
 				Bitmap bitmap = null;
@@ -718,6 +733,8 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Clears the cached note pages. Drawing cache is located in the internal
 	 * storage of the application, and cannot be read by other applications.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private void clearDrawingCache() {
 		final File[] files = getCacheDir().listFiles();
@@ -733,6 +750,8 @@ public class DrawActivity extends Activity implements
 	 * Saves the currently displayed note to the drawing cache. Drawing cache is
 	 * located in the internal storage of the application, and cannot be read by
 	 * other applications.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private void saveDrawingCache() {
 		if (currentDrawView.isBgModified()) {
@@ -753,6 +772,8 @@ public class DrawActivity extends Activity implements
 	 * Will be called before the Activity is destroyed. We will need to clear
 	 * the drawing cache here and make sure the Bitmaps can get garbage
 	 * collected.
+	 *
+	 * @author Jan Pretzel
 	 */
 	@Override
 	protected final void onDestroy() {
@@ -776,6 +797,8 @@ public class DrawActivity extends Activity implements
 	 *
 	 * @param color
 	 *            The new @see {@link DrawActivity#currentColor}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	@Override
 	public final void colorChanged(final int color) {
@@ -785,6 +808,8 @@ public class DrawActivity extends Activity implements
 	/**
 	 * When a {@link DrawView} changes in terms of background or foreground we
 	 * need to set @see {@link DrawActivity#saveStateChanged} to true.
+	 *
+	 * @author Jan Pretzel
 	 */
 	@Override
 	public final void changed() {
@@ -795,6 +820,8 @@ public class DrawActivity extends Activity implements
 	 * When a @see {@link DrawView} undid something we need to call @see
 	 * {@link DrawActivity#reloadNotePage(int)} for the currently displayed @see
 	 * {@link DrawView}.
+	 *
+	 * @author Jan Pretzel
 	 */
 	@Override
 	public final void undone() {
@@ -805,6 +832,8 @@ public class DrawActivity extends Activity implements
 	 * Getter for @see {@link DrawActivity#currentPaint}.
 	 *
 	 * @return The @see {@link DrawActivity#currentPaint}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public final int getCurrentPaint() {
 		return currentPaint;
@@ -815,6 +844,8 @@ public class DrawActivity extends Activity implements
 	 *
 	 * @param newPaint
 	 *            The new @see {@link DrawActivity#currentPaint}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public final void setCurrentPaint(final int newPaint) {
 		this.currentPaint = newPaint;
@@ -824,6 +855,8 @@ public class DrawActivity extends Activity implements
 	 * Getter for @see {@link DrawActivity#currentColor}.
 	 *
 	 * @return The new @see {@link DrawActivity#currentColor}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public final int getCurrentColor() {
 		return currentColor;
@@ -832,12 +865,14 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Setter for @see {@link DrawActivity#currentColor}.
 	 *
-	 * @param currentColor
+	 * @param newCurrentColor
 	 *            The new @see {@link DrawActivity#currentColor}.
+	 *
+	 * @author Sebastian Ullrich
 	 */
-	public final void setCurrentColor(final int currentColor) {
-		this.currentColor = currentColor;
-		currentDrawView.setPaintColor(currentColor);
+	public final void setCurrentColor(final int newCurrentColor) {
+		this.currentColor = newCurrentColor;
+		currentDrawView.setPaintColor(newCurrentColor);
 	}
 
 	/**
@@ -853,23 +888,31 @@ public class DrawActivity extends Activity implements
 
 		/**
 		 * The ProgressDialog that will be shown while saving.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final ProgressDialog dialog;
 
 		/**
 		 * Identifier that tells us whether to finish @see {@link DrawActivity}
 		 * after saving or not.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final boolean finish;
 
 		/**
 		 * Identifier that tells us whether to share the note after saving or
 		 * not.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final boolean share;
 
 		/**
 		 * The @see {@link DrawActivity} that instantiated this class.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private final DrawActivity activity;
 
@@ -885,6 +928,8 @@ public class DrawActivity extends Activity implements
 		 * @param shareActivity
 		 *            Identifier that tells us whether to share the note after
 		 *            saving or not.
+		 *
+		 * @author Jan Pretzel
 		 */
 		public SaveNote(final DrawActivity dActivity,
 				final boolean finActivity, final boolean shareActivity) {
@@ -1037,9 +1082,9 @@ public class DrawActivity extends Activity implements
 		 * Calculates a thumbnail representing the note. The first page of the
 		 * note (empty or not) will be scaled by 0.5 to save memory.
 		 *
-		 * @author Jan Pretzel
-		 *
 		 * @return The thumbnail as Bitmap.
+		 *
+		 * @author Jan Pretzel
 		 */
 		private Bitmap createThumbnail() {
 			// get first page of the note

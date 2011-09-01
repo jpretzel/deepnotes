@@ -14,6 +14,8 @@ public class Deepnotes extends Application {
 
 	/**
 	 * Identifier for the application name.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final String APP_NAME = "deepnotes";
 
@@ -42,6 +44,8 @@ public class Deepnotes extends Application {
 
 	/**
 	 * Identifier for an error message when a file could not be created.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final String ERROR_FILE = "failed to delete file";
 
@@ -54,36 +58,50 @@ public class Deepnotes extends Application {
 
 	/**
 	 * Identifier for the quality used for jpgs.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final int JPG_QUALITY = 70;
 
 	/**
 	 * Identifier for the jpg suffix.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final String JPG_SUFFIX = ".jpg";
 
 	/**
 	 * Identifier for the quality used for pngs.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final int PNG_QUALITY = 100;
 
 	/**
 	 * Identifier for the png suffix.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static final String PNG_SUFFIX = ".png";
 
 	/**
 	 * The width of the device.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private static int viewportWidth;
 
 	/**
 	 * The height of the device.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private static int viewportHeight;
 
 	/**
 	 * Identifier for the number of pages per note.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public static final int NOTEPAGE_COUNT = 3;
 
@@ -163,6 +181,8 @@ public class Deepnotes extends Application {
 	 * Getter for @see {@link Deepnotes#viewportWidth}.
 	 *
 	 * @return {@link Deepnotes#viewportWidth}.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static int getViewportWidth() {
 		return viewportWidth;
@@ -172,6 +192,8 @@ public class Deepnotes extends Application {
 	 * Setter for {@link Deepnotes#viewportWidth}.
 	 *
 	 * @param newViewportWidth The new width for the device.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static void setViewportWidth(final int newViewportWidth) {
 		viewportWidth = newViewportWidth;
@@ -181,6 +203,8 @@ public class Deepnotes extends Application {
 	 * Getter for @see {@link Deepnotes#viewportHeight}.
 	 *
 	 * @return {@link Deepnotes#viewportHeight}.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static int getViewportHeight() {
 		return viewportHeight;
@@ -190,6 +214,8 @@ public class Deepnotes extends Application {
 	 * Setter for {@link Deepnotes#viewportHeight}.
 	 *
 	 * @param newViewportHeight The new height for the device.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public static void setViewportHeight(final int newViewportHeight) {
 		viewportHeight = newViewportHeight;

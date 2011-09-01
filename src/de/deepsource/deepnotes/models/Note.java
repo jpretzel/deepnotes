@@ -22,12 +22,16 @@ public class Note {
 	/**
 	 * A human readable date, which will
 	 * be displayed in MainActivity.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private final String created;
 
 	/**
 	 * The thumbnail, which will be displayed
 	 * in MainActivity.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private Bitmap thumbnail;
 
@@ -35,6 +39,8 @@ public class Note {
 	 * The file name without suffix, which is mainly
 	 * used to communicate between MainActivity and
 	 * DrawActivity.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private String fileName;
 
@@ -47,6 +53,8 @@ public class Note {
 	 *
 	 * @param name
 	 *            The files name.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public Note(final Context context, final String name) {
 		fileName = name;
@@ -72,6 +80,8 @@ public class Note {
 	/**
 	 * Recycles the thumbnail bitmap.
 	 * Should only be called when the thumbnail is not needed anymore.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public final void recycle() {
 		thumbnail.recycle();
@@ -81,6 +91,8 @@ public class Note {
 	 * Getter for created.
 	 *
 	 * @return A human readable date.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public final String getCreated() {
 		return created;
@@ -90,6 +102,8 @@ public class Note {
 	 * Getter for the thumbnail.
 	 *
 	 * @return The thumbnail as Bitmap.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public final Bitmap getThumbnail() {
 		return thumbnail;
@@ -99,6 +113,8 @@ public class Note {
 	 * Getter for the file name.
 	 *
 	 * @return The file name, without suffix.
+	 *
+	 * @author Jan Pretzel
 	 */
 	public final String getFileName() {
 		return fileName;

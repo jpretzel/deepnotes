@@ -25,51 +25,56 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * The foreground bitmap to paint on.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private Bitmap bitmap;
 
 	/**
 	 * The background bitmap to set images on.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private Bitmap backgroundBitmap;
 
 	/**
 	 * The parent canvas.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private Canvas canvas;
 
 	/**
 	 * The painter object.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	protected Paint paint = new Paint();
 
 	/**
 	 * Flag for changes.
 	 *
+	 * @author Jan Pretzel
 	 */
 	private boolean modified = false;
 
 	/**
 	 * Flag for modified background.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private boolean bgModified = false;
 
 	/**
 	 * Identifies whether the view was cleared or not.
+	 *
+	 * @author Jan Pretzel
 	 */
 	private boolean isCleared = false;
 
 	/**
 	 * Holds a flag neither the note is new or loaded.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private boolean isNewNote = true;
 
@@ -95,7 +100,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Will listen for changes and undone user inputs.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	private final DrawViewListener dvListener;
 
@@ -108,7 +113,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param context
 	 *            The Context in which the DrawView was created.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public DrawView(final Context context, final DrawViewListener listener) {
 		super(context);
@@ -119,19 +124,21 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Will hold a history of previous paths to enable undo functionality.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private final List<Path> pathList = new ArrayList<Path>();
 
 	/**
 	 * Will hold a history of previous colors to enable undo functionality.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private final List<Paint> paintList = new ArrayList<Paint>();
 
 	/**
 	 * Initializes the DrawView.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public final void init() {
 		// paint config
@@ -168,14 +175,14 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * Current path for drawing. A copy of this objekt will be stored in @see
 	 * {@link DrawView#pathList}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private final Path path = new Path();
 
 	/**
 	 * Stores the last coordinates for building a path.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private float lastX, lastY;
 
@@ -187,7 +194,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param y
 	 *            Initial startpoint y.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void startDraw(final float x, final float y) {
 		path.reset();
@@ -203,7 +210,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * This offsets extends the rerender-frame to avoid render artefacts while
 	 * drawing a path.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	private static final float INVALIDATE_OFFSET = 50f;
 
@@ -217,7 +224,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param y
 	 *            Continious point x
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void continueDraw(final float x, final float y) {
 		// Bezier Smoothing
@@ -259,7 +266,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * This Method ends drawing a new path. The current path is getting stored
 	 * and reseted. Afterwards a complete rerender is called.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void stopDraw() {
 		// end the path and draw it
@@ -281,7 +288,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * Undoes an user input. Removes the last stored path and color and calls @see
 	 * {@link DrawView#redraw()} .
 	 *
-	 * author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * author Sebastian Ullrich
 	 */
 	public final void undo() {
 		Log.e("undo", "called");
@@ -301,7 +308,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * Redraws the saved Paths. See @see{@link DrawView#undo()} for further
 	 * information.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void redraw() {
 		// check if there is a path queue.
@@ -322,7 +329,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *            Identifies whether the method was called from @see
 	 *            {@link DrawView#undo()} or not.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 * @author Jan Pretzel
 	 */
 	public final void clearView(final boolean undo) {
@@ -359,7 +366,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return @see {@link DrawView#bitmap}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final Bitmap getBitmap() {
 		return bitmap;
@@ -368,10 +375,10 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * Loads @see {@link DrawView#bitmap}.
 	 *
-	 * TODO unterschied zum setter beschreiben?
-	 *
 	 * @param newBitmap
 	 *            current foreground bitmap to set.
+	 *
+	 * @author Sebastian Ullrich
 	 */
 	public final void loadBitmap(final Bitmap newBitmap) {
 		canvas.drawBitmap(newBitmap, new Matrix(), paint);
@@ -387,7 +394,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param newBitmap
 	 *            The new {@link DrawView#bitmap}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final void setBitmap(final Bitmap newBitmap) {
 		this.bitmap = newBitmap;
@@ -401,7 +408,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param color
 	 *            The new color.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void setPaintColor(final int color) {
 		paint.setColor(color);
@@ -412,7 +419,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return The current color of @see {@link DrawView#paint}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final int getPaintColor() {
 		return paint.getColor();
@@ -424,7 +431,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param width
 	 *            The new stroke width.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void setPenWidth(final float width) {
 		paint.setStrokeWidth(width);
@@ -435,7 +442,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return The current stroke width of @see {@link DrawView#paint}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final float getPenWidth() {
 		return paint.getStrokeWidth();
@@ -446,7 +453,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return @see {@link DrawView#paint}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final Paint getPaint() {
 		return paint;
@@ -458,7 +465,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param newPaint
 	 *            The new @see {@link DrawView#paint}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void setPaint(final Paint newPaint) {
 		this.paint = newPaint;
@@ -469,7 +476,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return @see {@link DrawView#backgroundBitmap}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final Bitmap getBackgroundBitmap() {
 		return backgroundBitmap;
@@ -485,7 +492,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *            Whether the background was modified (true) or just loaded from
 	 *            memory (false)
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final void setBackgroundBitmap(final Bitmap bgBitmap,
 			final boolean newModified) {
@@ -499,7 +506,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return Whether the foreground was modified or not.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final boolean isModified() {
 		return modified;
@@ -511,7 +518,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 *
 	 * @return Whether the background was modified or not.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final boolean isBgModified() {
 		return bgModified;
@@ -523,7 +530,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param newModified
 	 *            The new @see {@link DrawView#modified}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final void setModified(final boolean newModified) {
 		this.modified = newModified;
@@ -535,7 +542,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	 * @param bgmodified
 	 *            The new @see {@link DrawView#bgModified}.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Jan Pretzel
 	 */
 	public final void setBgModified(final boolean bgmodified) {
 		bgModified = bgmodified;
@@ -594,7 +601,7 @@ public class DrawView extends View implements View.OnTouchListener {
 	/**
 	 * This will clear the undo cache.
 	 *
-	 * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+	 * @author Sebastian Ullrich
 	 */
 	public final void clearUndoCache() {
 		pathList.clear();
