@@ -36,4 +36,5 @@
     <string name="choose_image">Chose image</string>
     <string name="max_notes">You have reached the maximum amount of notes.</string>
     <string name="delete_exception">Something went wrong, please try again.</string>
+    <string name="share_dialog">Preparing to share...</string>
 </resources>

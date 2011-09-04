@@ -1,3 +1,10 @@
+/*
+ * Deepnotes - Note Application for Android
+ *
+ * Copyright (C) 2011 Sebastian Ullrich & Jan Pretzel
+ * http://www.deepsource.de
+ */
+
 package de.deepsource.deepnotes.activities;
 
 import java.io.File;
@@ -30,7 +37,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import de.deepsource.deepnotes.R;
@@ -45,97 +51,76 @@ import de.deepsource.deepnotes.views.DrawView.DrawViewListener;
  * DrawView.
  *
  * @author Sebastian Ullrich (sebastian.ullrich@deepsource.de)
+ * @author Jan Pretzel (jan.pretzel@deepsource.de)
  */
 public class DrawActivity extends Activity implements
 		ColorPickerDialog.OnColorChangedListener, DrawViewListener {
 
 	/**
 	 * Custom request code to identify the <i>image pick from gallery</i>.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_GALLERY = 0x00000001;
 
 	/**
 	 * Custom request code to identify the <i>camera image capture</i>.
-	 *
-	 * @author Jan Pretzel
 	 */
 	private static final int REQUEST_CAMERA = 0x00000010;
 
 	/**
 	 * Custom request code to identify the <i>image crop</i>.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private static final int REQUEST_CROP = 0x00000100;
 
 	/**
 	 * When importing an image, the path of the original will be saved here.
-	 *
-	 * @author Jan Pretzel
 	 */
 	private transient Uri pictureUri;
 
 	/**
 	 * When importing and image, the cropped image will be saved here.
-	 *
-	 * @author Jan Pretzel
 	 */
 	private transient Uri outputUri;
 
 	/**
-	 * The currently displayed @see {@link DrawView}.
-	 *
-	 * @author Sebastian Ullrich
+	 * The currently displayed {@link DrawView}.
 	 */
 	private transient DrawView currentDrawView;
 
 	/**
-	 * This @see {@link ViewGroup} holds the @see {@link DrawView}-objects.
-	 *
-	 * @author Jan Pretzel
+	 * This {@link ViewGroup} holds the {@link DrawView}-objects.
 	 */
-	protected transient ViewFlipper viewFlipper;
+	private transient ViewFlipper viewFlipper;
 
 	/**
 	 * The name of the note used in the file system.
-	 *
-	 * @author Jan Pretzel
 	 */
-	protected transient String fileName;
+	private transient String fileName;
 
 	/**
 	 * Holds the current color and pen-width.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private int currentPaint;
 
 	/**
 	 * Sets the startup color to standard Black.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private int currentColor = Deepnotes.BLACK;
 
 	/**
 	 * Identifies whether the note must be saved because it changed or not.
-	 *
-	 * @author Sebastian Ullrich
 	 */
-	protected boolean saveStateChanged = false;
+	private boolean saveStateChanged = false;
 
 	/**
 	 * Only use this WeakReference when you need the Activity itself as context.
 	 * Otherwise chances are great chance the Activity's context is getting
 	 * leaked!
-	 *
-	 * @author Jan Pretzel
 	 */
 	private final WeakReference<DrawActivity> weakThis = new WeakReference<DrawActivity>(
 			this);
 
+	// Author: Jan Pretzel
+	// Author: Sebastian Ullrich
 	@Override
 	public final void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -179,14 +164,23 @@ public class DrawActivity extends Activity implements
 	 * not it checks if there is a saved file to load.
 	 *
 	 * @param drawView
-	 *            The @see {@link DrawView} to load.
+	 *            The {@link DrawView} to load.
 	 * @param position
-	 *            The position in the @see {@link DrawActivity#viewFlipper}.
-	 *
-	 * @author Jan Pretzel
+	 *            The position in the {@link DrawActivity#viewFlipper}.
 	 */
-	protected final void loadNotePage(final DrawView drawView,
+	// Author: Jan Pretzel
+	private void loadNotePage(final DrawView drawView,
 			final int position) {
+		if (drawView == null) {
+			Log.e(Deepnotes.APP_NAME, "drawView must not be null");
+			throw new IllegalArgumentException();
+		}
+
+		if (position < 0 || position >= viewFlipper.getChildCount()) {
+			Log.e(Deepnotes.APP_NAME, "position is out of bounds");
+			throw new IllegalArgumentException();
+		}
+
 		final File notePath = new File(getFilesDir(), fileName + "/");
 		boolean loaded = false;
 
@@ -248,12 +242,12 @@ public class DrawActivity extends Activity implements
 	 *
 	 * @param index
 	 *            The index of the page that will be reloaded.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	private void reloadNotePage(final int index) {
-		if (index < 0 || index > viewFlipper.getChildCount()) {
-			return;
+		if (index < 0 || index >= viewFlipper.getChildCount()) {
+			Log.e(Deepnotes.APP_NAME, "index is out of bounds");
+			throw new IllegalArgumentException();
 		}
 
 		final File notePath = new File(getFilesDir(), fileName + "/");
@@ -273,11 +267,7 @@ public class DrawActivity extends Activity implements
 		}
 	}
 
-	/**
-	 * Adding the custom menu.
-	 *
-	 * @author Sebastian Ullrich
-	 */
+	// Author: Sebastian Ullrich
 	@Override
 	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -289,12 +279,8 @@ public class DrawActivity extends Activity implements
 		return true;
 	}
 
-	/**
-	 * Catch events on menu items.
-	 *
-	 * @author Sebastian Ullrich
-	 * @author Jan Pretzel
-	 */
+	// Author: Jan Pretzel
+	// Author: Sebastian Ullrich
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -438,23 +424,22 @@ public class DrawActivity extends Activity implements
 	}
 
 	/**
-	 * Initiates saving of the note, by instantiating a @see {@link SaveNote}
+	 * Initiates saving of the note, by instantiating a {@link SaveNote}
 	 * -object. Because of the saving being progressed in an AsyncTask, we need
 	 * to wait for it to finish before we can close the
 	 *
-	 * @see {@link DrawActivity} or share the note. Therefore we need two flags
+	 * {@link DrawActivity} or share the note. Therefore we need two flags
 	 *      to pass through that tell the AsyncTask if we want to save or share.
 	 *
 	 * @param finish
-	 *            Tells @see {@link SaveNote} whether the @see
+	 *            Tells {@link SaveNote} whether the
 	 *            {@link DrawActivity} shall be closed after saving or not.
 	 * @param share
-	 *            Tells @see {@link SaveNote} whether to share the note after
+	 *            Tells {@link SaveNote} whether to share the note after
 	 *            saving or not.
-	 *
-	 * @author Jan Pretzel
 	 */
-	private void saveNote(final boolean finish, final boolean share) {
+	// Author: Jan Pretzel
+	protected final void saveNote(final boolean finish, final boolean share) {
 		if (!saveStateChanged) {
 			return;
 		}
@@ -469,36 +454,30 @@ public class DrawActivity extends Activity implements
 	}
 
 	/**
-	 * Shows the next @see {@link DrawView} by triggering an animated page turn.
+	 * Shows the next {@link DrawView} by triggering an animated page turn.
 	 * Modify this method for adding animations etc.
-	 *
-	 * @author Sebastian Ullrich
 	 */
+	// Author: Sebastian Ullrich
 	public final void showNextDrawView() {
 		showPage(PAGE_FORWARD);
 	}
 
 	/**
-	 * Shows the previous @see {@link DrawView} by triggering an animated page
+	 * Shows the previous {@link DrawView} by triggering an animated page
 	 * turn. Modify this method for adding animations etc.
-	 *
-	 * @author Sebastian Ullrich
 	 */
+	// Author: Sebastian Ullrich
 	public final void showPreviousDrawView() {
 		showPage(PAGE_BACKWARD);
 	}
 
 	/**
 	 * Identifier for at page forward flip.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private static final boolean PAGE_FORWARD = true;
 
 	/**
 	 * Identifier for at page backward flip.
-	 *
-	 * @author Sebastian Ullrich
 	 */
 	private static final boolean PAGE_BACKWARD = false;
 
@@ -508,13 +487,12 @@ public class DrawActivity extends Activity implements
 	 * we load the new displayed note.
 	 *
 	 * @param direction
-	 *            The page flip direction. Expects @see
-	 *            {@link DrawActivity#PAGE_FORWARD} or @see
+	 *            The page flip direction. Expects
+	 *            {@link DrawActivity#PAGE_FORWARD} or
 	 *            {@link DrawActivity#PAGE_BACKWARD}
-	 *
-	 * @author Sebastian Ullrich
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
+	// Author: Sebastian Ullrich
 	private void showPage(final boolean direction) {
 		final Paint tempPaint = ((DrawView) viewFlipper.getCurrentView())
 				.getPaint();
@@ -538,12 +516,11 @@ public class DrawActivity extends Activity implements
 	 * Will queue a toast message with the current page number.
 	 *
 	 * @param direction
-	 *            The page flip direction. Expects @see
-	 *            {@link DrawActivity#PAGE_FORWARD} or @see
+	 *            The page flip direction. Expects
+	 *            {@link DrawActivity#PAGE_FORWARD} or
 	 *            {@link DrawActivity#PAGE_BACKWARD}
-	 *
-	 * @author Sebastian Ullrich
 	 */
+	// Author: Sebastian Ullrich
 	private void showPageToast(final boolean direction) {
 		final int currentPage = viewFlipper.getDisplayedChild() + 1;
 		final int size = viewFlipper.getChildCount();
@@ -574,9 +551,8 @@ public class DrawActivity extends Activity implements
 	 * to check if there is an Activity to handle cropping first. If there is
 	 * one, we need to force the intent to use it, otherwise we risk to get
 	 * errors when coming from a camera Activity.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	private void cropImage() {
 		final Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setType("image/*");
@@ -588,7 +564,8 @@ public class DrawActivity extends Activity implements
 			Toast.makeText(this.getApplicationContext(),
 					"No crop application found.", Toast.LENGTH_SHORT).show();
 
-			// TODO: crop without user input
+			outputUri = pictureUri;
+			setPageBackground();
 			return;
 		}
 
@@ -626,6 +603,8 @@ public class DrawActivity extends Activity implements
 		}
 	}
 
+	// Author: Jan Pretzel
+	// Author: Sebastian Ullrich
 	@Override
 	public final void onActivityResult(final int requestCode,
 			final int resultCode, final Intent data) {
@@ -652,18 +631,7 @@ public class DrawActivity extends Activity implements
 		// crop result
 		case REQUEST_CROP:
 			if (resultCode == RESULT_OK) {
-				Bitmap bitmap = null;
-				try {
-					bitmap = MediaStore.Images.Media.getBitmap(
-							getContentResolver(), outputUri);
-					currentDrawView.setBackgroundBitmap(bitmap, true);
-				} catch (FileNotFoundException e) {
-					Log.e(Deepnotes.APP_NAME, "failed to get image.");
-				} catch (IOException e) {
-					Log.e(Deepnotes.APP_NAME, "failed to get image.");
-				}
-
-				saveStateChanged = true;
+				setPageBackground();
 			}
 
 			// delete temporary created files
@@ -690,6 +658,27 @@ public class DrawActivity extends Activity implements
 		}
 	}
 
+	/**
+	 * Sets the imported images as background for the currently displayed
+	 * {@link DrawView}.
+	 */
+	// Author: Jan Pretzel
+	private void setPageBackground() {
+		Bitmap bitmap = null;
+		try {
+			bitmap = MediaStore.Images.Media.getBitmap(
+					getContentResolver(), outputUri);
+			currentDrawView.setBackgroundBitmap(bitmap, true);
+		} catch (FileNotFoundException e) {
+			Log.e(Deepnotes.APP_NAME, "failed to get image.");
+		} catch (IOException e) {
+			Log.e(Deepnotes.APP_NAME, "failed to get image.");
+		}
+
+		saveStateChanged = true;
+	}
+
+	// Author: Sebastian Ullrich
 	@Override
 	public final boolean onKeyDown(final int keyCode, final KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -733,9 +722,8 @@ public class DrawActivity extends Activity implements
 	/**
 	 * Clears the cached note pages. Drawing cache is located in the internal
 	 * storage of the application, and cannot be read by other applications.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	private void clearDrawingCache() {
 		final File[] files = getCacheDir().listFiles();
 
@@ -750,9 +738,8 @@ public class DrawActivity extends Activity implements
 	 * Saves the currently displayed note to the drawing cache. Drawing cache is
 	 * located in the internal storage of the application, and cannot be read by
 	 * other applications.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	private void saveDrawingCache() {
 		if (currentDrawView.isBgModified()) {
 			String cachePath = getCacheDir().toString();
@@ -772,9 +759,8 @@ public class DrawActivity extends Activity implements
 	 * Will be called before the Activity is destroyed. We will need to clear
 	 * the drawing cache here and make sure the Bitmaps can get garbage
 	 * collected.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	@Override
 	protected final void onDestroy() {
 		clearDrawingCache();
@@ -792,14 +778,13 @@ public class DrawActivity extends Activity implements
 	}
 
 	/**
-	 * When we listen to a color change of an @see {@link DrawView} we need to
-	 * adjust @see {@link DrawActivity#currentColor}.
+	 * When we listen to a color change of an {@link DrawView} we need to
+	 * adjust {@link DrawActivity#currentColor}.
 	 *
 	 * @param color
-	 *            The new @see {@link DrawActivity#currentColor}.
-	 *
-	 * @author Sebastian Ullrich
+	 *            The new {@link DrawActivity#currentColor}.
 	 */
+	// Author: Sebastian Ullrich
 	@Override
 	public final void colorChanged(final int color) {
 		setCurrentColor(color);
@@ -807,69 +792,63 @@ public class DrawActivity extends Activity implements
 
 	/**
 	 * When a {@link DrawView} changes in terms of background or foreground we
-	 * need to set @see {@link DrawActivity#saveStateChanged} to true.
-	 *
-	 * @author Jan Pretzel
+	 * need to set {@link DrawActivity#saveStateChanged} to true.
 	 */
+	// Author: Jan Pretzel
 	@Override
 	public final void changed() {
 		saveStateChanged = true;
 	}
 
 	/**
-	 * When a @see {@link DrawView} undid something we need to call @see
-	 * {@link DrawActivity#reloadNotePage(int)} for the currently displayed @see
+	 * When a {@link DrawView} undid something we need to call
+	 * {@link DrawActivity#reloadNotePage(int)} for the currently displayed
 	 * {@link DrawView}.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	@Override
 	public final void undone() {
 		reloadNotePage(viewFlipper.getDisplayedChild());
 	}
 
 	/**
-	 * Getter for @see {@link DrawActivity#currentPaint}.
+	 * Getter for {@link DrawActivity#currentPaint}.
 	 *
-	 * @return The @see {@link DrawActivity#currentPaint}.
-	 *
-	 * @author Sebastian Ullrich
+	 * @return The {@link DrawActivity#currentPaint}.
 	 */
+	// Author: Sebastian Ullrich
 	public final int getCurrentPaint() {
 		return currentPaint;
 	}
 
 	/**
-	 * Setter for @see {@link DrawActivity#currentPaint}.
+	 * Setter for {@link DrawActivity#currentPaint}.
 	 *
 	 * @param newPaint
-	 *            The new @see {@link DrawActivity#currentPaint}.
-	 *
-	 * @author Sebastian Ullrich
+	 *            The new {@link DrawActivity#currentPaint}.
 	 */
+	// Author: Sebastian Ullrich
 	public final void setCurrentPaint(final int newPaint) {
 		this.currentPaint = newPaint;
 	}
 
 	/**
-	 * Getter for @see {@link DrawActivity#currentColor}.
+	 * Getter for {@link DrawActivity#currentColor}.
 	 *
-	 * @return The new @see {@link DrawActivity#currentColor}.
-	 *
-	 * @author Sebastian Ullrich
+	 * @return The new {@link DrawActivity#currentColor}.
 	 */
+	// Author: Sebastian Ullrich
 	public final int getCurrentColor() {
 		return currentColor;
 	}
 
 	/**
-	 * Setter for @see {@link DrawActivity#currentColor}.
+	 * Setter for {@link DrawActivity#currentColor}.
 	 *
 	 * @param newCurrentColor
-	 *            The new @see {@link DrawActivity#currentColor}.
-	 *
-	 * @author Sebastian Ullrich
+	 *            The new {@link DrawActivity#currentColor}.
 	 */
+	// Author: Sebastian Ullrich
 	public final void setCurrentColor(final int newCurrentColor) {
 		this.currentColor = newCurrentColor;
 		currentDrawView.setPaintColor(newCurrentColor);
@@ -880,7 +859,12 @@ public class DrawActivity extends Activity implements
 	 * While working this task will show a ProgressDialog telling the user that
 	 * it is saving at the moment. To write the files to the storage, it uses
 	 * {@link IOManager#writeFile(Bitmap, String, android.graphics.Bitmap.CompressFormat, int)}
-	 * .
+	 * . Thumbnails will be saved in a subfolder called 'thumbnail'. Fore- and
+	 * backgrounds will be saved to a subfolder with the
+	 * {@link DrawActivity#fileName} as name. Foregrounds will be saved as
+	 * PNG-files to enable transparency and names will be numbered from 0 - 3.
+	 * Backgrounds will be saved as JPG-files and have the same name as the
+	 * foreground with 'background_' as prefix.
 	 *
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
@@ -888,31 +872,23 @@ public class DrawActivity extends Activity implements
 
 		/**
 		 * The ProgressDialog that will be shown while saving.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final ProgressDialog dialog;
 
 		/**
-		 * Identifier that tells us whether to finish @see {@link DrawActivity}
+		 * Identifier that tells us whether to finish {@link DrawActivity}
 		 * after saving or not.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final boolean finish;
 
 		/**
 		 * Identifier that tells us whether to share the note after saving or
 		 * not.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final boolean share;
 
 		/**
-		 * The @see {@link DrawActivity} that instantiated this class.
-		 *
-		 * @author Jan Pretzel
+		 * The {@link DrawActivity} that instantiated this class.
 		 */
 		private final DrawActivity activity;
 
@@ -920,20 +896,25 @@ public class DrawActivity extends Activity implements
 		 * Constructor.
 		 *
 		 * @param dActivity
-		 *            The @see {@link DrawActivity} that instantiated this
+		 *            The {@link DrawActivity} that instantiated this
 		 *            class.
 		 * @param finActivity
-		 *            Identifier that tells us whether to finish @see
+		 *            Identifier that tells us whether to finish
 		 *            {@link DrawActivity} after saving or not.
 		 * @param shareActivity
 		 *            Identifier that tells us whether to share the note after
 		 *            saving or not.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		public SaveNote(final DrawActivity dActivity,
 				final boolean finActivity, final boolean shareActivity) {
 			super();
+
+			if (dActivity == null) {
+				Log.e(Deepnotes.APP_NAME, "dActivity must not be null");
+				throw new IllegalArgumentException();
+			}
+
 			dialog = new ProgressDialog(dActivity);
 			this.finish = finActivity;
 			this.share = shareActivity;
@@ -949,9 +930,8 @@ public class DrawActivity extends Activity implements
 		 *            all.
 		 *
 		 * @return Since the return values type is Void, null will be returned.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		@Override
 		protected Void doInBackground(final Void... params) {
 
@@ -1032,9 +1012,8 @@ public class DrawActivity extends Activity implements
 
 		/**
 		 * Before execution starts, the ProgressDialog will be shown.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		@Override
 		protected void onPreExecute() {
 			dialog.setMessage(activity.getString(R.string.saving_note));
@@ -1049,9 +1028,8 @@ public class DrawActivity extends Activity implements
 		 * @param result
 		 *            Since the return values type is Void, null will be
 		 *            returned.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		@Override
 		protected void onPostExecute(final Void result) {
 			if (dialog.isShowing()) {
@@ -1083,9 +1061,8 @@ public class DrawActivity extends Activity implements
 		 * note (empty or not) will be scaled by 0.5 to save memory.
 		 *
 		 * @return The thumbnail as Bitmap.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		private Bitmap createThumbnail() {
 			// get first page of the note
 			final DrawView drawView = (DrawView) activity.viewFlipper

@@ -1,3 +1,10 @@
+/*
+ * Deepnotes - Note Application for Android
+ *
+ * Copyright (C) 2011 Sebastian Ullrich & Jan Pretzel
+ * http://www.deepsource.de
+ */
+
 package de.deepsource.deepnotes.activities;
 
 import java.io.File;
@@ -7,10 +14,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -37,29 +44,24 @@ import de.deepsource.deepnotes.utilities.IOManager;
  *
  * @author Jan Pretzel (jan.pretzel@deepsource.de)
  */
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
 
     /**
 	 * Contains all Note objects for the stored notes.
-	 *
-	 * @author Jan Pretzel
 	 */
 	private List<Note> notes;
 
 	/**
 	 * The Bridge between the GridView and the data (notes).
-	 *
-	 * @author Jan Pretzel
 	 */
 	private NotesAdapter notesAdapter;
 
 	/**
 	 * The maximum number of notes that can be created.
-	 *
-	 * @author Jan Pretzel
 	 */
 	private static final int MAX_NOTES = 50;
 
+	// Author: Jan Pretzel
 	@Override
     public final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,9 +100,8 @@ public class MainActivity extends FragmentActivity {
 
 	/**
 	 * Loads all saved notes.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	public final void loadNotes() {
 		final File notePath = new File(getFilesDir() + Deepnotes.SAVE_THUMBNAIL);
 
@@ -120,6 +121,7 @@ public class MainActivity extends FragmentActivity {
 		}
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	public final boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
@@ -130,6 +132,7 @@ public class MainActivity extends FragmentActivity {
 		return true;
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	public final boolean onOptionsItemSelected(final MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -163,6 +166,7 @@ public class MainActivity extends FragmentActivity {
 		return handled;
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	public final void onCreateContextMenu(final ContextMenu menu, final View view,
 			final ContextMenuInfo menuInfo) {
@@ -173,6 +177,7 @@ public class MainActivity extends FragmentActivity {
 		menu.setHeaderTitle(R.string.note);
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	public final boolean onContextItemSelected(final MenuItem item) {
 		super.onContextItemSelected(item);
@@ -211,16 +216,16 @@ public class MainActivity extends FragmentActivity {
 		return handled;
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	protected final void onResume() {
 		super.onResume();
 		loadNotes();
 	}
 
+	// Author: Jan Pretzel
 	@Override
 	protected final void onPause() {
-		super.onPause();
-
 		// recycle notes to free up memory
 		final int count = notes.size();
 		for (int i = 0; i < count; i++) {
@@ -229,6 +234,8 @@ public class MainActivity extends FragmentActivity {
 
 		// and get rid of references
 		notesAdapter.clear();
+
+		super.onPause();
 	}
 
 	/**
@@ -250,15 +257,15 @@ public class MainActivity extends FragmentActivity {
 		 * @param resource The resource id of the layout to be used.
 		 * @param textViewResId The resource id of the TextView to be used.
 		 * @param objects The data being used to feed the AdapterView.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		public NotesAdapter(final Context context, final int resource,
 				final int textViewResId, final List<Note> objects) {
 			super(context, resource, textViewResId, objects);
 			this.layoutRes = resource;
 		}
 
+		// Author: Jan Pretzel
 		@Override
 		public View getView(final int position, final View convertView, final ViewGroup parent) {
 			super.getView(position, convertView, parent);

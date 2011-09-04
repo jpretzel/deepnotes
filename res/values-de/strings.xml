@@ -47,6 +47,7 @@
     <string name="choose_image">Bild auswählen</string>
     <string name="max_notes">Du hast die maximale Anzahl an Notizen erreicht.</string>
     <string name="delete_exception">Es ist etwas schief gelaufen, bitte versuche es noch einmal.</string>
+    <string name="share_dialog">Teilen wird vorbereiten…</string>
 </resources>
 
 

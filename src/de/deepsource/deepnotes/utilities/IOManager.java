@@ -1,3 +1,10 @@
+/*
+ * Deepnotes - Note Application for Android
+ *
+ * Copyright (C) 2011 Sebastian Ullrich & Jan Pretzel
+ * http://www.deepsource.de
+ */
+
 package de.deepsource.deepnotes.utilities;
 
 import java.io.File;
@@ -33,9 +40,8 @@ public final class IOManager {
 
 	/**
 	 * Utility classes should not have public or default constructor.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	private IOManager() {
 		// empty
 	}
@@ -50,9 +56,8 @@ public final class IOManager {
 	 *
 	 * @return Returns true if there where no problems deleting all the notes
 	 *         files, else returns false.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	public static boolean deleteNote(final Context context, final String noteName) {
 		if (noteName == null) {
 			Log.e(Deepnotes.APP_NAME, "noteName must not be null");
@@ -102,15 +107,14 @@ public final class IOManager {
 
 	/**
 	 * Initiates the cache saving, that is needed for sharing a note.
-	 * To do so an @see {@link WriteShareCache} Object is created.
+	 * To do so an {@link WriteShareCache} Object is created.
 	 *
 	 * @param activity
 	 *            The Activity, that called the method.
 	 * @param noteName
 	 *            The name of the note that should be shared.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	public static void shareNote(final Activity activity, final String noteName) {
 		if (activity == null) {
 			Log.e(Deepnotes.APP_NAME, "activity must not be null");
@@ -126,7 +130,12 @@ public final class IOManager {
 	}
 
 	/**
-	 * Writes the cache, that is needed for sharing a note.
+	 * Writes the cache, that is needed for sharing a note. Both fore- and
+	 * background will be saved in one single file to the external storage, so
+	 * that other applications can access them to make sharing possible. The
+	 * Pages will be saved as JPG-Files numbered from 0 - 3. To write the files
+	 * to the storage, it uses
+	 * {@link IOManager#writeFile(Bitmap, String, android.graphics.Bitmap.CompressFormat, int)}.
 	 *
 	 * @author Jan Pretzel (jan.pretzel@deepsource.de)
 	 */
@@ -134,22 +143,16 @@ public final class IOManager {
 
 		/**
 		 * The ProgressDialog, that will be shown while writing the cache.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final ProgressDialog dialog;
 
 		/**
 		 * The Activity, that initiated the cache saving.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final Activity activity;
 
 		/**
 		 * Stores the Uri-objects for the cached files, and will be given to the Intent.
-		 *
-		 * @author Jan Pretzel
 		 */
 		private final ArrayList<Uri> uris;
 
@@ -157,16 +160,22 @@ public final class IOManager {
 		 * Constructor.
 		 *
 		 * @param initiater The Activity, that initiated the cache saving.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		public WriteShareCache(final Activity initiater) {
 			super();
+
+			if (initiater == null) {
+				Log.e(Deepnotes.APP_NAME, "initiater must not be null");
+				throw new IllegalArgumentException();
+			}
+
 			dialog = new ProgressDialog(initiater);
 			this.activity = initiater;
 			uris = new ArrayList<Uri>();
 		}
 
+		// Author: Jan Pretzel
 		@Override
 		protected Void doInBackground(final String... params) {
 			// check cache before writing new files
@@ -268,11 +277,10 @@ public final class IOManager {
 
 		/**
 		 * Checks if the cache folder has stored more than 2MB, if that's the
-		 * case it will call @see {@link IOManager#clearCache()} to clear the
+		 * case it will call {@link IOManager#clearCache()} to clear the
 		 * cache.
-		 *
-		 * @author Jan Pretzel
 		 */
+		// Author: Jan Pretzel
 		private void checkCache() {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 				final File cachePath = new File(
@@ -296,14 +304,15 @@ public final class IOManager {
 			}
 		}
 
+		// Author: Jan Pretzel
 		@Override
 		protected void onPreExecute() {
-			// TODO localized text
-			dialog.setMessage("prepare yourself");
+			dialog.setMessage(activity.getString(R.string.share_dialog));
 			dialog.show();
 			super.onPreExecute();
 		}
 
+		// Author: Jan Pretzel
 		@Override
 		protected void onPostExecute(final Void result) {
 			if (dialog.isShowing()) {
@@ -322,9 +331,8 @@ public final class IOManager {
 
 	/**
 	 * Clears the external cache.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	public static void clearCache() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			final File cachePath = new File(
@@ -357,11 +365,25 @@ public final class IOManager {
 	 *            The format the file will have.
 	 * @param quality
 	 *            The quality the image will have.
-	 *
-	 * @author Jan Pretzel
 	 */
+	// Author: Jan Pretzel
 	public static void writeFile(final Bitmap bitmap, final String file,
 			final Bitmap.CompressFormat format, final int quality) {
+		if (bitmap == null) {
+			Log.e(Deepnotes.APP_NAME, "bitmap must not be null");
+			throw new IllegalArgumentException();
+		}
+
+		if (file == null) {
+			Log.e(Deepnotes.APP_NAME, "file must not be null");
+			throw new IllegalArgumentException();
+		}
+
+		if (format == null) {
+			Log.e(Deepnotes.APP_NAME, "format must not be null");
+			throw new IllegalArgumentException();
+		}
+
 		FileOutputStream fos = null;
 
 		try {
