@@ -15,7 +15,7 @@
     <string name="color_yellow">Gelb</string>
     <string name="import_image">Hintergrund importieren</string>
     <string name="import_from_camera">von Kamera</string>
-    <string name="import_from_gallery">aus Gallerie</string>
+    <string name="import_from_gallery">aus Galerie</string>
     <string name="remove_note">Notiz entfernen</string>
     <string name="send_note">Notiz teilen</string>
     <string name="save_dialog">Die Note wurde geändert. Möchtest Du sie speichern?</string>
